@@ -112,11 +112,11 @@ This is the eShopLite Application using the **DeepSeek-R1 Reasoning Model**:
 
 The Aspire Dashboard to check the running services:
 
-![Aspire Dashboard to check the running services](./images/10AzureResources.png)
+![Aspire Dashboard to check the running services](./images/15AspireDashboard.png)
 
 The Azure Resource Group with all the deployed services:
 
-![Azure Resource Group with all the deployed services](./images/15AspireDashboard.png)
+![Azure Resource Group with all the deployed services](./images/10AzureResources.png)
 
 
 ## Resources
