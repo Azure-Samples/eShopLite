@@ -31,7 +31,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
     azd up
     ```
 
-    It will prompt you to provide an `azd` environment name (like "eShopLite"), select a subscription from your Azure account, and select a [location where OpenAI the models gpt-4o-mini and ADA-002 are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all) (like "eastus2").
+    It will prompt you to provide an `azd` environment name (like "eShopLite"), select a subscription from your Azure account, and select a [location where OpenAI the models gpt-4.1-mini and ADA-002 are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all) (like "eastus2").
 
 1. When `azd` has finished deploying, you'll see the list of resources created in Azure and a set of URIs in the command output.
 
@@ -195,9 +195,9 @@ Check the [Video Resources](#resources) for a step-by-step on how to run this pr
 
 > **Note:** Working with .NET Aspire in GitHub Codespaces is not fully supported yet. As a developer you need to perform a lot of manual steps to access the .NET Aspire portal, like changing ports to public, copy the access token and more. The .NET Aspire version 9.1 will improve the whole developer experience. We will update these steps when the version 9.1 is released.
 
-### Local development using an existing gpt-4o-mini and ada-002 model
+### Local development using an existing gpt-4.1-mini and ada-002 model
 
-In order to use existing models: gpt-4o-mini and text-embedding-ada-002, you need to define the specific connection string in the `Products` project.
+In order to use existing models: gpt-4.1-mini and text-embedding-ada-002, you need to define the specific connection string in the `Products` project.
 
 - Configure the Application: Add user secrets in Products project to connect to Azure OpenAI services.
 
@@ -221,7 +221,7 @@ However, Azure Container Registry has a fixed cost per registry per day.
 
 You can try the [Azure pricing calculator](https://azure.com/e/2176802ea14941e4959eae8ad335aeb5) for the resources:
 
-- Azure OpenAI Service: S0 tier, gpt-4o-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
+- Azure OpenAI Service: S0 tier, gpt-4.1-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
 - Azure Container App: Consumption tier with 0.5 CPU, 1GiB memory/storage. Pricing is based on resource allocation, and each month allows for a certain amount of free usage. [Pricing](https://azure.microsoft.com/pricing/details/container-apps/)
 - Azure Container Registry: Basic tier. [Pricing](https://azure.microsoft.com/pricing/details/container-registry/)
 - Log analytics: Pay-as-you-go tier. Costs based on data ingested. [Pricing](https://azure.microsoft.com/pricing/details/monitor/)

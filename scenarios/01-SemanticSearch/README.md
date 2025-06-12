@@ -14,7 +14,7 @@
   - [Run locally](#run-locally)
   - [Run the solution](#run-the-solution)
   - [.NET Aspire Azure Resources creation](#net-aspire-azure-resources-creation)
-  - [Local dev using an existing model](#local-development-using-an-existing-gpt-4o-model)
+  - [Local dev using an existing model](#local-development-using-an-existing-gpt-41-mini-and-ada-002-model)
   - [Telemetry with .NET Aspire and Azure Application Insights](#telemetry-with-net-aspire-and-azure-application-insights)
 - [Resources](#resources)
 - [Video Recordings](#video-recordings)
@@ -69,7 +69,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
     azd up
     ```
 
-    It will prompt you to provide an `azd` environment name (like "eShopLite"), select a subscription from your Azure account, and select a [location where OpenAI the models gpt-4o-mini and ADA-002 are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all) (like "eastus2").
+    It will prompt you to provide an `azd` environment name (like "eShopLite"), select a subscription from your Azure account, and select a [location where OpenAI the models gpt-4.1-mini and ADA-002 are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all) (like "eastus2").
 
 1. When `azd` has finished deploying, you'll see the list of resources created in Azure and a set of URIs in the command output.
 
@@ -168,9 +168,9 @@ Consider the following example for the *appsettings.json* file in the eShopAppHo
 
 Check [.NET Aspire Azure hosting integrations](https://learn.microsoft.com/dotnet/aspire/azure/local-provisioning#net-aspire-azure-hosting-integrations) for more information on how .NET Aspire create the necessary cloud resources for local development.
 
-### Local development using an existing gpt-4o-mini and ada-002 model
+### Local development using an existing gpt-4.1-mini and ada-002 model
 
-In order to use existing models: gpt-4o-mini and text-embedding-ada-002, you need to define the specific connection string in the `Products` project.
+In order to use existing models: gpt-4.1-mini and text-embedding-ada-002, you need to define the specific connection string in the `Products` project.
 
 Add a user secret with the configuration:
 
@@ -182,7 +182,7 @@ dotnet user-secrets set "ConnectionStrings:openaidev" "Endpoint=https://<endpoin
 
 This Azure OpenAI service must contain:
 
-- a `gpt-4o-mini` model named **gpt-4o-mini**
+- a `gpt-4.1-mini` model named **gpt-4.1-mini**
 - a `text-embedding-ada-002` model named **text-embedding-ada-002**
 
 To use these services, edit the `program.cs`, and change this:
@@ -205,7 +205,7 @@ builder.AddAzureOpenAIClient(azureOpenAiClientName);
 
 The eShopLite solution leverages the Aspire Dashboard and Azure Application Insights to provide comprehensive telemetry and monitoring capabilities
 
-The **.NET Aspire Dashboard** offers a centralized view of the application's performance, health, and usage metrics. It integrates seamlessly with the Azure OpenAI services, allowing developers to monitor the performance of the `gpt-4o-mini` and `text-embedding-ada-002` models. The dashboard provides real-time insights into the application's behavior, helping to identify and resolve issues quickly.
+The **.NET Aspire Dashboard** offers a centralized view of the application's performance, health, and usage metrics. It integrates seamlessly with the Azure OpenAI services, allowing developers to monitor the performance of the `gpt-4.1-mini` and `text-embedding-ada-002` models. The dashboard provides real-time insights into the application's behavior, helping to identify and resolve issues quickly.
 
 ![Aspire Dashboard](./images/40AspireDashboard.png)
 
@@ -225,7 +225,7 @@ However, Azure Container Registry has a fixed cost per registry per day.
 
 You can try the [Azure pricing calculator](https://azure.com/e/2176802ea14941e4959eae8ad335aeb5) for the resources:
 
-- Azure OpenAI Service: S0 tier, gpt-4o-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
+- Azure OpenAI Service: S0 tier, gpt-4.1-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
 - Azure Container App: Consumption tier with 0.5 CPU, 1GiB memory/storage. Pricing is based on resource allocation, and each month allows for a certain amount of free usage. [Pricing](https://azure.microsoft.com/pricing/details/container-apps/)
 - Azure Container Registry: Basic tier. [Pricing](https://azure.microsoft.com/pricing/details/container-registry/)
 - Log analytics: Pay-as-you-go tier. Costs based on data ingested. [Pricing](https://azure.microsoft.com/pricing/details/monitor/)

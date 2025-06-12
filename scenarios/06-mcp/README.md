@@ -96,7 +96,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
     azd up
     ```
 
-    It will prompt you to provide an `azd` environment name (like "eShopLite-MCP"), select a subscription from your Azure account, and select a [location where the necessary models, like gpt-4o-mini and ADA-002 are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all), a sample region can be "eastus2".
+    It will prompt you to provide an `azd` environment name (like "eShopLite-MCP"), select a subscription from your Azure account, and select a [location where the necessary models, like gpt-4.1-mini and ADA-002 are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all), a sample region can be "eastus2".
 
 3. When `azd` has finished deploying, you'll see the list of resources created in Azure and a set of URIs in the command output.
 
@@ -212,7 +212,7 @@ The eShopLite MCP solution leverages .NET Aspire to create and manage the necess
 
 ### Local development using an existing model
 
-To use existing AI models (like gpt-4o-mini) for local development, you can configure the connection string using user secrets:
+To use existing AI models (like gpt-4.1-mini) for local development, you can configure the connection string using user secrets:
 
 ```bash
 cd src/Products
@@ -239,7 +239,7 @@ For **Azure OpenAI Services**, pricing varies per region and usage, so it isn't 
 
 Key Azure resources used in this implementation:
 
-- Azure OpenAI Service: S0 tier, gpt-4o-mini model. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
+- Azure OpenAI Service: S0 tier, gpt-4.1-mini model. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
 - Azure Container App: Consumption tier with 0.5 CPU, 1GiB memory/storage. [Pricing](https://azure.microsoft.com/pricing/details/container-apps/)
 - Azure Application Insights: Pay-as-you-go tier. [Pricing](https://azure.microsoft.com/pricing/details/monitor/)
 

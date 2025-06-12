@@ -16,7 +16,7 @@ The reference application is part of the **[Generative AI for Beginners .NET](ht
   - [Run locally](#run-locally)
   - [Run the solution](#run-the-solution)
   - [.NET Aspire Azure Resources creation](#net-aspire-azure-resources-creation)
-  - [Local dev using an existing model](#local-development-using-an-existing-gpt-4o-model)
+  - [Local dev using an existing model](#local-development-using-existing-models)
   - [Telemetry with .NET Aspire and Azure Application Insights](#telemetry-with-net-aspire-and-azure-application-insights)
 - [Resources](#resources)
 - [Video Recordings](#video-recordings)
@@ -132,9 +132,9 @@ Follow these steps to run the project, locally or in CodeSpaces:
 
 ### Local development using existing models
 
-In order to use existing models: deepseek-r1, gpt-4o-mini and text-embedding-ada-002, you need to define the specific connection string in the `Products` project.
+In order to use existing models: deepseek-r1, gpt-4.1-mini and text-embedding-ada-002, you need to define the specific connection string in the `Products` project.
 
-Add a user secret named `ConnectionStrings:openai` with the configuration for the Azure OpenAI service that contains the **gpt-4o-mini** and **text-embedding-ada-002** models, and a user secret named `ConnectionStrings:deepseek-r1` with the configuration for the Azure OpenAI service that contains the **DeepSeek-R1** model.
+Add a user secret named `ConnectionStrings:openai` with the configuration for the Azure OpenAI service that contains the **gpt-4.1-mini** and **text-embedding-ada-002** models, and a user secret named `ConnectionStrings:deepseek-r1` with the configuration for the Azure OpenAI service that contains the **DeepSeek-R1** model.
 
 ```bash
 cd src/Products
@@ -147,7 +147,7 @@ dotnet user-secrets set "ConnectionStrings:deepseek-r1" "Endpoint=https://<endpo
 This Azure OpenAI services must contain:
 
 - a `deepseek-r1` model named **DeepSeek-R1**
-- a `gpt-4o-mini` model named **gpt-4o-mini**
+- a `gpt-4.1-mini` model named **gpt-4.1-mini**
 - a `text-embedding-ada-002` model named **text-embedding-ada-002**
 
 To use these services, the `program.cs` will create a client in this way:
@@ -172,7 +172,7 @@ The implementation showcases how modern AI models like DeepSeek-R1 can significa
 
 The eShopLite solution leverages the Aspire Dashboard and Azure Application Insights to provide comprehensive telemetry and monitoring capabilities
 
-The **.NET Aspire Dashboard** offers a centralized view of the application's performance, health, and usage metrics. It integrates seamlessly with the Azure OpenAI services, allowing developers to monitor the performance of the `gpt-4o-mini` and `text-embedding-ada-002` models. The dashboard provides real-time insights into the application's behavior, helping to identify and resolve issues quickly.
+The **.NET Aspire Dashboard** offers a centralized view of the application's performance, health, and usage metrics. It integrates seamlessly with the Azure OpenAI services, allowing developers to monitor the performance of the `gpt-4.1-mini` and `text-embedding-ada-002` models. The dashboard provides real-time insights into the application's behavior, helping to identify and resolve issues quickly.
 
 ![Aspire Dashboard](./images/40AspireDashboard.png)
 
@@ -192,7 +192,7 @@ However, Azure Container Registry has a fixed cost per registry per day.
 
 You can try the [Azure pricing calculator](https://azure.com/e/2176802ea14941e4959eae8ad335aeb5) for the resources:
 
-- Azure OpenAI Service: S0 tier, gpt-4o-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
+- Azure OpenAI Service: S0 tier, gpt-4.1-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
 - Azure Container App: Consumption tier with 0.5 CPU, 1GiB memory/storage. Pricing is based on resource allocation, and each month allows for a certain amount of free usage. [Pricing](https://azure.microsoft.com/pricing/details/container-apps/)
 - Azure Container Registry: Basic tier. [Pricing](https://azure.microsoft.com/pricing/details/container-registry/)
 - Log analytics: Pay-as-you-go tier. Costs based on data ingested. [Pricing](https://azure.microsoft.com/pricing/details/monitor/)
