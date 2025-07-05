@@ -1,0 +1,189 @@
+@page "/cart"
+@using CartEntities
+@using Store.Services
+@using Store.Components.Cart
+@inject ICartService CartService
+@inject NavigationManager Navigation
+@attribute [StreamRendering(true)]
+@rendermode InteractiveServer
+
+<PageTitle>Shopping Cart</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Shopping Cart</h1>
+    <button class="btn btn-outline-secondary" @onclick="ContinueShopping">
+        <i class="bi bi-arrow-left me-1"></i>Continue Shopping
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Loading your cart...</p>
+    </div>
+}
+else if (shoppingCart.Items.Any())
+{
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Cart Items (@shoppingCart.ItemCount items)</h5>
+                </div>
+                <div class="card-body">
+                    @foreach (var item in shoppingCart.Items)
+                    {
+                        <div class="row align-items-center mb-3 pb-3 border-bottom">
+                            <div class="col-md-2">
+                                <img src="https://raw.githubusercontent.com/MicrosoftDocs/mslearn-dotnet-cloudnative/main/dotnet-docker/Products/wwwroot/images/@item.ImageUrl" 
+                                     alt="@item.Name" class="img-fluid rounded" style="max-height: 100px;" />
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="mb-1">@item.Name</h6>
+                                <p class="text-muted mb-0">@item.Description</p>
+                                <small class="text-success">In Stock</small>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="fw-bold">@item.Price.ToString("C")</span>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="d-flex align-items-center">
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => DecreaseQuantity(item.ProductId)">-</button>
+                                    <span class="mx-2 fw-bold">@item.Quantity</span>
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => IncreaseQuantity(item.ProductId)">+</button>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <span class="fw-bold">@item.Total.ToString("C")</span>
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveItem(item.ProductId)" title="Remove item">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <button class="btn btn-outline-warning" @onclick="ClearCart">
+                    <i class="bi bi-trash me-1"></i>Clear Cart
+                </button>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <CartSummary cart="shoppingCart" />
+                    <div class="d-grid mt-3">
+                        <button class="btn btn-primary btn-lg" @onclick="ProceedToCheckout">
+                            <i class="bi bi-credit-card me-1"></i>Proceed to Checkout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="bi bi-cart-x display-1 text-muted"></i>
+        </div>
+        <h3 class="text-muted">Your cart is empty</h3>
+        <p class="text-muted">Looks like you haven't added any items to your cart yet.</p>
+        <button class="btn btn-primary" @onclick="ContinueShopping">
+            <i class="bi bi-bag me-1"></i>Start Shopping
+        </button>
+    </div>
+}
+
+@code {
+    private CartEntities.Cart shoppingCart = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initial load - this will be empty during server-side rendering
+        await LoadCart();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Reload cart after client-side rendering is available
+            await LoadCart();
+            StateHasChanged();
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task LoadCart()
+    {
+        try
+        {
+            isLoading = true;
+            shoppingCart = await CartService.GetCartAsync();
+        }
+        catch (Exception)
+        {
+            shoppingCart = new CartEntities.Cart();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task IncreaseQuantity(int productId)
+    {
+        var item = shoppingCart.Items.FirstOrDefault(i => i.ProductId == productId);
+        if (item != null)
+        {
+            await CartService.UpdateQuantityAsync(productId, item.Quantity + 1);
+            await LoadCart();
+        }
+    }
+
+    private async Task DecreaseQuantity(int productId)
+    {
+        var item = shoppingCart.Items.FirstOrDefault(i => i.ProductId == productId);
+        if (item != null && item.Quantity > 1)
+        {
+            await CartService.UpdateQuantityAsync(productId, item.Quantity - 1);
+            await LoadCart();
+        }
+    }
+
+    private async Task RemoveItem(int productId)
+    {
+        await CartService.RemoveFromCartAsync(productId);
+        await LoadCart();
+    }
+
+    private async Task ClearCart()
+    {
+        await CartService.ClearCartAsync();
+        await LoadCart();
+    }
+
+    private void ContinueShopping()
+    {
+        Navigation.NavigateTo("/products");
+    }
+
+    private void ProceedToCheckout()
+    {
+        Navigation.NavigateTo("/checkout");
+    }
+}

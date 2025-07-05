@@ -1,6 +1,7 @@
 ﻿@page "/search"
+@using Store.Services
 
-@inject Store.Services.ProductService ProductService
+@inject IProductService ProductService
 @inject IConfiguration Configuration
 @attribute [StreamRendering(true)]
 @rendermode InteractiveServer

@@ -1,8 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using Store.Components.Cart
+@inherits LayoutComponentBase
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        <NavMenu OnToggleCart="ToggleCart" />
     </div>
 
     <main>
@@ -16,8 +17,35 @@
     </main>
 </div>
 
+<CartOffcanvas IsVisible="isCartVisible" IsVisibleChanged="OnCartVisibilityChanged" OnCartUpdated="OnCartUpdated" />
+
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private bool isCartVisible = false;
+
+    private Task ToggleCart()
+    {
+        isCartVisible = !isCartVisible;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnCartVisibilityChanged(bool visible)
+    {
+        isCartVisible = visible;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnCartUpdated()
+    {
+        // This can be used to refresh cart count or show notifications
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}
