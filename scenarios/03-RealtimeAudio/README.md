@@ -215,3 +215,37 @@ You may want to consider additional security measures, such as:
 ## Video Recordings
 
 - [eShopLite - Real-time Audio Chat Overview](https://learn.microsoft.com/shows/generative-ai-for-beginners-dotnet/practical-samples-eshoplite-with-real-time-audio)
+
+## Want to know more?
+
+For detailed technical documentation, real-time audio implementation guides, and architecture insights, visit our comprehensive documentation:
+
+📚 **[Detailed Documentation](./docs/README.md)** - Complete technical documentation for this scenario
+
+### What you'll find in the docs:
+- 🎤 **Real-time Audio Guide** - GPT-4o Realtime API integration and setup
+- 🏗️ **Dual Frontend Architecture** - Traditional and audio chat interfaces
+- 🤖 **AI Integration Deep Dive** - Multiple Azure OpenAI model coordination
+- 🔊 **Audio Processing** - Voice input/output and streaming optimization
+- 📱 **User Experience Design** - Conversational UI patterns and accessibility
+- ⚙️ **Configuration & Deployment** - Multi-service setup and monitoring
+- 🎯 **Product Context Integration** - AI-driven product recommendations via voice
+
+Perfect for developers building conversational AI experiences or implementing voice-first e-commerce interfaces.
+
+## Want to know more?
+
+For detailed technical documentation, real-time audio implementation guides, and architecture insights, visit our comprehensive documentation:
+
+📚 **[Detailed Documentation](./docs/README.md)** - Complete technical documentation for this scenario
+
+### What you'll find in the docs:
+- 🎤 **Real-time Audio Guide** - GPT-4o Realtime API integration and setup
+- 🏗️ **Dual Frontend Architecture** - Traditional and audio chat interfaces
+- 🤖 **AI Integration Deep Dive** - Multiple Azure OpenAI model coordination
+- 🔊 **Audio Processing** - Voice input/output and streaming optimization
+- 📱 **User Experience Design** - Conversational UI patterns and accessibility
+- ⚙️ **Configuration & Deployment** - Multi-service setup and monitoring
+- 🎯 **Product Context Integration** - AI-driven product recommendations via voice
+
+Perfect for developers building conversational AI experiences or implementing voice-first e-commerce interfaces.

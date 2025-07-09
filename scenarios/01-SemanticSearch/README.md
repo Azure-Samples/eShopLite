@@ -252,3 +252,20 @@ You may want to consider additional security measures, such as:
 ### Video Recordings
 
 [![Run eShopLite Semantic Search in Minutes with .NET Aspire & GitHub Codespaces 🚀](./images/90ytrunfromcodespaces.png)](https://youtu.be/T9HwjVIDPAE)
+
+## Want to know more?
+
+For detailed technical documentation, architecture insights, and implementation guides, visit our comprehensive documentation:
+
+📚 **[Detailed Documentation](./docs/README.md)** - Complete technical documentation for this scenario
+
+### What you'll find in the docs:
+- 🏗️ **Architecture Deep Dive** - Service interactions and data flow
+- 🤖 **AI Integration Guide** - Azure OpenAI setup and configuration  
+- 🔍 **Search Implementation** - Semantic vs keyword search comparison
+- 📊 **Database Design** - Entity models and performance optimization
+- 🎨 **Frontend Components** - Blazor UI patterns and best practices
+- ⚙️ **Configuration Reference** - Environment setup and deployment
+- 📈 **Monitoring & Observability** - Telemetry and debugging guides
+
+Whether you're implementing similar functionality or contributing to this project, the documentation provides the technical depth you need.

@@ -223,3 +223,20 @@ You may want to consider additional security measures, such as:
 ### Video Recordings
 
 [![Run eShopLite Semantic Search in Minutes with .NET Aspire & GitHub Codespaces 🚀](./images/Screenshot_28-4-2025_15341_portal.azure.com.jpeg)](https://youtu.be/T9HwjVIDPAE)
+
+## Want to know more?
+
+For detailed technical documentation, DeepSeek-R1 implementation guides, and advanced reasoning architecture, visit our comprehensive documentation:
+
+📚 **[Detailed Documentation](./docs/README.md)** - Complete technical documentation for this scenario
+
+### What you'll find in the docs:
+- 🧠 **DeepSeek-R1 Integration** - Advanced reasoning model setup and configuration
+- 🔗 **Dual AI Architecture** - Azure OpenAI + DeepSeek coordination patterns
+- 🏗️ **Infrastructure as Code** - Bicep templates and Azure resource provisioning
+- 🔍 **Advanced Search Logic** - Multi-step reasoning and query analysis
+- ⚡ **Performance Optimization** - Intelligent model routing and caching
+- 🛡️ **Security & Compliance** - IAM configuration and best practices
+- 📊 **Monitoring & Analytics** - Multi-service telemetry and debugging
+
+Essential reading for developers implementing advanced AI reasoning systems or exploring cutting-edge language models.

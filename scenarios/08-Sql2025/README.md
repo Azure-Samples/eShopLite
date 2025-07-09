@@ -161,3 +161,20 @@ You may want to consider additional security measures, such as:
 ### Video Recordings
 
 [![Run eShopLite Semantic Search in Minutes with .NET Aspire & GitHub Codespaces 🚀](./images/90ytrunfromcodespaces.png)](https://youtu.be/T9HwjVIDPAE)
+
+## Want to know more?
+
+For detailed technical documentation, SQL Server 2025 implementation guides, and modern database architecture patterns, visit our comprehensive documentation:
+
+📚 **[Detailed Documentation](./docs/README.md)** - Complete technical documentation for this scenario
+
+### What you'll find in the docs:
+- 🗄️ **SQL Server 2025 Deep Dive** - Latest features, container optimization, and performance
+- 🔍 **Vector Search Integration** - Native SQL vector capabilities and EF Core patterns
+- 🏗️ **Database Architecture** - Modern Entity Framework patterns and optimization
+- 📊 **Performance Tuning** - Query optimization and connection management
+- 🚀 **Container Deployment** - Docker/Podman integration and lifecycle management
+- ⚙️ **Configuration Patterns** - Development vs production setup strategies
+- 🔄 **Migration Strategies** - Upgrading from previous SQL Server versions
+
+Perfect for developers modernizing database applications or exploring SQL Server 2025's cutting-edge capabilities.
