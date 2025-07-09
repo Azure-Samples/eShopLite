@@ -204,6 +204,16 @@ You may want to consider additional security measures, such as:
 
 - Protecting the Azure Container Apps instance with a [firewall](https://learn.microsoft.com/azure/container-apps/waf-app-gateway) and/or [Virtual Network](https://learn.microsoft.com/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli).
 
+## Want to know more?
+
+For detailed documentation about the architecture, features, and implementation details of this scenario, visit the [comprehensive documentation](docs/README.md).
+
+### Documentation Includes:
+- **Service Architecture**: How .NET Aspire orchestrates the real-time audio application
+- **Real-time Audio Integration**: Azure OpenAI real-time API and WebRTC implementation
+- **Monitoring & Telemetry**: Application Insights integration for audio session tracking
+- **Configuration Guide**: Setup instructions for real-time audio features
+
 ## Resources
 
 - [GPT-4o Realtime API Quickstart](https://learn.microsoft.com/azure/ai-services/openai/realtime-audio-quickstart)

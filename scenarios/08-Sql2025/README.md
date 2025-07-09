@@ -152,6 +152,16 @@ You may want to consider additional security measures, such as:
 
 - Protecting the Azure Container Apps instance with a [firewall](https://learn.microsoft.com/azure/container-apps/waf-app-gateway) and/or [Virtual Network](https://learn.microsoft.com/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli).
 
+## Want to know more?
+
+For detailed documentation about the architecture, features, and implementation details of this scenario, visit the [comprehensive documentation](docs/README.md).
+
+### Documentation Includes:
+- **Service Architecture**: How .NET Aspire orchestrates SQL Server 2025 integration
+- **SQL Server 2025 Vector Features**: Native vector capabilities and enhanced database operations
+- **Azure OpenAI Integration**: AI models optimized for SQL Server 2025 vector processing
+- **Configuration Guide**: Setup instructions for SQL Server 2025 and vector operations
+
 ## Resources
 
 - [Deploy a .NET Aspire project to Azure Container Apps using the Azure Developer CLI (in-depth guide)](https://learn.microsoft.com/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth)

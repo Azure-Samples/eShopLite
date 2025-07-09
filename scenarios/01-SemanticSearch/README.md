@@ -243,6 +243,16 @@ You may want to consider additional security measures, such as:
 
 - Protecting the Azure Container Apps instance with a [firewall](https://learn.microsoft.com/azure/container-apps/waf-app-gateway) and/or [Virtual Network](https://learn.microsoft.com/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli).
 
+## Want to know more?
+
+For detailed documentation about the architecture, features, and implementation details of this scenario, visit the [comprehensive documentation](docs/README.md).
+
+### Documentation Includes:
+- **Service Architecture**: How .NET Aspire orchestrates the distributed application
+- **AI Integration**: Azure OpenAI models and semantic search implementation
+- **Monitoring & Telemetry**: Application Insights integration and observability
+- **Configuration Guide**: Setup instructions and deployment options
+
 ## Resources
 
 - [Deploy a .NET Aspire project to Azure Container Apps using the Azure Developer CLI (in-depth guide)](https://learn.microsoft.com/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth)

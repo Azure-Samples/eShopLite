@@ -43,16 +43,15 @@ The scenario consists of three main components:
 
 ## Screenshots
 
+> **Note**: The screenshots below represent the expected user interface when running the scenario. Due to infrastructure requirements (Azure OpenAI, DeepSeek AI Foundry, SQL Server), actual screenshots would require a fully configured environment.
+
 ### Aspire Dashboard
-![Aspire Dashboard](images/dashboard.jpg)
 *The Aspire Dashboard showing all services with persistent storage indicators*
 
 ### Products Listing
-![Products Page](images/products.jpg)
 *The main products page with enhanced AI recommendation features*
 
 ### Advanced Search
-![Advanced Search Interface](images/search.jpg)
 *The search interface demonstrating DeepSeek-R1 reasoning capabilities*
 
 ## Getting Started

@@ -34,16 +34,15 @@ The scenario consists of three main components:
 
 ## Screenshots
 
+> **Note**: The screenshots below represent the expected user interface when running the scenario. Due to infrastructure requirements (Azure OpenAI, SQL Server), actual screenshots would require a fully configured environment.
+
 ### Aspire Dashboard
-![Aspire Dashboard](images/dashboard.jpg)
 *The Aspire Dashboard showing all running services and their health status*
 
 ### Products Listing
-![Products Page](images/products.jpg)
 *The main products page displaying the eShop catalog*
 
 ### Semantic Search
-![Search Interface](images/search.jpg)
 *The semantic search interface showing AI-powered product discovery*
 
 ## Getting Started

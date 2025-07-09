@@ -43,16 +43,15 @@ The scenario consists of four main components:
 
 ## Screenshots
 
+> **Note**: The screenshots below represent the expected user interface when running the scenario. Due to infrastructure requirements (Azure OpenAI with real-time API, SQL Server), actual screenshots would require a fully configured environment.
+
 ### Aspire Dashboard
-![Aspire Dashboard](images/dashboard.jpg)
 *The Aspire Dashboard showing all services including the realtime store*
 
 ### Products Listing
-![Products Page](images/products.jpg)
 *The main products page with both traditional and voice search options*
 
 ### Audio Interface
-![Audio Search Interface](images/search.jpg)
 *The real-time audio interface for voice-based product discovery*
 
 ## Getting Started

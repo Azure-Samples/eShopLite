@@ -210,6 +210,16 @@ You may want to consider additional security measures, such as:
 
 - Protecting the Azure Container Apps instance with a [firewall](https://learn.microsoft.com/azure/container-apps/waf-app-gateway) and/or [Virtual Network](https://learn.microsoft.com/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli).
 
+## Want to know more?
+
+For detailed documentation about the architecture, features, and implementation details of this scenario, visit the [comprehensive documentation](docs/README.md).
+
+### Documentation Includes:
+- **Service Architecture**: How .NET Aspire orchestrates the DeepSeek-enhanced application
+- **DeepSeek-R1 Integration**: Advanced AI reasoning and multi-model strategy implementation
+- **Monitoring & Telemetry**: Application Insights integration for multi-model AI operations
+- **Configuration Guide**: Setup instructions for DeepSeek and Azure OpenAI integration
+
 ## Resources
 
 - [Deploy a .NET Aspire project to Azure Container Apps using the Azure Developer CLI (in-depth guide)](https://learn.microsoft.com/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth)

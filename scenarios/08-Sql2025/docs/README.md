@@ -48,16 +48,15 @@ The scenario consists of three main components:
 
 ## Screenshots
 
+> **Note**: The screenshots below represent the expected user interface when running the scenario. Due to infrastructure requirements (SQL Server 2025, Azure OpenAI), actual screenshots would require a fully configured environment.
+
 ### Aspire Dashboard
-![Aspire Dashboard](images/dashboard.jpg)
 *The Aspire Dashboard showing SQL Server 2025 and associated services*
 
 ### Products Listing
-![Products Page](images/products.jpg)
 *The main products page with SQL Server 2025 enhanced search features*
 
 ### Vector Search
-![Vector Search Interface](images/search.jpg)
 *The search interface demonstrating SQL Server 2025 native vector capabilities*
 
 ## Getting Started
