@@ -1,1 +1,0 @@
-Placeholder screenshot - Aspire Dashboard showing running services, health checks, and telemetry data

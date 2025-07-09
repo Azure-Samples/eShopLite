@@ -1,1 +1,0 @@
-Placeholder screenshot - Aspire Dashboard with DeepSeek-R1 and Azure OpenAI services running

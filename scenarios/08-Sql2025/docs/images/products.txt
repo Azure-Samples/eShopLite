@@ -1,1 +1,0 @@
-Placeholder screenshot - Products interface leveraging SQL Server 2025 features
