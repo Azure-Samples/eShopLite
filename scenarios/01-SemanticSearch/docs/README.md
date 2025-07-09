@@ -28,20 +28,20 @@ The solution consists of three main services orchestrated by .NET Aspire:
 
 ## Application Screenshots
 
-### Aspire Dashboard
-![Aspire Dashboard](./images/dashboard.jpg)
+### Home Page
+![Home Page](https://github.com/user-attachments/assets/333e991a-8f59-4929-8af2-171390013d4f)
 
-*The Aspire Dashboard showing all running services, their health status, and telemetry data.*
+*The home page of the eShopLite application showing the main navigation and welcome message.*
 
 ### Product Catalog
-![Product Catalog](./images/products.jpg)
+![Product Catalog](https://github.com/user-attachments/assets/0a3cd5d9-8433-4a97-b2ce-61531ce552b5)
 
-*The main product listing page displaying the outdoor product catalog.*
+*The product listing page with table layout for displaying the outdoor product catalog.*
 
 ### Semantic Search Interface
-![Semantic Search](./images/search.jpg)
+![Semantic Search](https://github.com/user-attachments/assets/7f879663-470f-4873-b638-c597e182c7f2)
 
-*The search page with semantic search toggle and AI-generated responses.*
+*The search page with semantic search toggle, search input field, and loading state for AI-generated responses.*
 
 ## Key Technologies
 
