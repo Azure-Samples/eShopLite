@@ -1,0 +1,98 @@
+@page "/order-confirmation/{orderNumber}"
+@using CartEntities
+@using Store.Services
+@using Store.Components.Cart
+@inject ICheckoutService CheckoutService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@attribute [StreamRendering(true)]
+
+<PageTitle>Order Confirmation</PageTitle>
+
+@if (isLoading)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Loading order details...</p>
+    </div>
+}
+else if (order != null)
+{
+    <OrderConfirmation order="order" OnContinueShopping="ContinueShopping" OnPrintOrder="PrintOrder" />
+}
+else
+{
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="bi bi-exclamation-triangle display-1 text-warning"></i>
+        </div>
+        <h3 class="text-warning">Order Not Found</h3>
+        <p class="text-muted">The order number "@OrderNumber" could not be found.</p>
+        <div class="d-flex gap-2 justify-content-center">
+            <button class="btn btn-primary" @onclick="ContinueShopping">Continue Shopping</button>
+            <button class="btn btn-outline-secondary" @onclick="GoHome">Go Home</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string OrderNumber { get; set; } = string.Empty;
+    
+    private Order? order;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrder();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(OrderNumber))
+        {
+            await LoadOrder();
+        }
+    }
+
+    private async Task LoadOrder()
+    {
+        try
+        {
+            isLoading = true;
+            order = await CheckoutService.GetOrderAsync(OrderNumber);
+        }
+        catch (Exception)
+        {
+            order = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private Task ContinueShopping()
+    {
+        Navigation.NavigateTo("/products");
+        return Task.CompletedTask;
+    }
+
+    private async Task PrintOrder()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("window.print");
+        }
+        catch (Exception)
+        {
+            // Silently handle print errors
+        }
+    }
+
+    private void GoHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

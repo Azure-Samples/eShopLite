@@ -1,0 +1,120 @@
+@using CartEntities
+
+<div class="order-confirmation">
+    <div class="text-center mb-4">
+        <div class="text-success mb-3">
+            <i class="bi bi-check-circle-fill display-1"></i>
+        </div>
+        <h2 class="text-success">Order Confirmed!</h2>
+        <p class="lead">Thank you for your purchase. Your order has been successfully placed.</p>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Order Details</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Order Number:</strong> @order.OrderNumber
+                </div>
+                <div class="col-md-6">
+                    <strong>Order Date:</strong> @order.OrderDate.ToString("MMM dd, yyyy")
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h6>Customer Information</h6>
+                    <p class="mb-1">@order.Customer.FirstName @order.Customer.LastName</p>
+                    <p class="mb-1">@order.Customer.Email</p>
+                    <p class="mb-0">@order.Customer.Phone</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Billing Address</h6>
+                    <address>
+                        @order.Customer.BillingAddress.Street<br />
+                        @order.Customer.BillingAddress.City, @order.Customer.BillingAddress.State @order.Customer.BillingAddress.PostalCode<br />
+                        @order.Customer.BillingAddress.Country
+                    </address>
+                </div>
+            </div>
+            
+            <h6>Order Items</h6>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in order.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://raw.githubusercontent.com/MicrosoftDocs/mslearn-dotnet-cloudnative/main/dotnet-docker/Products/wwwroot/images/@item.ImageUrl" 
+                                             alt="@item.Name" class="me-2" style="width: 40px; height: 40px; object-fit: cover;" />
+                                        <div>
+                                            <div class="fw-medium">@item.Name</div>
+                                            <small class="text-muted">@item.Description</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@item.Quantity</td>
+                                <td>@item.Price.ToString("C")</td>
+                                <td class="text-end">@item.Total.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                            <td class="text-end">@order.Subtotal.ToString("C")</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Tax:</strong></td>
+                            <td class="text-end">@order.Tax.ToString("C")</td>
+                        </tr>
+                        <tr class="table-active">
+                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                            <td class="text-end"><strong>@order.Total.ToString("C")</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <p class="text-muted">A confirmation email has been sent to @order.Customer.Email</p>
+        <div class="d-flex gap-2 justify-content-center">
+            <button class="btn btn-primary" @onclick="ContinueShopping">Continue Shopping</button>
+            @if (ShowPrintOption)
+            {
+                <button class="btn btn-outline-secondary" @onclick="PrintOrder">Print Order</button>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Order order { get; set; } = new();
+    [Parameter] public bool ShowPrintOption { get; set; } = true;
+    [Parameter] public EventCallback OnContinueShopping { get; set; }
+    [Parameter] public EventCallback OnPrintOrder { get; set; }
+
+    private async Task ContinueShopping()
+    {
+        await OnContinueShopping.InvokeAsync();
+    }
+
+    private async Task PrintOrder()
+    {
+        await OnPrintOrder.InvokeAsync();
+    }
+}
