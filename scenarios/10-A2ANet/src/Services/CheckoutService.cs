@@ -1,8 +1,9 @@
 using CartEntities;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace Store.Services;
+namespace Services;
 
 public class CheckoutService : ICheckoutService
 {

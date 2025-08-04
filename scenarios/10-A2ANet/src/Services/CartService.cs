@@ -2,9 +2,10 @@ using CartEntities;
 using DataEntities;
 using SearchEntities;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace Store.Services;
+namespace Services;
 
 public class CartService : ICartService
 {

@@ -1,8 +1,10 @@
 ﻿using SearchEntities;
 using DataEntities;
+using Microsoft.Extensions.Logging;
+using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace Store.Services;
+namespace Services;
 
 public class ProductService : IProductService
 {

@@ -6,6 +6,7 @@
   <Folder Name="/2 eShoplite/">
     <Project Path="Products/Products.csproj" />
     <Project Path="Store/Store.csproj" />
+    <Project Path="Services/Services.csproj" />
   </Folder>
   <Folder Name="/3 Agents/">
     <Project Path="InventoryAgent/InventoryAgent.csproj" />

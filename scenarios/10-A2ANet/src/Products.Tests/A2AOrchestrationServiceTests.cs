@@ -8,7 +8,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using SearchEntities;
-using Store.Services;
+using Services;
 
 namespace Products.Tests
 {
@@ -86,7 +86,7 @@ namespace Products.Tests
             Assert.AreEqual(0, result.Products.Count);
         }
         // Simple mock IProductService for testing
-        public class MockProductService : Store.Services.IProductService
+        public class MockProductService : global::Services.IProductService
         {
             private readonly List<DataEntities.Product> _products;
             public MockProductService(List<DataEntities.Product> products)
@@ -99,7 +99,7 @@ namespace Products.Tests
                 var filtered = _products.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
                 return Task.FromResult<SearchEntities.SearchResponse?>(new SearchEntities.SearchResponse { Products = filtered });
             }
-            public Task<SearchEntities.SearchResponse?> SearchWithType(string searchTerm, Store.Services.SearchType searchType)
+            public Task<SearchEntities.SearchResponse?> SearchWithType(string searchTerm, global::Services.SearchType searchType)
             {
                 var filtered = _products.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
                 return Task.FromResult<SearchEntities.SearchResponse?>(new SearchEntities.SearchResponse { Products = filtered });

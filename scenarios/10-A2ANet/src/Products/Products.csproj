@@ -40,7 +40,7 @@
     <ProjectReference Include="..\eShopServiceDefaults\eShopServiceDefaults.csproj" />
     <ProjectReference Include="..\SearchEntities\SearchEntities.csproj" />
     <ProjectReference Include="..\VectorEntities\VectorEntities.csproj" />
-    <ProjectReference Include="..\Store\Store.csproj" />
+    <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\images\" />

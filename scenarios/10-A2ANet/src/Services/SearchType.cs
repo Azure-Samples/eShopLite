@@ -1,4 +1,4 @@
-namespace Store.Services;
+namespace Services;
 
 public enum SearchType
 {

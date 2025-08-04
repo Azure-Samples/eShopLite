@@ -5,7 +5,7 @@ using Products.Models;
 using Products.Services.Agents;
 using SearchEntities;
 using System.Text.Json;
-using Store.Services;
+using Services;
 
 namespace Products.Services;
 

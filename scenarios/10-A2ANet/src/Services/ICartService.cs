@@ -1,6 +1,6 @@
 using CartEntities;
 
-namespace Store.Services;
+namespace Services;
 
 public interface ICartService
 {
