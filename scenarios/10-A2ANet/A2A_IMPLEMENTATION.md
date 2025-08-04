@@ -208,6 +208,11 @@ src/
 │   ├── Services/             # A2A orchestration service
 │   │   └── Agents/           # A2A SDK Agent implementations
 │   └── Endpoints/            # API endpoints including A2ASearch
+├── Services/                  # Shared services class library
+│   ├── CartService.cs        # Shopping cart management service
+│   ├── CheckoutService.cs    # Order processing service  
+│   ├── ProductService.cs     # Product data and search service
+│   └── Interfaces/           # Service interfaces (ICartService, etc.)
 ├── InventoryAgent/           # Inventory management agent
 ├── PromotionsAgent/          # Promotions management agent
 ├── ResearcherAgent/          # Product research agent
@@ -215,6 +220,113 @@ src/
 ├── SearchEntities/           # Search and A2A response models
 └── Products.Tests/           # Unit tests including A2A orchestration tests
 ```
+
+## Refactoring Store Services into a New Class Library
+
+### Overview
+
+The Store services have been refactored into a new, standalone `Services` class library to improve code organization and separation of concerns. This refactoring enables better modularity and reusability across the eShopLite ecosystem.
+
+### Changes Made
+
+**1. New Services Class Library**
+- Created `Services/Services.csproj` as a standalone class library
+- Configured with .NET 8.0 target framework and ASP.NET Core framework reference
+- Added dependencies on shared entity libraries (DataEntities, SearchEntities, CartEntities)
+
+**2. Moved Service Classes**
+The following services were moved from `Store/Services/` to `Services/`:
+- `CartService.cs` - Shopping cart management functionality
+- `CheckoutService.cs` - Order processing and checkout logic
+- `ProductService.cs` - Product data access and search capabilities
+- `ICartService.cs` - Cart service interface
+- `ICheckoutService.cs` - Checkout service interface
+- `SearchType.cs` - Enumeration for search types
+
+**3. Namespace Updates**
+- Changed namespace from `Store.Services` to `Services` across all service files
+- Updated using statements in consuming projects and components
+
+**4. Project Reference Updates**
+- **Store Project**: Added reference to Services library, removed internal Services folder
+- **Products Project**: Replaced Store project reference with Services library reference
+- **Products.Tests**: Added Services library reference for test compatibility
+
+**5. Dependency Injection Updates**
+Updated service registrations in both Store and Products `Program.cs` files:
+```csharp
+// Updated from: using Store.Services;
+using Services;
+
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ICheckoutService, CheckoutService>();
+```
+
+**6. UI Component Updates**
+Updated 8 Blazor Razor components in Store to use the new Services namespace:
+- `Components/Cart/AddToCartButton.razor`
+- `Components/Cart/CartIcon.razor`
+- `Components/Cart/CartOffcanvas.razor`
+- `Components/Pages/CartPage.razor`
+- `Components/Pages/CheckoutPage.razor`
+- `Components/Pages/OrderConfirmationPage.razor`
+- `Components/Pages/Products.razor`
+- `Components/Pages/Search.razor`
+
+### Benefits of the Refactoring
+
+**1. Improved Separation of Concerns**
+- Services are now independent of the Store frontend project
+- Clear boundary between UI and business logic
+
+**2. Enhanced Reusability**
+- Services can be easily consumed by other projects without Store dependencies
+- Products project no longer depends on Store frontend
+
+**3. Better Modularity**
+- Services library can be versioned and deployed independently
+- Cleaner project dependencies and reduced coupling
+
+**4. Maintainability**
+- Service logic is centralized in a dedicated library
+- Easier to unit test services in isolation
+
+### Technical Implementation
+
+**Services Library Configuration:**
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\DataEntities\DataEntities.csproj" />
+    <ProjectReference Include="..\SearchEntities\SearchEntities.csproj" />
+    <ProjectReference Include="..\CartEntities\CartEntities.csproj" />
+  </ItemGroup>
+</Project>
+```
+
+**Updated Dependency Graph:**
+```
+Store → Services → (DataEntities, SearchEntities, CartEntities)
+Products → Services → (DataEntities, SearchEntities, CartEntities)
+Products.Tests → Services + Products
+```
+
+This refactoring maintains all existing functionality while providing a cleaner, more maintainable architecture for the eShopLite application.
 
 ## Key Features Implemented
 
