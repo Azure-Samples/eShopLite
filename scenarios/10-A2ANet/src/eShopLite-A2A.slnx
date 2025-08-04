@@ -13,13 +13,13 @@
     <Project Path="ResearcherAgent/ResearcherAgent.csproj" />
   </Folder>
   <Folder Name="/4 Models/">
+    <Project Path="CartEntities/CartEntities.csproj" />
     <Project Path="DataEntities/DataEntities.csproj" />
     <Project Path="SearchEntities/SearchEntities.csproj" />
     <Project Path="VectorEntities/VectorEntities.csproj" />
   </Folder>
   <Folder Name="/5 Tests/">
     <Project Path="Products.Tests/Products.Tests.csproj" />
+    <Project Path="Store.Tests/Store.Tests.csproj" />
   </Folder>
-  <Project Path="CartEntities/CartEntities.csproj" />
-  <Project Path="Store.Tests/Store.Tests.csproj" />
 </Solution>

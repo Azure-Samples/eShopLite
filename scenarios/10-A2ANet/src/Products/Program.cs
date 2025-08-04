@@ -6,8 +6,15 @@ using Products.Memory;
 using Products.Models;
 using Products.Services;
 using Products.Services.Agents;
+using Store.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+// Register ProductService for DI so it can be injected into A2AOrchestrationService
+builder.Services.AddHttpClient<IProductService, ProductService>(client =>
+{
+    client.BaseAddress = new Uri("http://products");
+});
+builder.Services.AddScoped<IProductService, ProductService>();
 
 // Disable Globalization Invariant Mode
 Environment.SetEnvironmentVariable("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT", "false");

@@ -5,25 +5,26 @@ using Products.Models;
 using Products.Services.Agents;
 using SearchEntities;
 using System.Text.Json;
+using Store.Services;
 
 namespace Products.Services;
 
 public class A2AOrchestrationService : IA2AOrchestrationService
 {
-    private readonly Context _db;
+    private readonly IProductService _productService;
     private readonly InventoryAgent _inventoryAgent;
     private readonly PromotionsAgent _promotionsAgent;
     private readonly ResearcherAgent _researcherAgent;
     private readonly ILogger<A2AOrchestrationService> _logger;
 
     public A2AOrchestrationService(
-        Context db,
+        IProductService productService,
         InventoryAgent inventoryAgent,
         PromotionsAgent promotionsAgent,
         ResearcherAgent researcherAgent,
         ILogger<A2AOrchestrationService> logger)
     {
-        _db = db;
+        _productService = productService;
         _inventoryAgent = inventoryAgent;
         _promotionsAgent = promotionsAgent;
         _researcherAgent = researcherAgent;
@@ -34,11 +35,9 @@ public class A2AOrchestrationService : IA2AOrchestrationService
     {
         try
         {
-            // Step 1: Find relevant products using standard search
-            var products = await _db.Product
-                .Where(p => p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm))
-                .Take(10)
-                .ToListAsync();
+            // Step 1: Find relevant products using standard search via ProductService
+            var searchResponse = await _productService.SearchWithType(searchTerm, SearchType.Standard);
+            var products = searchResponse?.Products?.Take(10).ToList() ?? new List<Product>();
 
             var enrichedProducts = new List<A2AEnrichedProduct>();
 
