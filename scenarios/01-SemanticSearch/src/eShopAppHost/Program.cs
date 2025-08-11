@@ -1,5 +1,3 @@
-using Azure.Provisioning.CognitiveServices;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 var sql = builder.AddSqlServer("sql")
@@ -27,23 +25,19 @@ if (builder.ExecutionContext.IsPublishMode)
     var appInsights = builder.AddAzureApplicationInsights("appInsights");
     var chatDeploymentName = "gpt-5-mini";
     var embeddingsDeploymentName = "text-embedding-ada-002";
-    var aoai = builder.AddAzureOpenAI("openai");
 
-    var gpt41mini = aoai.AddDeployment(name: chatDeploymentName,
-            modelName: "gpt-5-mini",
-            modelVersion: "2025-08-07");
-    gpt41mini.Resource.SkuCapacity = 10;
-    gpt41mini.Resource.SkuName = "GlobalStandard";
+    // Add Azure AI Foundry project
+    var foundry = builder.AddAzureAIFoundry("foundry");
 
-    var embeddingsDeployment = aoai.AddDeployment(name: embeddingsDeploymentName,
-        modelName: "text-embedding-ada-002",
-        modelVersion: "2");
-
+    // Add specific model deployments
+    var gpt5mini = foundry.AddDeployment(chatDeploymentName, chatDeploymentName, "2025-08-07", "OpenAI");
+    var embeddingsDeployment = foundry.AddDeployment(embeddingsDeploymentName, embeddingsDeploymentName, "2", "OpenAI");
 
     products.WithReference(appInsights)
-        .WithReference(aoai)
+        .WithReference(foundry)
         .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-        .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
+        .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName)
+        .WithExternalHttpEndpoints();
 
     store.WithReference(appInsights)
         .WithExternalHttpEndpoints();

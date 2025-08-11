@@ -13,18 +13,18 @@ properties:
       dotnet:
         autoConfigureDataProtection: true
     ingress:
-      external: false
+      external: true
       targetPort: {{ targetPortOrDefault 8080 }}
       transport: http
-      allowInsecure: true
+      allowInsecure: false
     registries:
       - server: {{ .Env.AZURE_CONTAINER_REGISTRY_ENDPOINT }}
         identity: {{ .Env.AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID }}
     secrets:
       - name: applicationinsights-connection-string
         value: '{{ .Env.APPINSIGHTS_APPINSIGHTSCONNECTIONSTRING }}'
-      - name: connectionstrings--openai
-        value: '{{ .Env.OPENAI_CONNECTIONSTRING }}'
+      - name: connectionstrings--foundry
+        value: Endpoint={{ .Env.FOUNDRY_ENDPOINT }};EndpointAIInference={{ .Env.FOUNDRY_AIFOUNDRYAPIENDPOINT }}models
       - name: connectionstrings--productsdb
         value: Server=sql,1433;User ID=sa;Password={{ securedParameter "sql_password" }};TrustServerCertificate=true;Initial Catalog=productsDb
   template:
@@ -50,8 +50,8 @@ properties:
             value: in_memory
           - name: APPLICATIONINSIGHTS_CONNECTION_STRING
             secretRef: applicationinsights-connection-string
-          - name: ConnectionStrings__openai
-            secretRef: connectionstrings--openai
+          - name: ConnectionStrings__foundry
+            secretRef: connectionstrings--foundry
           - name: ConnectionStrings__productsDb
             secretRef: connectionstrings--productsdb
     scale:

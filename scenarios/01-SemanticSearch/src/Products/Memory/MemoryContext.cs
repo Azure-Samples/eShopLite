@@ -1,11 +1,10 @@
 ﻿using DataEntities;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel.Connectors.InMemory;
 using Newtonsoft.Json;
-using OpenAI.Chat;
-using OpenAI.Embeddings;
 using Products.Models;
 using SearchEntities;
 using System.Text;
@@ -17,21 +16,21 @@ namespace Products.Memory;
 public class MemoryContext
 {
     private ILogger _logger;
-    public ChatClient? _chatClient;
-    public EmbeddingClient? _embeddingClient;
-    public VectorStoreCollection<int, ProductVector> _productsCollection;
+    public IChatClient? _chatClient;
+    public IEmbeddingGenerator<string, Embedding<float>>? _embeddingGenerator;
+    public VectorStoreCollection<int, ProductVector>? _productsCollection;
     private string _systemPrompt = "";
     private bool _isMemoryCollectionInitialized = false;
 
-    public MemoryContext(ILogger logger, ChatClient? chatClient, EmbeddingClient? embeddingClient)
+    public MemoryContext(ILogger logger, IChatClient? chatClient, IEmbeddingGenerator<string, Embedding<float>>? embeddingGenerator)
     {
         _logger = logger;
         _chatClient = chatClient;
-        _embeddingClient = embeddingClient;
+        _embeddingGenerator = embeddingGenerator;
 
         _logger.LogInformation("Memory context created");
         _logger.LogInformation($"Chat Client is null: {_chatClient is null}");
-        _logger.LogInformation($"Embedding Client is null: {_embeddingClient is null}");
+        _logger.LogInformation($"Embedding Generator is null: {_embeddingGenerator is null}");
     }
 
     public async Task<bool> InitMemoryContextAsync(Context db)
@@ -50,6 +49,12 @@ public class MemoryContext
 
         _logger.LogInformation("Filling products in memory");
 
+        if (_embeddingGenerator is null)
+        {
+            _logger.LogWarning("Embedding generator is not configured; skipping product vectorization. Search will fall back to keyword only.");
+            return true;
+        }
+
         // iterate over the products and add them to the memory
         foreach (var product in products)
         {
@@ -67,9 +72,9 @@ public class MemoryContext
                     Price = product.Price,
                     ImageUrl = product.ImageUrl
                 };
-                var result = await _embeddingClient.GenerateEmbeddingAsync(productInfo);
+                var vector = await _embeddingGenerator.GenerateVectorAsync(productInfo);
 
-                productVector.Vector = result.Value.ToFloats();
+                productVector.Vector = vector;
                 await _productsCollection.UpsertAsync(productVector);
                 _logger.LogInformation("Product added to memory: {Product}", product.Name);
             }
@@ -98,8 +103,12 @@ public class MemoryContext
 
         try
         {
-            var result = await _embeddingClient.GenerateEmbeddingAsync(search);
-            var vectorSearchQuery = result.Value.ToFloats();
+            if (_embeddingGenerator is null)
+            {
+                response.Response = "Embeddings are not configured; please set AI_embeddingsDeploymentName and ensure a deployment exists.";
+                return response;
+            }
+            var vectorSearchQuery = await _embeddingGenerator.GenerateVectorAsync(search);
 
             // search the vector database for the most similar product        
             var sbFoundProducts = new StringBuilder();
@@ -132,15 +141,22 @@ Include products details.
 {sbFoundProducts}";
 
             var messages = new List<ChatMessage>
-    {
-        new SystemChatMessage(_systemPrompt),
-        new UserChatMessage(prompt)
-    };
+            {
+                new(ChatRole.System, _systemPrompt),
+                new(ChatRole.User, prompt)
+            };
 
             _logger.LogInformation("{ChatHistory}", JsonConvert.SerializeObject(messages));
 
-            var resultPrompt = await _chatClient.CompleteChatAsync(messages);
-            response.Response = resultPrompt.Value.Content[0].Text!;
+            if (_chatClient is not null)
+            {
+                var resultPrompt = await _chatClient.GetResponseAsync(messages);
+                response.Response = resultPrompt.Text ?? string.Empty;
+            }
+            else
+            {
+                response.Response = "Embeddings search results included above. Chat generation is not configured (no IChatClient).";
+            }
 
         }
         catch (Exception ex)

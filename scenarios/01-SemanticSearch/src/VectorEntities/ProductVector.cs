@@ -17,7 +17,7 @@ namespace VectorEntities
         [VectorStoreData]
         public override decimal Price { get => base.Price; set => base.Price = value; }
 
-        [VectorStoreVector(384)]
+        [VectorStoreVector(1536)]
         public ReadOnlyMemory<float> Vector { get; set; }
     }
 }

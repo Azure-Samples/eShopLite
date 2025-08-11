@@ -46,19 +46,19 @@ module appInsights 'appInsights/appInsights.module.bicep' = {
     location: location
   }
 }
-module openai 'openai/openai.module.bicep' = {
-  name: 'openai'
+module foundry 'foundry/foundry.module.bicep' = {
+  name: 'foundry'
   scope: rg
   params: {
     location: location
   }
 }
-module openai_roles 'openai-roles/openai-roles.module.bicep' = {
-  name: 'openai-roles'
+module foundry_roles 'foundry-roles/foundry-roles.module.bicep' = {
+  name: 'foundry-roles'
   scope: rg
   params: {
+    foundry_outputs_name: foundry.outputs.name
     location: location
-    openai_outputs_name: openai.outputs.name
     principalId: resources.outputs.MANAGED_IDENTITY_PRINCIPAL_ID
     principalType: 'ServicePrincipal'
   }
@@ -76,4 +76,5 @@ output AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN string = resources.output
 output SERVICE_SQL_VOLUME_ESHOPAPPHOSTC8479139E4SQLDATA_NAME string = resources.outputs.SERVICE_SQL_VOLUME_ESHOPAPPHOSTC8479139E4SQLDATA_NAME
 output AZURE_VOLUMES_STORAGE_ACCOUNT string = resources.outputs.AZURE_VOLUMES_STORAGE_ACCOUNT
 output APPINSIGHTS_APPINSIGHTSCONNECTIONSTRING string = appInsights.outputs.appInsightsConnectionString
-output OPENAI_CONNECTIONSTRING string = openai.outputs.connectionString
+output FOUNDRY_AIFOUNDRYAPIENDPOINT string = foundry.outputs.aiFoundryApiEndpoint
+output FOUNDRY_ENDPOINT string = foundry.outputs.endpoint
