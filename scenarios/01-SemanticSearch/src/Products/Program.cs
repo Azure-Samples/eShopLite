@@ -19,7 +19,7 @@ builder.AddSqlServerDbContext<Context>("productsDb");
 
 // in dev scenarios rename this to "openaidev", and check the documentation to reuse existing AOAI resources
 var azureOpenAiClientName = "openai";
-var chatDeploymentName = "gpt-4.1-mini";
+var chatDeploymentName = "gpt-5-mini";
 var embeddingsDeploymentName = "text-embedding-ada-002";
 builder.AddAzureOpenAIClient(azureOpenAiClientName);
 

@@ -13,7 +13,8 @@ var productsDb = sql
 
 var products = builder.AddProject<Projects.Products>("products")
     .WithReference(productsDb)
-    .WaitFor(productsDb);
+    .WaitFor(productsDb)
+    .WithExternalHttpEndpoints();
 
 var store = builder.AddProject<Projects.Store>("store")
     .WithReference(products)
@@ -24,13 +25,13 @@ if (builder.ExecutionContext.IsPublishMode)
 {
     // production code uses Azure services, so we need to add them here
     var appInsights = builder.AddAzureApplicationInsights("appInsights");
-    var chatDeploymentName = "gpt-41-mini";
+    var chatDeploymentName = "gpt-5-mini";
     var embeddingsDeploymentName = "text-embedding-ada-002";
     var aoai = builder.AddAzureOpenAI("openai");
 
     var gpt41mini = aoai.AddDeployment(name: chatDeploymentName,
-            modelName: "gpt-4.1-mini",
-            modelVersion: "2025-04-14");
+            modelName: "gpt-5-mini",
+            modelVersion: "2025-08-07");
     gpt41mini.Resource.SkuCapacity = 10;
     gpt41mini.Resource.SkuName = "GlobalStandard";
 
