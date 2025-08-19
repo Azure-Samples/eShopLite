@@ -67,7 +67,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
     azd up
     ```
 
-    It will prompt you to provide an `azd` environment name (like "eShopLite"), select a subscription from your Azure account, and select a [location where OpenAI the models gpt-4.1-mini and ADA-002 are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all) (like "eastus2").
+    It will prompt you to provide an `azd` environment name (like "eShopLite"), select a subscription from your Azure account, and select a [location where OpenAI the models gpt-5-mini and ADA-002 are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all) (like "eastus2").
 
 1. When `azd` has finished deploying, you'll see the list of resources created in Azure and a set of URIs in the command output.
 
@@ -115,23 +115,11 @@ Follow these steps to run the project, locally or in CodeSpaces:
   cd ./src/eShopAppHost/
   ```
 
-- If you are running the project in Codespaces, you need to run this command:
-
-  ```bash
-  dotnet dev-certs https --trust
-  ```
-
-- By default the AppHost project creates the necessary resources on Azure. Check the **[.NET Aspire Azure Resources creation](#net-aspire-azure-resources-creation)** section to learn how to configure the project to create Azure resources.
-
 - Run the project:
 
   ```bash
   dotnet run
   ````
-
-Check the [Video Resources](#resources) for a step-by-step on how to run this project.
-
-> **Note:** Working with .NET Aspire in GitHub Codespaces is not fully supported yet. As a developer you need to perform a lot of manual steps to access the .NET Aspire portal, like changing ports to public, copy the access token and more. The .NET Aspire version 9.1 will improve the whole developer experience. We will update these steps when the version 9.1 is released.
 
 ## .NET Aspire Azure Resources creation
 
@@ -142,6 +130,7 @@ When utilizing Azure resources in your local development environment, you need t
   ```bash
   az login 
   ```
+
 - Provide the necessary Configuration values are specified under the Azure section in the `eShopAppHost` project:
 
   - CredentialSource: Delegates to the [AzureCliCredential](https://learn.microsoft.com/dotnet/api/azure.identity.azureclicredential).
@@ -166,48 +155,30 @@ Consider the following example for the *appsettings.json* file in the eShopAppHo
 
 Check [.NET Aspire Azure hosting integrations](https://learn.microsoft.com/dotnet/aspire/azure/local-provisioning#net-aspire-azure-hosting-integrations) for more information on how .NET Aspire create the necessary cloud resources for local development.
 
-### Local development using an existing gpt-4.1-mini and ada-002 model
+### Local development using an existing gpt-5-mini and ada-002 model
 
-In order to use existing models: gpt-4.1-mini and text-embedding-ada-002, you need to define the specific connection string in the `Products` project.
-
-Add a user secret with the configuration:
-
-```bash
-cd src/Products
-
-dotnet user-secrets set "ConnectionStrings:openaidev" "Endpoint=https://<endpoint>.openai.azure.com/;Key=<key>;"
-```
+In order to use existing models: gpt-5-mini and text-embedding-ada-002, you need to define the specific connection string in the `AppHost` project.
 
 This Azure OpenAI service must contain:
 
-- a `gpt-4.1-mini` model named **gpt-4.1-mini**
+- a `gpt-5-mini` model named **gpt-5-mini**
 - a `text-embedding-ada-002` model named **text-embedding-ada-002**
 
-To use these services, edit the `program.cs`, and change this:
+Once run the AppHost for the 1st time, the .NET Aspire dashboard will ask for the `openai` connection string as seen the image below. Set this value and the solution will be ready to use.
 
-```csharp
-// in dev scenarios rename this to "openaidev", and check the documentation to reuse existing AOAI resources
-var azureOpenAiClientName = "openai";
-builder.AddAzureOpenAIClient(azureOpenAiClientName);
-```
+![Aspire Dashboard requiring openai connection string](./images/16AspireDashboardSetOpenAIConnectionString.png)
 
-to this:
-
-```csharp
-// in dev scenarios rename this to "openaidev", and check the documentation to reuse existing AOAI resources
-var azureOpenAiClientName = "openaidev";
-builder.AddAzureOpenAIClient(azureOpenAiClientName);
-```
+If you need to change this value, update the `openai` user secret in the AppHost project.
 
 ### Telemetry with .NET Aspire and Azure Application Insights
 
 The eShopLite solution leverages the Aspire Dashboard and Azure Application Insights to provide comprehensive telemetry and monitoring capabilities
 
-The **.NET Aspire Dashboard** offers a centralized view of the application's performance, health, and usage metrics. It integrates seamlessly with the Azure OpenAI services, allowing developers to monitor the performance of the `gpt-4.1-mini` and `text-embedding-ada-002` models. The dashboard provides real-time insights into the application's behavior, helping to identify and resolve issues quickly.
+The **.NET Aspire Dashboard** offers a centralized view of the application's performance, health, and usage metrics. It integrates seamlessly with the Azure OpenAI services, allowing developers to monitor the performance of the `gpt-5-mini` and `text-embedding-ada-002` models. The dashboard provides real-time insights into the application's behavior, helping to identify and resolve issues quickly.
 
 ![Aspire Dashboard](./images/40AspireDashboard.png)
 
-**Azure Application Insights** complements the Aspire Dashboard by offering deep diagnostic capabilities and advanced analytics. It collects detailed telemetry data, including request rates, response times, and failure rates, enabling developers to understand how the application is performing under different conditions. Application Insights also provides powerful querying and visualization tools, making it easier to analyze trends and detect anomalies. 
+**Azure Application Insights** complements the Aspire Dashboard by offering deep diagnostic capabilities and advanced analytics. It collects detailed telemetry data, including request rates, response times, and failure rates, enabling developers to understand how the application is performing under different conditions. Application Insights also provides powerful querying and visualization tools, making it easier to analyze trends and detect anomalies.
 
 ![Azure Application Insights](./images/45AppInsightsDashboard.png)
 
@@ -223,7 +194,7 @@ However, Azure Container Registry has a fixed cost per registry per day.
 
 You can try the [Azure pricing calculator](https://azure.com/e/2176802ea14941e4959eae8ad335aeb5) for the resources:
 
-- Azure OpenAI Service: S0 tier, gpt-4.1-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
+- Azure OpenAI Service: S0 tier, gpt-5-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
 - Azure Container App: Consumption tier with 0.5 CPU, 1GiB memory/storage. Pricing is based on resource allocation, and each month allows for a certain amount of free usage. [Pricing](https://azure.microsoft.com/pricing/details/container-apps/)
 - Azure Container Registry: Basic tier. [Pricing](https://azure.microsoft.com/pricing/details/container-registry/)
 - Log analytics: Pay-as-you-go tier. Costs based on data ingested. [Pricing](https://azure.microsoft.com/pricing/details/monitor/)
@@ -235,7 +206,7 @@ You can try the [Azure pricing calculator](https://azure.com/e/2176802ea14941e49
 
 Samples in this templates uses Azure OpenAI Services with ApiKey and [Managed Identity](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview) for authenticating to the Azure OpenAI service.
 
-The Main Sample uses Managed Identity](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview) for authenticating to the Azure OpenAI service.
+The Main Sample uses Managed Identity](<https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview>) for authenticating to the Azure OpenAI service.
 
 Additionally, we have added a [GitHub Action](https://github.com/microsoft/security-devops-action) that scans the infrastructure-as-code files and generates a report containing any detected issues. To ensure continued best practices in your own repository, we recommend that anyone creating solutions based on our templates ensure that the [Github secret scanning](https://docs.github.com/code-security/secret-scanning/about-secret-scanning) setting is enabled.
 
@@ -250,6 +221,7 @@ For detailed technical documentation about the components and features of this s
 **[📚 View Complete Technical Documentation](./docs/README.md)**
 
 The documentation includes:
+
 - Service architecture and .NET Aspire orchestration
 - Azure OpenAI integration patterns
 - Semantic search implementation details  
