@@ -59,9 +59,10 @@ namespace Microsoft.Extensions.Hosting
                 logging.IncludeScopes = true;
             });
 
-            // enable openai telemetry
+            // enable AI telemetry
             AppContext.SetSwitch("OpenAI.Experimental.EnableOpenTelemetry", true);
             AppContext.SetSwitch("Microsoft.SemanticKernel.Experimental.GenAI.EnableOTelDiagnosticsSensitive", true);
+            AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
 
             builder.Services.AddOpenTelemetry()
                 .WithMetrics(metrics =>

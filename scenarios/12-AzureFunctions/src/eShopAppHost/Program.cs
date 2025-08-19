@@ -32,7 +32,7 @@ var store = builder.AddProject<Projects.Store>("store")
     .WaitFor(semanticSearchFunction)
     .WithExternalHttpEndpoints();
 
-var chatDeploymentName = "gpt-41-mini";
+var chatDeploymentName = "gpt-5-mini";
 var embeddingsDeploymentName = "text-embedding-3-small";
 
 if (builder.ExecutionContext.IsPublishMode)
