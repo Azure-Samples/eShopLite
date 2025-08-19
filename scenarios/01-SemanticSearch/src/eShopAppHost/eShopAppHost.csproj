@@ -9,10 +9,10 @@
     <UserSecretsId>3e9fd9fb-e2c0-4477-bbd3-ab03823266cd</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.0" />
-    <PackageReference Include="Aspire.Hosting.Azure.ApplicationInsights" Version="9.4.0" />
-    <PackageReference Include="Aspire.Hosting.Azure.CognitiveServices" Version="9.4.0" />
-    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.4.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.1" />
+    <PackageReference Include="Aspire.Hosting.Azure.ApplicationInsights" Version="9.4.1" />
+    <PackageReference Include="Aspire.Hosting.Azure.CognitiveServices" Version="9.4.1" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.4.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Products\Products.csproj" />

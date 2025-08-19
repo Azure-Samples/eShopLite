@@ -5,7 +5,7 @@ namespace Products.Models;
 
 public static class DbInitializer
 {
-    public static async Task Initialize(Context context, IEmbeddingGenerator<string, Embedding<float>> embeddingClient, int dimensions = 1536, ILogger logger = null)
+    public static async Task Initialize(Context context, IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, int dimensions = 1536, ILogger logger = null)
     {
         if (context.Product.Any())
             return;
@@ -27,7 +27,7 @@ public static class DbInitializer
         foreach (var product in products)
         {
             var productInformation = $"Name = {product.Name} - Description = {product.Description} - Price = {product.Price}";
-            var productInformationEmbedding = await embeddingClient.GenerateVectorAsync(productInformation, new() { Dimensions = dimensions });
+            var productInformationEmbedding = await embeddingGenerator.GenerateVectorAsync(productInformation, new() { Dimensions = dimensions });
             product.Embedding = productInformationEmbedding.ToArray();
             logger.LogInformation("Added embedding for product: {productName}, Dimensions: {dimensions}", product.Name, productInformationEmbedding.Length);
         }
