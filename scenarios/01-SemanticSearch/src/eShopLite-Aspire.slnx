@@ -17,4 +17,7 @@
     <Project Path="Products.Tests/Products.Tests.csproj" />
     <Project Path="Store.Tests/Store.Tests.csproj" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".mcp.json" />
+  </Folder>
 </Solution>
