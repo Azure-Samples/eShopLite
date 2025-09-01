@@ -2,8 +2,10 @@
 @using CartEntities
 @using Store.Services
 @using Store.Components.Cart
+@using Store.Components.Payment
 @inject ICartService CartService
 @inject ICheckoutService CheckoutService
+@inject IPaymentsClient PaymentsClient
 @inject NavigationManager Navigation
 @attribute [StreamRendering(true)]
 
@@ -81,6 +83,14 @@ else
     </div>
 }
 
+@* Payment Dialog *@
+@if (showPaymentDialog)
+{
+    <PaymentDialog Cart="shoppingCart" 
+                   OnPaymentConfirmed="OnPaymentConfirmed" 
+                   OnCancelled="OnPaymentCancelled" />
+}
+
 @if (isProcessing)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
@@ -103,6 +113,7 @@ else
     private Customer customer = new();
     private bool isLoading = true;
     private bool isProcessing = false;
+    private bool showPaymentDialog = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -130,28 +141,67 @@ else
     {
         try
         {
-            isProcessing = true;
-            
             // Ensure shipping address is set correctly
             if (submittedCustomer.SameAsShipping)
             {
                 submittedCustomer.ShippingAddress = submittedCustomer.BillingAddress;
             }
 
-            // Process the order
-            var order = await CheckoutService.ProcessOrderAsync(submittedCustomer, shoppingCart);
+            // Store customer for payment
+            customer = submittedCustomer;
             
-            // Clear the cart
-            await CartService.ClearCartAsync();
+            // Show payment dialog instead of immediately processing
+            showPaymentDialog = true;
+        }
+        catch (Exception)
+        {
+            // Handle error - could show error message
+        }
+    }
+
+    private async Task OnPaymentConfirmed(string paymentMethod)
+    {
+        try
+        {
+            isProcessing = true;
+            showPaymentDialog = false;
+            StateHasChanged();
+
+            // Create payment request
+            var paymentRequest = Services.PaymentsClient.FromCart(shoppingCart, customer, paymentMethod);
             
-            // Navigate to confirmation page
-            Navigation.NavigateTo($"/order-confirmation/{order.OrderNumber}");
+            // Process payment through PaymentsService
+            var paymentResponse = await PaymentsClient.CreatePaymentAsync(paymentRequest);
+            
+            if (paymentResponse != null && paymentResponse.Status == "Success")
+            {
+                // Process the order after successful payment
+                var order = await CheckoutService.ProcessOrderAsync(customer, shoppingCart);
+                
+                // Clear the cart
+                await CartService.ClearCartAsync();
+                
+                // Navigate to confirmation page with payment info
+                Navigation.NavigateTo($"/order-confirmation/{order.OrderNumber}?paymentId={paymentResponse.PaymentId}");
+            }
+            else
+            {
+                // Payment failed - show error message (in a real app)
+                isProcessing = false;
+                // For now, just stay on the page
+            }
         }
         catch (Exception)
         {
             // Handle error - could show error message
             isProcessing = false;
         }
+    }
+
+    private Task OnPaymentCancelled()
+    {
+        showPaymentDialog = false;
+        return Task.CompletedTask;
     }
 
     private void BackToCart()

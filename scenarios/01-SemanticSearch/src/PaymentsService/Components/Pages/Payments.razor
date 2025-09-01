@@ -1,0 +1,222 @@
+@page "/payments"
+@using PaymentsService.DTOs
+@using PaymentsService.Services
+@inject IPaymentRepository PaymentRepository
+@attribute [StreamRendering(true)]
+
+<PageTitle>Payments</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Payment Records</h1>
+    <div>
+        <select class="form-select d-inline-block w-auto" @onchange="OnStatusFilterChanged">
+            <option value="">All Statuses</option>
+            <option value="Success">Success</option>
+            <option value="Failed">Failed</option>
+            <option value="Pending">Pending</option>
+        </select>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Loading payments...</p>
+    </div>
+}
+else if (payments?.Items?.Count > 0)
+{
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Payment ID</th>
+                            <th>User ID</th>
+                            <th>Amount</th>
+                            <th>Currency</th>
+                            <th>Status</th>
+                            <th>Payment Method</th>
+                            <th>Items</th>
+                            <th>Created At</th>
+                            <th>Processed At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var payment in payments.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <small class="font-monospace">
+                                        @payment.PaymentId[..8]...
+                                    </small>
+                                </td>
+                                <td>@payment.UserId</td>
+                                <td class="text-end">@payment.Amount.ToString("C")</td>
+                                <td>@payment.Currency</td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(payment.Status)">
+                                        @payment.Status
+                                    </span>
+                                </td>
+                                <td>@payment.PaymentMethod</td>
+                                <td>
+                                    <small>@payment.Items.Count item(s)</small>
+                                    @if (payment.Items.Count > 0)
+                                    {
+                                        <br />
+                                        @foreach (var item in payment.Items.Take(2))
+                                        {
+                                            <small class="text-muted">
+                                                @item.ProductId (@item.Quantity × @item.UnitPrice.ToString("C"))
+                                            </small><br />
+                                        }
+                                        @if (payment.Items.Count > 2)
+                                        {
+                                            <small class="text-muted">... and @(payment.Items.Count - 2) more</small>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    <small>@payment.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small>
+                                </td>
+                                <td>
+                                    @if (payment.ProcessedAt.HasValue)
+                                    {
+                                        <small>@payment.ProcessedAt.Value.ToString("yyyy-MM-dd HH:mm")</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">Not processed</small>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (payments.TotalCount > pageSize)
+            {
+                <nav aria-label="Payment pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                            <button class="page-link" @onclick="() => LoadPage(currentPage - 1)" disabled="@(currentPage <= 1)">
+                                Previous
+                            </button>
+                        </li>
+
+                        @{
+                            int totalPages = (int)Math.Ceiling((double)payments.TotalCount / pageSize);
+                            int startPage = Math.Max(1, currentPage - 2);
+                            int endPage = Math.Min(totalPages, currentPage + 2);
+                        }
+
+                        @for (int i = startPage; i <= endPage; i++)
+                        {
+                            int pageNumber = i;
+                            <li class="page-item @(currentPage == pageNumber ? "active" : "")">
+                                <button class="page-link" @onclick="() => LoadPage(pageNumber)">
+                                    @pageNumber
+                                </button>
+                            </li>
+                        }
+
+                        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                            <button class="page-link" @onclick="() => LoadPage(currentPage + 1)" disabled="@(currentPage >= totalPages)">
+                                Next
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="text-center">
+                    <small class="text-muted">
+                        Showing @((currentPage - 1) * pageSize + 1) to @Math.Min(currentPage * pageSize, payments.TotalCount) 
+                        of @payments.TotalCount payments
+                    </small>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="bi bi-credit-card display-1 text-muted"></i>
+        </div>
+        <h3 class="text-muted">No payments found</h3>
+        <p class="text-muted">
+            @if (!string.IsNullOrEmpty(statusFilter))
+            {
+                <span>No payments with status "@statusFilter" found.</span>
+            }
+            else
+            {
+                <span>No payment records have been created yet.</span>
+            }
+        </p>
+    </div>
+}
+
+@code {
+    private PaymentListResponse? payments;
+    private bool isLoading = true;
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private string statusFilter = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPayments();
+    }
+
+    private async Task LoadPayments()
+    {
+        try
+        {
+            isLoading = true;
+            payments = await PaymentRepository.GetPaymentsAsync(currentPage, pageSize, 
+                string.IsNullOrEmpty(statusFilter) ? null : statusFilter);
+        }
+        catch (Exception ex)
+        {
+            // In a real app, you'd show an error message to the user
+            payments = new PaymentListResponse();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadPage(int page)
+    {
+        if (page < 1) return;
+        currentPage = page;
+        await LoadPayments();
+    }
+
+    private async Task OnStatusFilterChanged(ChangeEventArgs e)
+    {
+        statusFilter = e.Value?.ToString() ?? string.Empty;
+        currentPage = 1;
+        await LoadPayments();
+    }
+
+    private static string GetStatusBadgeClass(string status)
+    {
+        return status.ToLower() switch
+        {
+            "success" => "bg-success",
+            "failed" => "bg-danger",
+            "pending" => "bg-warning",
+            _ => "bg-secondary"
+        };
+    }
+}

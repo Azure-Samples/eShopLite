@@ -13,6 +13,10 @@ builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddHttpClient<IProductService, ProductService>(
     static client => client.BaseAddress = new("https+http://products"));
 
+// Add PaymentsClient with Aspire service discovery for PaymentsService
+builder.Services.AddHttpClient<IPaymentsClient, PaymentsClient>(
+    static client => client.BaseAddress = new("https+http://payments"));
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
