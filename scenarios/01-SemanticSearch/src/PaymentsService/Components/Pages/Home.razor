@@ -1,0 +1,38 @@
+﻿@page "/"
+
+<PageTitle>Payments Service</PageTitle>
+
+<div class="mb-4">
+    <h1>Payment Service</h1>
+    <p class="lead">Mock payment processing service for eShopLite</p>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-credit-card me-2"></i>
+                    View Payments
+                </h5>
+                <p class="card-text">Browse all processed payment records with filtering and pagination.</p>
+                <a href="/payments" class="btn btn-primary">View Payments</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-api me-2"></i>
+                    API Endpoints
+                </h5>
+                <p class="card-text">Payment processing API for integration with the Store.</p>
+                <ul class="list-unstyled">
+                    <li><code>POST /api/payments</code> - Create payment</li>
+                    <li><code>GET /api/payments</code> - List payments</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
