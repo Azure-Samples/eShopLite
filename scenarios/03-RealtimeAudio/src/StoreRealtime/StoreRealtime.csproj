@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<NoWarn>OPENAI002;$(NoWarn)</NoWarn>
+		<UserSecretsId>65f12d3d-80b1-415e-9bdf-414f9b31c987</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Remove="wwwroot\chat.css" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Components\Pages\Home.razor.js">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="wwwroot\css\chat.css" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Azure.AI.OpenAI" Version="2.3.0-beta.2" />
+		<PackageReference Include="Azure.Identity" Version="1.15.0" />
+		<PackageReference Include="Microsoft.Extensions.AI" Version="9.8.0" />
+		<PackageReference Include="Aspire.Azure.AI.OpenAI" Version="9.4.2-preview.1.25428.12" />
+		<PackageReference Include="System.Text.Json" Version="9.0.8" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\DataEntities\DataEntities.csproj" />
+		<ProjectReference Include="..\eShopServiceDefaults\eShopServiceDefaults.csproj" />
+		<ProjectReference Include="..\SearchEntities\SearchEntities.csproj" />
+	</ItemGroup>
+
+</Project>

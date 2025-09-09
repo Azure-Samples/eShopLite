@@ -1,0 +1,437 @@
+﻿.net-brand-page {
+    background-color: #F3F2F1; /* Light background color */
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.net-brand-title {
+    background-color: #512BD4; /* .NET purple color */
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.chat {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    color: black;
+    padding-bottom: 5vh;
+}
+
+.messages-scroller {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.messages {
+    display: flex;
+    flex-direction: column;
+}
+
+.write-message {
+    display: flex;
+    padding: 5px;
+    align-items: center; /* Ensure textarea and button are aligned */
+}
+
+.write-message-textarea {
+    flex: 1;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    margin-right: 10px;
+    background-color: #ffffff; /* White background for input */
+    color: black;
+    resize: none; /* Prevent resizing */
+    height: 50px; /* Fixed height to prevent overflow */
+}
+
+.write-message-button {
+    background-color: #6200EE; /* .NET purple */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+    .write-message-button:hover {
+        background-color: #3700B3; /* Darker .NET purple */
+    }
+
+
+
+.message {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #BB86FC; /* Light .NET purple */
+    color: black;
+    max-width: 80%;
+    display: flow;
+    gap: 0.25rem .75rem;
+    animation: message-appear 1.25s ease-out;
+    overflow-y: hidden;
+}
+
+.message-text {
+    font-size: 1em;
+    color: gray;
+    margin-top: 5px;    
+}
+
+.message-time {
+    font-size: 0.6em;
+    margin-top: 5px;
+}
+
+.sender-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Style for user messages */
+.message-user {
+    background-color: #512BD4; /* Dark .NET purple */
+    border-radius: 8px;
+    padding: 10px;
+    margin: 5px 0;
+    max-width: 80%;
+    color: white;
+    align-self: flex-end; /* Align messages to the right */
+}
+
+/* Style adjustments for message content */
+.message-user-content {
+    flex-direction: inherit;
+    align-self: flex-end; /* Align messages to the right */
+}
+
+.message-user-text {
+    color: white;
+}
+
+/* Ensure assistant messages remain distinct */
+.message-assistant {
+    background-color: #E1E1E1; /* Light gray */
+    color: #000000; /* Black text */
+    padding: 10px;
+    margin: 5px 0;
+    max-width: 80%;
+    align-self: flex-start; /* Align messages to the left */
+}
+
+.markdown-content {
+    background-color: white !important;
+    text-align: left;
+    align-content: flex-end;
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid #BB86FC; /* Light .NET purple */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.documents {
+    margin-top: 10px;
+}
+
+.documents-h6 {
+    margin-bottom: 5px;
+}
+
+.documents-ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.documents-li {
+    margin-bottom: 5px;
+}
+
+.documents-a {
+    color: #BB86FC; /* Light .NET purple */
+    text-decoration: none;
+}
+
+.documents-a:hover {
+    text-decoration: underline;
+}
+
+/* Style for assistant documents */
+.documents-assistant {
+    color: #512BD4; /* Dark .NET purple */
+    font-size: 0.8em; /* Smaller font size */
+    text-align: right; /* Align to the right */
+}
+
+.dotnet-title {
+    color: #512BD4; /* Dark .NET purple */
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.dotnet-subtitle {
+    color: #BB86FC; /* Light .NET purple */
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+.title-section {
+    height: 10%;
+}
+
+.chat-section {
+    height: 75%;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+    /* WebKit browsers */
+    .chat-section::-webkit-scrollbar {
+        width: 12px; /* Width of the scrollbar */
+    }
+
+    .chat-section::-webkit-scrollbar-track {
+        background: #F3F2F1; /* Light background color for the track */
+        border-radius: 10px;
+    }
+
+    .chat-section::-webkit-scrollbar-thumb {
+        background-color: #512BD4; /* .NET purple color for the thumb */
+        border-radius: 10px;
+        border: 3px solid #F3F2F1; /* Padding around the thumb */
+    }
+
+        .chat-section::-webkit-scrollbar-thumb:hover {
+            background-color: #3700B3; /* Darker .NET purple on hover */
+        }
+
+    /* Firefox */
+    .chat-section {
+        scrollbar-width: thin; /* Thin scrollbar */
+        scrollbar-color: #512BD4 #F3F2F1; /* Thumb and track colors */
+    }
+
+.main-content {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.chat-section {
+    flex: 3;
+    scroll-behavior: auto;
+    overflow-x: auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.info-log-section {
+    flex: 2;
+    overflow-y: auto;
+    font-size: 0.8em; /* Smaller font size */
+    background-color: #E1E1E1; /* Light gray */
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid #BB86FC; /* Light .NET purple */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.info-log {
+    list-style-type: none;
+    padding-left: 0;
+    color: #512BD4; /* Dark .NET purple */
+}
+
+/* Enhanced log styling */
+.info-log.grouped { margin:0; }
+.log-header { display:flex; justify-content:space-between; align-items:baseline; position:sticky; top:0; background:#E1E1E1; padding-bottom:4px; z-index:5; }
+.log-title { margin:0; }
+.log-legend { display:flex; gap:4px; flex-wrap:wrap; }
+.log-badge { font-size:10px; padding:2px 6px; border-radius:12px; font-weight:600; letter-spacing:.5px; }
+.log-badge.user { background:#512BD4; color:#fff; }
+.log-badge.assistant { background:#0078D4; color:#fff; }
+.log-badge.function { background:#03695C; color:#fff; }
+.log-badge.audio { background:#6D4C41; color:#fff; }
+.log-badge.system { background:#888; color:#fff; }
+
+.log-entry { display:grid; grid-template-columns:64px 28px 1fr; gap:4px 8px; padding:4px 6px; border-left:4px solid transparent; font-size:12px; align-items:center; }
+.log-entry + .log-entry { border-top:1px solid rgba(0,0,0,0.06); }
+.log-entry.user { background:#F4F0FF; border-left-color:#512BD4; }
+.log-entry.assistant { background:#EEF6FC; border-left-color:#0078D4; }
+.log-entry.function { background:#E6F5F2; border-left-color:#03695C; }
+.log-entry.audio { background:#F9F1ED; border-left-color:#6D4C41; }
+.log-entry.system { background:#F2F2F2; border-left-color:#888; }
+.log-entry.error { background:#FDECEA; border-left-color:#D13438; }
+.log-entry:hover { filter:brightness(.97); }
+.log-time { font-family:monospace; font-size:11px; opacity:.65; }
+.log-icon { text-align:center; }
+.log-msg { word-break:break-word; }
+
+/* Log filter controls */
+.log-filters { display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
+.filter-chip { font-size:11px; padding:4px 10px; border-radius:16px; background:#ffffff; border:1px solid #ccc; cursor:pointer; user-select:none; transition:.15s background,.15s color,.15s border-color; }
+.filter-chip.active { background:#512BD4; color:#fff; border-color:#512BD4; font-weight:600; }
+.filter-chip:hover { filter:brightness(.95); }
+.filter-chip.reset { background:#0078D4; color:#fff; border-color:#0078D4; }
+.filter-chip.reset:hover { background:#005A9E; }
+
+/* Toolbar + toggle repositioning */
+.chat-column-wrapper { position:relative; flex:3; }
+.btn-log-toggle { position:absolute; top:-8px; right:8px; background:#0078D4; border:none; color:#fff; padding:2px 8px; font-size:12px; line-height:1.2; border-radius:4px; cursor:pointer; z-index:10; box-shadow:0 2px 4px rgba(0,0,0,.15); }
+.btn-log-toggle:hover { background:#005A9E; }
+.info-log-section { position:relative; }
+.toolbar-layout { display:flex; flex-direction:column; gap:4px; }
+.log-header-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.log-toolbar { display:flex; gap:6px; }
+.btn-toolbar { background:#0078D4; color:#fff; border:none; padding:4px 8px; font-size:14px; border-radius:4px; cursor:pointer; line-height:1; box-shadow:0 1px 2px rgba(0,0,0,.2); }
+.btn-toolbar[disabled] { opacity:.4; cursor:not-allowed; }
+.btn-toolbar:hover:not([disabled]) { background:#005A9E; }
+.log-filters.compact { margin-top:0; }
+
+.messages-scroller {
+    overflow-y: auto;
+    height: 100%;
+}
+
+.btn-purple {
+    background-color: #6200EE; /* Different .NET purple */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+    .btn-purple:hover {
+        background-color: #3700B3; /* Darker .NET purple */
+    }
+
+.icon-top-right {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+}
+
+/* Update the button color to differentiate it from the assistant and user bubbles */
+.btn-net {
+    background-color: #0078D4; /* .NET blue */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn-net:hover {
+    background-color: #005A9E; /* Darker .NET blue */
+}
+
+/* Add these new product card styles to the end of your chat.css file */
+
+.product-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 15px 0;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #e0e0e0;
+    width: 100%;
+    max-width: 500px;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.product-card-header {
+    background-color: #512BD4;
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.product-name {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: white;
+}
+
+.product-price {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.product-card-body {
+    padding: 15px;
+    display: flex;
+    gap: 15px;
+}
+
+.product-image {
+    flex: 0 0 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.product-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product-description {
+    color: #333333;
+    font-size: 0.9em;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    overflow-wrap: break-word;
+}
+
+.btn-product {
+    background-color: #0078D4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    align-self: flex-start;
+    transition: background-color 0.2s ease;
+}
+
+.btn-product:hover {
+    background-color: #005A9E;
+}
+
+/* Ensure the product card works well within message bubbles */
+.message-assistant .product-card {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+

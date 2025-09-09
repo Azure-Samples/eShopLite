@@ -1,0 +1,58 @@
+﻿@using System.IO.Pipelines
+@using System.Threading.Channels
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+@code {
+    IJSObjectReference? module;
+    IJSObjectReference? speaker;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!RendererInfo.IsInteractive)
+        {
+            return;
+        }
+
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Speaker.razor.js");
+        speaker = await module.InvokeAsync<IJSObjectReference>("start");
+    }
+
+    public async Task EnqueueAsync(byte[]? audioData)
+    {
+        if (speaker is not null && audioData is not null)
+        {
+            await InvokeAsync(async () =>
+            {
+                try
+                {
+                    await speaker.InvokeVoidAsync("enqueue", audioData);
+                }
+                catch (Exception ex)
+                {
+                    _ = DispatchExceptionAsync(ex);
+                }
+            });
+        }
+    }
+
+    public async Task ClearPlaybackAsync()
+    {
+        if (speaker is not null)
+        {
+            await speaker.InvokeVoidAsync("clear");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await (speaker?.DisposeAsync() ?? ValueTask.CompletedTask);
+            await (module?.DisposeAsync() ?? ValueTask.CompletedTask);
+        }
+        catch (JSDisconnectedException)
+        {
+            // Not an error
+        }
+    }
+}

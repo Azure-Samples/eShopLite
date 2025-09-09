@@ -1,0 +1,63 @@
+﻿@using System.IO.Pipelines
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+@code {
+    IJSObjectReference? module;
+    IJSObjectReference? mic;
+    DotNetObjectReference<Microphone>? selfReference;
+    SemaphoreSlim writeAudioSemaphore = new(1);
+    Pipe micPipe = new();
+
+    [Parameter]
+    public EventCallback<PipeReader> OnMicAvailable { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!RendererInfo.IsInteractive)
+        {
+            return;
+        }
+
+        selfReference = DotNetObjectReference.Create(this);
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Microphone.razor.js");
+        mic = await module.InvokeAsync<IJSObjectReference>("start", selfReference);
+    }
+
+    [JSInvokable]
+    public Task OnMicConnectedAsync()
+        => OnMicAvailable.InvokeAsync(micPipe.Reader);
+
+    [JSInvokable]
+    public Task ReceiveAudioDataAsync(byte[] data) => InvokeAsync(async () =>
+    {
+        if (writeAudioSemaphore.Wait(0))
+        {
+            try
+            {
+                //Console.WriteLine($"Received {data.Length} bytes of audio data");
+                await micPipe.Writer.WriteAsync(data);
+            }
+            finally
+            {
+                // Console.WriteLine("Releasing semaphore");
+                writeAudioSemaphore.Release();
+            }
+        }
+    });
+
+    public async ValueTask DisposeAsync()
+    {
+        selfReference?.Dispose();
+        await micPipe.Writer.CompleteAsync();
+
+        try
+        {
+            await (mic?.DisposeAsync() ?? ValueTask.CompletedTask);
+            await (module?.DisposeAsync() ?? ValueTask.CompletedTask);
+        }
+        catch (JSDisconnectedException)
+        {
+            // Not an error
+        }
+    }
+}

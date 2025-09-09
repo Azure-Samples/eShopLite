@@ -1,0 +1,300 @@
+﻿@page "/"
+@using DataEntities
+@using OpenAI.Chat
+@using System.IO.Pipelines
+@using OpenAI.Realtime
+@using StoreRealtime.ContextManagers
+@using StoreRealtime.Models
+@implements IDisposable
+
+@inject RealtimeClient RealtimeClient
+@inject StoreRealtime.ContextManagers.ContosoProductContext contosoProductContext
+@inject ILogger<Program> logger
+@inject IJSRuntime JSRuntime
+@inject IJSRuntime JS
+
+<PageTitle>eShopLite - Realtime chat support</PageTitle>
+
+@if (isMicActive)
+{
+    <Microphone OnMicAvailable="@OnMicAvailable" />
+}
+
+<Speaker @ref="@speaker" />
+
+<div class="net-brand-page">
+    <div class="main-content" @ref="mainContentSection">
+        <div class="chat-column-wrapper">
+            <button class="btn-log-toggle" title="Show/Hide log" @onclick="ToggleLogPanel">@(_showLog ? "⯈" : "⯇")</button>
+            @* CHAT SECTION *@
+            <div class="chat-section" @ref="chatSectionRef">
+            <div class="messages">
+                @foreach (var chatMessage in chatMessages)
+                {
+                    var messageStyle = chatMessage.IsUser ? "message message-user visible" : "message message-assistant visible";
+                    var messageUserStyle = chatMessage.IsUser ? "message-text message-user-text" : "message-text";
+                    var senderName = chatMessage.IsUser ? "You" : "Assistant";
+
+                    <div class="@messageStyle">
+                        <div class="sender-name">@senderName</div>
+                        <div class="message-content">
+                            <div class="@messageUserStyle">@chatMessage.Message</div>
+
+                            @if (chatMessage.Products != null)
+                            {
+                                foreach (var product in chatMessage.Products)
+                                {
+                                    <div class="product-card">
+                                        <div class="product-card-header">
+                                            <h5 class="product-name">@product.Name</h5>
+                                            <div class="product-price">@product.Price.ToString("C")</div>
+                                        </div>
+                                        <div class="product-card-body">
+                                            <div class="product-image">
+                                                <img src="https://raw.githubusercontent.com/MicrosoftDocs/mslearn-dotnet-cloudnative/main/dotnet-docker/Products/wwwroot/images/@product.ImageUrl" alt="@product.Name" />
+                                            </div>
+                                            <div class="product-details">
+                                                <div class="product-description">@product.Description</div>
+                                                <button class="btn-product">View Details</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            <div class="message-time">@chatMessage.Timestamp.ToString("G")</div>
+                        </div>
+                    </div>
+                }
+            </div>
+                <button id="ButtonChatStartStop" class="btn btn-net" @onclick="ToggleMic">
+                    @(isMicActive ? "Stop Live Chat" : "Start Live Chat")
+                </button>
+            </div>
+        </div>
+
+        @* REALTIME AUDIO LOG SECTION *@
+        @if (_showLog)
+        {
+            <div class="info-log-section">
+                <div class="log-header toolbar-layout">
+                    <div class="log-header-top">
+                        <h4 class="log-title">Realtime Audio Log</h4>
+                        <div class="log-toolbar">
+                            <button class="btn-toolbar" disabled="@(messages.Count == 0)" @onclick="ExportLogAsync" title="Export to JSON">💾</button>
+                            <button class="btn-toolbar" disabled="@(messages.Count == 0)" @onclick="CopyLogAsync" title="Copy JSON">📋</button>
+                        </div>
+                    </div>
+                    <div class="log-filters compact">
+                        @foreach (var cat in Enum.GetValues<LogCategory>())
+                        {
+                            var active = _activeCategories.Contains(cat);
+                            var cls = active ? "filter-chip active" : "filter-chip";
+                            <span class="@cls" title="Toggle @cat" @onclick="() => ToggleCategory(cat)">@cat</span>
+                        }
+                        <span class="filter-chip reset" title="Reset filters" @onclick="ResetFilters">Reset</span>
+                    </div>
+                    <div class="log-legend">
+                        <span class="log-badge user">User</span>
+                        <span class="log-badge assistant">Assistant</span>
+                        <span class="log-badge function">Function</span>
+                        <span class="log-badge audio">Audio</span>
+                        <span class="log-badge system">Sys</span>
+                    </div>
+                </div>
+                <ul class="info-log grouped">
+                    @foreach (var entry in messages.Where(m => _activeCategories.Contains(m.Category)))
+                    {
+                        var categoryClass = entry.Category.ToString().ToLower();
+                        <li class="log-entry @categoryClass">
+                            <div class="log-time">@entry.Timestamp.ToString("HH:mm:ss")</div>
+                            <div class="log-icon">@entry.Icon</div>
+                            <div class="log-msg">@entry.Message</div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private ConversationManager? conversationManager;
+    private CancellationTokenSource disposalCts = new();
+    private bool isMicActive = false;
+    private Speaker? speaker;
+    private readonly List<LogMessage> messages = new();
+    private readonly List<RealtimeChatMessage> chatMessages = new();
+    private ElementReference mainContentSection;
+    private bool _showLog = false; // hidden by default per request
+    private HashSet<LogCategory> _activeCategories = new(Enum.GetValues<LogCategory>());
+    private ElementReference chatSectionRef; // ref to chat section for scrolling
+
+    private void ToggleMic()
+    {
+        if (isMicActive)
+        {
+            // Stop interaction
+            conversationManager?.Dispose();
+            isMicActive = false;
+        }
+        else
+        {
+            // Start interaction
+            disposalCts = new CancellationTokenSource();
+            isMicActive = true;
+        }
+    }
+
+    private void OnMicAvailable(PipeReader micReader)
+    {
+        conversationManager = new(RealtimeClient, contosoProductContext, logger);
+        _ = RunAsBackgroundTask(() => conversationManager.RunAsync(micReader.AsStream(), speaker!,
+
+        AddMessageAsync,
+        AddChatMessageAsync,
+        AddChatProductMessageAsync,
+        disposalCts.Token));
+    }
+
+    public void Dispose()
+    {
+        disposalCts.Cancel();
+        conversationManager?.Dispose();
+    }
+
+    private async Task AddChatMessageAsync(string message, bool isUserMessage)
+    {
+        var cm = new RealtimeChatMessage
+        {
+            Message = message,
+            IsUser = isUserMessage,
+            Timestamp = DateTime.Now
+        };
+        chatMessages.Add(cm);
+        await InvokeAsync(StateHasChanged);
+    ScrollToBottom(chatSectionRef);
+    }
+
+    private async Task AddChatProductMessageAsync(List<Product> products)
+    {
+        var productMessage = new RealtimeChatMessage
+        {
+            IsUser = false,
+            Products = products,
+            Timestamp = DateTime.Now
+        };
+        chatMessages.Add(productMessage);
+        await InvokeAsync(StateHasChanged);
+    ScrollToBottom(chatSectionRef);
+    }
+
+    private async Task AddMessageAsync(string message)
+    {
+        // Basic categorization heuristics (keeps ConversationManager unchanged):
+        LogMessage log = message switch
+        {
+            var m when m.StartsWith("User:") => LogMessage.User(message["User:".Length..].Trim()),
+            var m when m.StartsWith("Assistant:") => LogMessage.Assistant(message["Assistant:".Length..].Trim()),
+            var m when m.StartsWith("Calling function:") => LogMessage.Function(message),
+            var m when m.StartsWith("Tool executed:") => LogMessage.Function(message),
+            var m when m.Contains("Speech started", StringComparison.OrdinalIgnoreCase) => LogMessage.Audio(message),
+            var m when m.Contains("Speech finished", StringComparison.OrdinalIgnoreCase) => LogMessage.Audio(message),
+            var m when m.Contains("Session started", StringComparison.OrdinalIgnoreCase) => LogMessage.System(message),
+            var m when m.Contains("Conversation started", StringComparison.OrdinalIgnoreCase) => LogMessage.System(message),
+            var m when m.StartsWith("Error:") => LogMessage.Error(message),
+            _ => LogMessage.System(message)
+        };
+        messages.Add(log);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    // UI Interaction helpers
+    private void ToggleLogPanel() => _showLog = !_showLog;
+
+    private void ToggleCategory(LogCategory category)
+    {
+        if (_activeCategories.Contains(category))
+        {
+            if (_activeCategories.Count > 1) // keep at least one
+            {
+                _activeCategories.Remove(category);
+            }
+        }
+        else
+        {
+            _activeCategories.Add(category);
+        }
+    }
+
+    private void ResetFilters()
+    {
+        _activeCategories = new HashSet<LogCategory>(Enum.GetValues<LogCategory>());
+    }
+
+    private async Task ExportLogAsync()
+    {
+        try
+        {
+            var filtered = messages.Where(m => _activeCategories.Contains(m.Category)).Select(m => new
+            {
+                time = m.Timestamp,
+                category = m.Category.ToString(),
+                icon = m.Icon,
+                message = m.Message,
+                severity = m.Severity.ToString()
+            });
+            var json = System.Text.Json.JsonSerializer.Serialize(filtered, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            var fileName = $"realtime-log-{DateTime.UtcNow:yyyyMMdd-HHmmss}.json";
+            await JS.InvokeVoidAsync("logExport.downloadFile", fileName, json);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to export log");
+        }
+    }
+
+    private async Task CopyLogAsync()
+    {
+        try
+        {
+            var filtered = messages.Where(m => _activeCategories.Contains(m.Category)).Select(m => new
+            {
+                time = m.Timestamp,
+                category = m.Category.ToString(),
+                icon = m.Icon,
+                message = m.Message,
+                severity = m.Severity.ToString()
+            });
+            var json = System.Text.Json.JsonSerializer.Serialize(filtered, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            await JS.InvokeVoidAsync("logExport.copyToClipboard", json);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to copy log");
+        }
+    }
+
+    // Re-added after refactor: background task helper to swallow non-cancel exceptions
+    private Task RunAsBackgroundTask(Func<Task> work)
+    {
+        return Task.Run(async () =>
+        {
+            try
+            {
+                await work();
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogError(ex, "Background realtime conversation failed");
+            }
+        });
+    }
+
+    // Smooth scroll helper used after chat/log updates
+    private void ScrollToBottom(ElementReference element)
+    {
+        _ = JSRuntime.InvokeVoidAsync("scrollToBottom", element);
+    }
+}
+
+<link rel="stylesheet" href="css/chat.css" />
