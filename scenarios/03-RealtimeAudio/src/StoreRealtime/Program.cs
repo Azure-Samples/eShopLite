@@ -1,12 +1,16 @@
-using StoreRealtime.Components;
-using StoreRealtime.Services;
-using StoreRealtime.ContextManagers;
-using Azure.AI.OpenAI;
-using System.ClientModel;
-using OpenAI.RealtimeConversation;
 using Azure;
+using Azure.AI.OpenAI;
+using Azure.Identity;
+using OpenAI.Realtime;
+using StoreRealtime.Components;
+using StoreRealtime.ContextManagers;
+using StoreRealtime.Services;
+using System.ClientModel;
 using System.Text.RegularExpressions;
 using System.Web;
+
+#pragma warning disable AOAI001 
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,44 +22,38 @@ builder.Services.AddHttpClient<ProductService>(
     static client => client.BaseAddress = new("https+http://products"));
 
 var azureOpenAiClientName = "openai";
-string? aoaiCnnString = builder.Configuration.GetConnectionString("openai");
-var aoaiEndpoint = aoaiCnnString != null ?
-    Regex.Match(aoaiCnnString, @"Endpoint=(https://[^\s;]+)").Groups[1].Value : null;
+
+(string endpoint, string apiKey) = GetEndpointAndKey(builder, azureOpenAiClientName);
+
 
 builder.AddAzureOpenAIClient(azureOpenAiClientName,
     settings =>
     {
         settings.DisableMetrics = false;
         settings.DisableTracing = false;
-        settings.Endpoint = new Uri(aoaiEndpoint);
+        if (!string.IsNullOrWhiteSpace(endpoint))
+        {
+            settings.Endpoint = new Uri(endpoint);
+        }
     });
 
-// get azure openai client and create Chat client from aspire hosting configuration
-builder.Services.AddSingleton(serviceProvider =>
+// Register RealtimeClient. We prefer using the AzureOpenAIClient helper if available; otherwise build a direct client.
+builder.Services.AddSingleton<RealtimeClient>(serviceProvider =>
 {
-    var chatDeploymentName = "gpt-4o-mini-realtime-preview";
-    var logger = serviceProvider.GetService<ILogger<Program>>()!;
-    logger.LogInformation($"Realtime Chat client configuration, modelId: {chatDeploymentName}");
+    var chatDeploymentName = builder.Configuration["AI_RealtimeDeploymentName"] ?? "gpt-realtime";
+    var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("Configuring RealtimeClient for model {Model}", chatDeploymentName);
 
-    var config = serviceProvider.GetService<IConfiguration>()!;
-    RealtimeConversationClient realtimeConversationClient = null;
-    try
+    AzureOpenAIClient azureClient = new(new Uri(endpoint), new DefaultAzureCredential());
+    if (!string.IsNullOrEmpty(apiKey))
     {
-        AzureOpenAIClient client = serviceProvider.GetRequiredService<AzureOpenAIClient>();
-        realtimeConversationClient = client.GetRealtimeConversationClient(chatDeploymentName);
-        logger.LogInformation($"Realtime Chat client created, modelId: {realtimeConversationClient.ToString()}");
+        azureClient = new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
     }
-    catch (Exception exc)
-    {
-        logger.LogError(exc, "Error creating realtime conversation client");
-    }
-    return realtimeConversationClient;
+
+    return azureClient.GetRealtimeClient();
 });
 
-builder.Services.AddSingleton<IConfiguration>(sp =>
-{
-    return builder.Configuration;
-});
+builder.Services.AddSingleton<IConfiguration>(sp => builder.Configuration);
 
 builder.Services.AddSingleton(serviceProvider =>
 {
@@ -76,12 +74,10 @@ app.MapDefaultEndpoints();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
 app.UseAntiforgery();
 
 app.MapStaticAssets();
@@ -89,7 +85,7 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 // log values for the AOAI services
-app.Logger.LogInformation($@"========================================
+app.Logger.LogInformation(@"========================================
 Azure OpenAI information
 Azure OpenAI Connection String: {aoaiCnnString}
 Azure OpenAI Endpoint: {aoaiEndpoint}
@@ -103,4 +99,11 @@ static (string endpoint, string apiKey) GetEndpointAndKey(WebApplicationBuilder 
     var connectionString = builder.Configuration.GetConnectionString(name);
     var parameters = HttpUtility.ParseQueryString(connectionString.Replace(";", "&"));
     return (parameters["Endpoint"], parameters["Key"]);
+}
+
+static string? ExtractApiKeyFromConnectionString(string? connectionString)
+{
+    if (string.IsNullOrWhiteSpace(connectionString)) return null;
+    var match = Regex.Match(connectionString, @"Key=([^;\s]+)");
+    return match.Success ? match.Groups[1].Value : null;
 }

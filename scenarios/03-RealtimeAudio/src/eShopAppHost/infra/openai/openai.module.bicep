@@ -48,13 +48,13 @@ resource gpt_4o_mini 'Microsoft.CognitiveServices/accounts/deployments@2024-10-0
   parent: openai
 }
 
-resource gpt_4o_mini_realtime_preview 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
-  name: 'gpt-4o-mini-realtime-preview'
+resource gpt_4o_realtime_ga 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
+  name: 'gpt-4o-realtime-preview'
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'gpt-4o-mini-realtime-preview'
-      version: '2024-12-17'
+      name: 'gpt-4o-realtime-preview'
+      version: '2024-12-17'  // Updated to GA version when available
     }
   }
   sku: {

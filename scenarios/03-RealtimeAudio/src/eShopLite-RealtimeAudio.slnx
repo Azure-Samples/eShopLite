@@ -9,8 +9,12 @@
     <Project Path="StoreRealtime/StoreRealtime.csproj" />
   </Folder>
   <Folder Name="/3 Models/">
+    <Project Path="CartEntities/CartEntities.csproj" />
     <Project Path="DataEntities/DataEntities.csproj" />
     <Project Path="SearchEntities/SearchEntities.csproj" />
     <Project Path="VectorEntities/VectorEntities.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".mcp.json" />
   </Folder>
 </Solution>

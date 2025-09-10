@@ -6,8 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 // add aspire service defaults
 builder.AddServiceDefaults();
 
-builder.Services.AddSingleton<ProductService>();
-builder.Services.AddHttpClient<ProductService>(
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ICheckoutService, CheckoutService>();
+
+builder.Services.AddHttpClient<IProductService, ProductService>(
     static client => client.BaseAddress = new("https+http://products"));
 
 // Add services to the container.

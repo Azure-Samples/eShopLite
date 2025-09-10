@@ -6,7 +6,8 @@ public class SearchResponse
 {
     public SearchResponse()
     {
-        Products = new List<DataEntities.Product>();    
+        Products = new List<DataEntities.Product>();
+        Response = string.Empty;
     }
 
     [JsonPropertyName("id")]
@@ -15,8 +16,6 @@ public class SearchResponse
     [JsonPropertyName("products")]
     public List<DataEntities.Product>? Products { get; set; }
 
-    [JsonPropertyName("elapsedtime")]
-    public TimeSpan ElapsedTime { get; set; }
 }
 
 
