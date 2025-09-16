@@ -1,13 +1,12 @@
-using Aspire.Azure.AI.OpenAI;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Azure.AI.OpenAI;
+using Azure.Identity;
+using Microsoft.Extensions.AI;
 using OpenAI;
-using OpenAI.Chat;
 using OpenAI.Embeddings;
 using Products.Endpoints;
 using Products.Memory;
 using Products.Models;
+using System.ClientModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,49 +18,30 @@ builder.AddServiceDefaults();
 builder.Services.AddProblemDetails();
 
 // Add DbContext service
-builder.AddSqlServerDbContext<Context>("sqldb");
+builder.AddSqlServerDbContext<Context>("productsDb");
 
-// in dev scenarios rename this to "openaidev", and check the documentation to reuse existing AOAI resources
-var azureOpenAiClientName = "openai";
-builder.AddAzureOpenAIClient(azureOpenAiClientName);
 
-// get azure openai client and create Chat client from aspire hosting configuration
-builder.Services.AddSingleton<ChatClient>(serviceProvider =>
-{
-    var chatDeploymentName = "gpt-4o-mini";
-    var logger = serviceProvider.GetService<ILogger<Program>>()!;
-    logger.LogInformation($"Chat client configuration, modelId: {chatDeploymentName}");
-    ChatClient chatClient = null;
-    try
-    {
-        OpenAIClient client = serviceProvider.GetRequiredService<OpenAIClient>();
-        chatClient = client.GetChatClient(chatDeploymentName);
-    }
-    catch (Exception exc)
-    {
-        logger.LogError(exc, "Error creating embeddings client");
-    }
-    return chatClient;
-});
+var azureOpenAIConnectionName = "openai";
+var chatDeploymentName = builder.Configuration["AI_ChatDeploymentName"] ?? "gpt-5-mini";
+var embeddingsDeploymentName = builder.Configuration["AI_embeddingsDeploymentName"] ?? "text-embedding-ada-002";
 
-// get azure openai client and create embedding client from aspire hosting configuration
-builder.Services.AddSingleton<EmbeddingClient>(serviceProvider =>
-{
-    var embeddingsDeploymentName = "text-embedding-ada-002";
-    var logger = serviceProvider.GetService<ILogger<Program>>()!;
-    logger.LogInformation($"Embeddings client configuration, modelId: {embeddingsDeploymentName}");
-    EmbeddingClient embeddingsClient = null;
-    try
+builder.AddAzureOpenAIClient(connectionName: azureOpenAIConnectionName,
+    configureSettings: settings =>
     {
-        OpenAIClient client = serviceProvider.GetRequiredService<OpenAIClient>();
-        embeddingsClient = client.GetEmbeddingClient(embeddingsDeploymentName);
-    }
-    catch (Exception exc)
+        if (string.IsNullOrEmpty(settings.Key))
+        {
+            settings.Credential = new DefaultAzureCredential();
+        }
+    }).AddChatClient(chatDeploymentName);
+
+builder.AddAzureOpenAIClient(azureOpenAIConnectionName,
+    configureSettings: settings =>
     {
-        logger.LogError(exc, "Error creating embeddings client");
-    }
-    return embeddingsClient;
-});
+        if (string.IsNullOrEmpty(settings.Key))
+        {
+            settings.Credential = new DefaultAzureCredential();
+        }
+    }).AddEmbeddingGenerator(embeddingsDeploymentName);
 
 builder.Services.AddSingleton<IConfiguration>(sp =>
 {
@@ -73,7 +53,7 @@ builder.Services.AddSingleton(sp =>
 {
     var logger = sp.GetService<ILogger<Program>>();
     logger.LogInformation("Creating memory context");
-    return new MemoryContext(logger, sp.GetService<ChatClient>(), sp.GetService<EmbeddingClient>());
+    return new MemoryContext(logger, sp.GetService<IChatClient>(), sp.GetService<IEmbeddingGenerator<string, Embedding<float>>>());
 });
 
 // Add services to the container.
@@ -90,7 +70,7 @@ app.MapProductEndpoints();
 app.UseStaticFiles();
 
 // log Azure OpenAI resources
-app.Logger.LogInformation($"Azure OpenAI resources\n >> OpenAI Client Name: {azureOpenAiClientName}");
+app.Logger.LogInformation($"Azure OpenAI resources\n >> OpenAI Client Name: {azureOpenAIConnectionName}");
 AppContext.SetSwitch("OpenAI.Experimental.EnableOpenTelemetry", true);
 
 // manage db

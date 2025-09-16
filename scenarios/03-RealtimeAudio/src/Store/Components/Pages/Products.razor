@@ -1,7 +1,8 @@
 ﻿@page "/products"
 @using DataEntities
 @using Store.Services
-@inject ProductService ProductService
+@using Store.Components.Cart
+@inject IProductService ProductService
 @inject IConfiguration Configuration
 @attribute [StreamRendering(true)]
 
@@ -24,6 +25,7 @@ else
                 <th>Name</th>
                 <th>Description</th>
                 <th>Price</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -34,7 +36,10 @@ else
                     <td><img height="80" width="80" src="https://raw.githubusercontent.com/MicrosoftDocs/mslearn-dotnet-cloudnative/main/dotnet-docker/Products/wwwroot/images/@product.ImageUrl" /></td>
                     <td>@product.Name</td>
                     <td>@product.Description</td>
-                    <td>@product.Price</td>
+                    <td>@product.Price.ToString("C")</td>
+                    <td>
+                        <AddToCartButton ProductId="@product.Id" ProductName="@product.Name" OnCartUpdated="OnCartUpdated" />
+                    </td>
                 </tr>
             }
         </tbody>
@@ -49,5 +54,11 @@ else
         // Simulate asynchronous loading to demonstrate streaming rendering
         await Task.Delay(500);
         products = await ProductService.GetProducts();
+    }
+
+    private Task OnCartUpdated()
+    {
+        // This can be used to refresh cart count or show notifications
+        return Task.CompletedTask;
     }
 }

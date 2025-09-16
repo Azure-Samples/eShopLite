@@ -51,93 +51,35 @@ public static class ProductEndpoints
     {
         var group = routes.MapGroup("/api/Product");
 
-        group.MapGet("/", async (Context db) =>
-        {
-            return await db.Product.ToListAsync();
-        })
-        .WithName("GetAllProducts")
-        .Produces<List<Product>>(StatusCodes.Status200OK);
+        group.MapGet("/", ProductApiActions.GetAllProducts)
+            .WithName("GetAllProducts")
+            .Produces<List<Product>>(StatusCodes.Status200OK);
 
-        group.MapGet("/{id}", async (int id, Context db) =>
-        {
-            return await db.Product.AsNoTracking()
-                .FirstOrDefaultAsync(model => model.Id == id)
-                is Product model
-                    ? Results.Ok(model)
-                    : Results.NotFound();
-        })
-        .WithName("GetProductById")
-        .Produces<Product>(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status404NotFound);
+        group.MapGet("/{id}", ProductApiActions.GetProductById)
+            .WithName("GetProductById")
+            .Produces<Product>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
 
-        group.MapPut("/{id}", async (int id, Product product, Context db) =>
-        {
-            var affected = await db.Product
-                .Where(model => model.Id == id)
-                .ExecuteUpdateAsync(setters => setters
-                  .SetProperty(m => m.Id, product.Id)
-                  .SetProperty(m => m.Name, product.Name)
-                  .SetProperty(m => m.Description, product.Description)
-                  .SetProperty(m => m.Price, product.Price)
-                  .SetProperty(m => m.ImageUrl, product.ImageUrl)
-                );
+        group.MapPut("/{id}", ProductApiActions.UpdateProduct)
+            .WithName("UpdateProduct")
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status204NoContent);
 
-            return affected == 1 ? Results.Ok() : Results.NotFound();
-        })
-        .WithName("UpdateProduct")
-        .Produces(StatusCodes.Status404NotFound)
-        .Produces(StatusCodes.Status204NoContent);
+        group.MapPost("/", ProductApiActions.CreateProduct)
+            .WithName("CreateProduct")
+            .Produces<Product>(StatusCodes.Status201Created);
 
-        group.MapPost("/", async (Product product, Context db) =>
-        {
-            db.Product.Add(product);
-            await db.SaveChangesAsync();
-            return Results.Created($"/api/Product/{product.Id}", product);
-        })
-        .WithName("CreateProduct")
-        .Produces<Product>(StatusCodes.Status201Created);
+        group.MapDelete("/{id}", ProductApiActions.DeleteProduct)
+            .WithName("DeleteProduct")
+            .Produces<Product>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
 
-        group.MapDelete("/{id}", async (int id, Context db) =>
-        {
-            var affected = await db.Product
-                .Where(model => model.Id == id)
-                .ExecuteDeleteAsync();
-
-            return affected == 1 ? Results.Ok() : Results.NotFound();
-        })
-        .WithName("DeleteProduct")
-        .Produces<Product>(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status404NotFound);
-
-        group.MapGet("/search/{search}", async (string search, Context db) =>
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            List<Product> products = await db.Product
-            .Where(p => EF.Functions.Like(p.Name, $"%{search}%"))
-            .ToListAsync();
-
-            stopwatch.Stop();
-
-            var response = new SearchResponse();
-            response.Products = products;
-            response.Response = products.Count > 0 ?
-                $"{products.Count} Products found for [{search}]" :
-                $"No products found for [{search}]";
-            response.ElapsedTime = stopwatch.Elapsed;
-            return response;
-        })
+        group.MapGet("/search/{search}", ProductApiActions.SearchAllProducts)
             .WithName("SearchAllProducts")
             .Produces<List<Product>>(StatusCodes.Status200OK);
 
         #region AI Search Endpoint
-        routes.MapGet("/api/aisearch/{search}",
-            async (string search, Context db, MemoryContext mc) =>
-            {
-                var result = await mc.Search(search, db);
-                return Results.Ok(result);
-            })
+        routes.MapGet("/api/aisearch/{search}", ProductAiActions.AISearch)
             .WithName("AISearch")
             .Produces<SearchResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);

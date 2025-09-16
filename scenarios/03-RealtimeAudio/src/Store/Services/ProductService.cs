@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Store.Services;
 
-public class ProductService
+public class ProductService : IProductService
 {
     HttpClient httpClient;
     private readonly ILogger<ProductService> _logger;
