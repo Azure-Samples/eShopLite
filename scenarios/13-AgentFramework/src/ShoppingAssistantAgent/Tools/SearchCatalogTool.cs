@@ -8,12 +8,12 @@ namespace ShoppingAssistantAgent.Tools;
 /// </summary>
 public class SearchCatalogTool
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly HttpClient httpClient;
     private readonly ILogger<SearchCatalogTool> _logger;
 
-    public SearchCatalogTool(IHttpClientFactory httpClientFactory, ILogger<SearchCatalogTool> logger)
+    public SearchCatalogTool(HttpClient httpClient, ILogger<SearchCatalogTool> logger)
     {
-        _httpClientFactory = httpClientFactory;
+        this.httpClient = httpClient;
         _logger = logger;
     }
 
@@ -25,7 +25,6 @@ public class SearchCatalogTool
         {
             _logger.LogInformation("Searching products with query: {Query}", query);
 
-            var httpClient = _httpClientFactory.CreateClient("products");
             var response = await httpClient.GetAsync($"/api/search?query={Uri.EscapeDataString(query)}");
             response.EnsureSuccessStatusCode();
 

@@ -2,7 +2,6 @@ using ShoppingAssistantAgent.Tools;
 using ShoppingAssistantAgent.Models;
 using OpenAI;
 using Microsoft.Extensions.AI;
-using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,32 +9,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 // Add services
-builder.Services.AddHttpClient();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure HTTP client for Products API
-builder.Services.AddHttpClient("products", client =>
-{
-    // Will be configured via Aspire service discovery
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
-
-// Add CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
-
 // Register Agent Tools
-builder.Services.AddSingleton<SearchCatalogTool>();
+builder.Services.AddScoped<SearchCatalogTool>();
+builder.Services.AddHttpClient<SearchCatalogTool>(
+    static client => client.BaseAddress = new("https+http://products"));
+
 builder.Services.AddSingleton<ProductDetailsTool>();
+builder.Services.AddHttpClient<ProductDetailsTool>(
+    static client => client.BaseAddress = new("https+http://products"));
+
 builder.Services.AddSingleton<AddToCartTool>();
+builder.Services.AddHttpClient<AddToCartTool>(
+    static client => client.BaseAddress = new("https+http://products"));
 
 // Configure OpenAI client with gpt-4.1-mini
 var azureOpenAiClientName = "openai";
@@ -92,7 +80,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 // Chat endpoint using Microsoft Agent Framework pattern with function calling
@@ -102,7 +89,7 @@ app.MapPost("/api/agent/chat", async (
     SearchCatalogTool searchTool,
     ProductDetailsTool detailsTool,
     AddToCartTool cartTool,
-    ILogger<Program> logger) =>
+    ILogger logger) =>
 {
     try
     {
