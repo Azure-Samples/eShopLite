@@ -1,7 +1,7 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-// add openai service and models
-var chatDeploymentName = "gpt-4o-mini";
+// add openai service and models - Updated to gpt-4.1-mini
+var chatDeploymentName = "gpt-4.1-mini";
 var embeddingsDeploymentName = "text-embedding-ada-002";
 IResourceBuilder<IResourceWithConnectionString>? openai;
 
@@ -36,11 +36,11 @@ if (builder.ExecutionContext.IsPublishMode)
     
     var aoai = builder.AddAzureOpenAI("openai");
 
-    var gpt4omini = aoai.AddDeployment(name: chatDeploymentName,
-            modelName: "gpt-4o-mini",
-            modelVersion: "2024-07-18");
-    gpt4omini.Resource.SkuCapacity = 10;
-    gpt4omini.Resource.SkuName = "GlobalStandard";
+    var gpt41mini = aoai.AddDeployment(name: chatDeploymentName,
+            modelName: "gpt-4.1-mini",
+            modelVersion: "2025-04-14");
+    gpt41mini.Resource.SkuCapacity = 10;
+    gpt41mini.Resource.SkuName = "GlobalStandard";
 
     var embeddingsDeployment = aoai.AddDeployment(name: embeddingsDeploymentName,
         modelName: "text-embedding-ada-002",
