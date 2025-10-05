@@ -1,0 +1,232 @@
+@page "/assistant"
+@rendermode InteractiveServer
+@using Store.Services
+@inject IShoppingAgentChatService ChatService
+@inject IJSRuntime JS
+
+<PageTitle>Shopping Assistant</PageTitle>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <span class="bi bi-chat-dots-fill me-2"></span>
+                Shopping Assistant
+            </h1>
+            <p class="text-muted mb-4">Ask me anything about products, search the catalog, or get help with your order!</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 col-xl-6 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <!-- Chat transcript -->
+                    <div class="chat-transcript p-3" @ref="transcriptElement" style="height: 500px; overflow-y: auto;">
+                        @if (!messages.Any())
+                        {
+                            <div class="text-center text-muted py-5">
+                                <span class="bi bi-chat-square-text" style="font-size: 3rem;"></span>
+                                <p class="mt-3">Start a conversation with your shopping assistant!</p>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var msg in messages)
+                            {
+                                <div class="mb-3 @(msg.Role == "user" ? "text-end" : "")">
+                                    <div class="d-inline-block text-start" style="max-width: 80%;">
+                                        <div class="@(msg.Role == "user" ? "bg-primary text-white" : "bg-light") rounded p-3 shadow-sm">
+                                            <div class="small opacity-75 mb-1">
+                                                @if (msg.Role == "user")
+                                                {
+                                                    <span class="bi bi-person-fill me-1"></span><strong>You</strong>
+                                                }
+                                                else
+                                                {
+                                                    <span class="bi bi-robot me-1"></span><strong>Assistant</strong>
+                                                }
+                                                <span class="ms-2">@msg.Timestamp.ToLocalTime().ToString("h:mm tt")</span>
+                                            </div>
+                                            <div>@msg.Content</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        
+                        @if (isLoading)
+                        {
+                            <div class="mb-3">
+                                <div class="d-inline-block text-start" style="max-width: 80%;">
+                                    <div class="bg-light rounded p-3 shadow-sm">
+                                        <div class="small opacity-75 mb-1">
+                                            <span class="bi bi-robot me-1"></span><strong>Assistant</strong>
+                                        </div>
+                                        <div class="typing-indicator">
+                                            <span></span>
+                                            <span></span>
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Input area -->
+                    <div class="border-top p-3 bg-light">
+                        @if (!string.IsNullOrWhiteSpace(errorMessage))
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                                <span class="bi bi-exclamation-triangle-fill me-2"></span>
+                                @errorMessage
+                                <button type="button" class="btn-close" @onclick="ClearError"></button>
+                            </div>
+                        }
+                        
+                        <form @onsubmit="SendMessage" class="d-flex gap-2">
+                            <input type="text" 
+                                   class="form-control" 
+                                   @bind="userInput" 
+                                   @bind:event="oninput"
+                                   placeholder="Type your message..."
+                                   disabled="@isLoading"
+                                   @ref="inputElement" />
+                            <button type="submit" 
+                                    class="btn btn-primary" 
+                                    disabled="@(isLoading || string.IsNullOrWhiteSpace(userInput))">
+                                @if (isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                }
+                                else
+                                {
+                                    <span class="bi bi-send-fill"></span>
+                                }
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .typing-indicator {
+        display: inline-flex;
+        gap: 4px;
+    }
+    
+    .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #6c757d;
+        animation: typing 1.4s infinite;
+    }
+    
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @@keyframes typing {
+        0%, 60%, 100% {
+            opacity: 0.3;
+            transform: translateY(0);
+        }
+        30% {
+            opacity: 1;
+            transform: translateY(-10px);
+        }
+    }
+</style>
+
+@code {
+    private List<ChatMessage> messages = new();
+    private string userInput = string.Empty;
+    private string? conversationId = null;
+    private bool isLoading = false;
+    private string? errorMessage = null;
+    private ElementReference transcriptElement;
+    private ElementReference inputElement;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await inputElement.FocusAsync();
+        }
+        
+        // Scroll to bottom after rendering
+        await ScrollToBottom();
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(userInput) || isLoading)
+            return;
+
+        var message = userInput.Trim();
+        userInput = string.Empty;
+        errorMessage = null;
+
+        // Add user message
+        var userMessage = new ChatMessage("user", message, DateTime.UtcNow);
+        messages.Add(userMessage);
+        
+        isLoading = true;
+        StateHasChanged();
+        await ScrollToBottom();
+
+        try
+        {
+            var response = await ChatService.SendAsync(message, messages, conversationId);
+
+            if (response != null)
+            {
+                conversationId = response.ConversationId;
+                
+                var assistantMessage = new ChatMessage("assistant", response.Message, DateTime.UtcNow);
+                messages.Add(assistantMessage);
+            }
+            else
+            {
+                errorMessage = "Failed to get response from assistant. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+            await ScrollToBottom();
+        }
+    }
+
+    private async Task ScrollToBottom()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("eval", 
+                $"document.querySelector('.chat-transcript').scrollTop = document.querySelector('.chat-transcript').scrollHeight");
+        }
+        catch
+        {
+            // Ignore JS errors
+        }
+    }
+
+    private void ClearError()
+    {
+        errorMessage = null;
+    }
+}
