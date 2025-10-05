@@ -157,9 +157,9 @@ When adding to cart, confirm the action with the customer.")
         
         // The IChatClient with function invocation will automatically invoke tools as needed
         // Using GetResponseAsync from Microsoft.Extensions.AI (returns full ChatResponse with messages)
-        var chatResult = await chatClient.CompleteAsync(messages, chatOptions);
+        var chatResult = await chatClient.GetResponseAsync(messages, chatOptions);
 
-        var assistantMessage = chatResult?.Message?.Text ?? "I'm sorry, I couldn't process that request.";
+        var assistantMessage = chatResult?.Text ?? "I'm sorry, I couldn't process that request.";
         
         logger.LogInformation("Agent response generated: {Response}", 
             assistantMessage.Substring(0, Math.Min(100, assistantMessage.Length)));
