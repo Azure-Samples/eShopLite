@@ -1,8 +1,11 @@
-using ShoppingAssistantAgent.Tools;
-using ShoppingAssistantAgent.Services;
-using ShoppingAssistantAgent.Endpoints;
-using OpenAI;
+using Microsoft.Agents.AI;
+using Microsoft.Agents.AI.Hosting;
 using Microsoft.Extensions.AI;
+using OpenAI;
+using OpenAI.Chat;
+using ShoppingAssistantAgent.Endpoints;
+using ShoppingAssistantAgent.Services;
+using ShoppingAssistantAgent.Tools;
 using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -77,8 +80,22 @@ builder.Services.AddSingleton<IChatClient>(serviceProvider =>
 // Register ZavaAssistant - Main shopping assistant agent
 builder.Services.AddScoped<IAgentOrchestrator, ZavaAssistantOrchestrator>();
 
-// Register ImageAgent - Image processing agent
 builder.Services.AddScoped<IImageAgentOrchestrator, ImageAgentOrchestrator>();
+
+// Register ImageAgent - Image processing agent
+builder.AddAIAgent("ImageProcessingAgent", (sp, key) =>
+{
+    var chatClient = sp.GetRequiredService<IChatClient>();
+
+    return new ChatClientAgent(
+        chatClient,
+        name: key,
+        instructions:
+            @"You are an AI assistant that can analyze images of outdoor and camping products. 
+You can help identify products, assess their condition, suggest similar items, and answer questions about what you see in images.
+Be descriptive and helpful in your analysis."
+    );
+}); 
 
 var app = builder.Build();
 
