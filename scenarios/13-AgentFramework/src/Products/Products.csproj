@@ -29,7 +29,7 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Azure.AI.Inference" Version="9.5.1-preview.1.25502.11" />
     <PackageReference Include="Aspire.Azure.AI.OpenAI" Version="9.5.1-preview.1.25502.11" />
-    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.5.0" />
+    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.5.1" />
     <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.9.1" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.62.0-preview" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
