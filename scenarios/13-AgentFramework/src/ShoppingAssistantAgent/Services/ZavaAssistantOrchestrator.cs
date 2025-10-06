@@ -98,9 +98,9 @@ Always be enthusiastic about outdoor adventures and camping!")
                 tools.Count);
 
             // Call AI with automatic function calling - Agent Framework pattern
-            var chatCompletion = await _chatClient.CompleteAsync(messages, chatOptions);
+            var chatCompletion = await _chatClient.GetResponseAsync(messages, chatOptions);
 
-            var assistantMessage = chatCompletion?.Message?.Text 
+            var assistantMessage = chatCompletion?.Text 
                 ?? "I'm sorry, I couldn't process that request.";
 
             activity?.SetTag("response.length", assistantMessage.Length);

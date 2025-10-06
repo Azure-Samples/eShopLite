@@ -81,9 +81,9 @@ Be descriptive and helpful in your analysis.")
                 messages.Count);
 
             // Call AI with image understanding
-            var chatCompletion = await _chatClient.CompleteAsync(messages, chatOptions);
+            var chatCompletion = await _chatClient.GetResponseAsync(messages, chatOptions);
 
-            var assistantMessage = chatCompletion?.Message?.Text
+            var assistantMessage = chatCompletion?.Text
                 ?? "I'm sorry, I couldn't analyze that image.";
 
             activity?.SetTag("response.length", assistantMessage.Length);
