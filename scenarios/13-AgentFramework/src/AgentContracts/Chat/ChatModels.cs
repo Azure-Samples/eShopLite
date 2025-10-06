@@ -1,4 +1,4 @@
-namespace ShoppingAssistantAgent.Models;
+namespace AgentContracts.Chat;
 
 public class ChatRequest
 {
