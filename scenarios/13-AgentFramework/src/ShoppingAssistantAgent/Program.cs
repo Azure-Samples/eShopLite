@@ -36,11 +36,11 @@ builder.Services.AddScoped<SearchCatalogTool>();
 builder.Services.AddHttpClient<SearchCatalogTool>(
     static client => client.BaseAddress = new("https+http://products"));
 
-builder.Services.AddSingleton<ProductDetailsTool>();
+builder.Services.AddScoped<ProductDetailsTool>();
 builder.Services.AddHttpClient<ProductDetailsTool>(
     static client => client.BaseAddress = new("https+http://products"));
 
-builder.Services.AddSingleton<AddToCartTool>();
+builder.Services.AddScoped<AddToCartTool>();
 builder.Services.AddHttpClient<AddToCartTool>(
     static client => client.BaseAddress = new("https+http://products"));
 
@@ -57,16 +57,16 @@ builder.Services.AddSingleton<IChatClient>(serviceProvider =>
 {
     var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
     logger.LogInformation("Configuring chat client with model: {ChatDeploymentName}", chatDeploymentName);
-    
+
     try
     {
         var openAIClient = serviceProvider.GetRequiredService<OpenAIClient>();
         var chatClient = openAIClient.GetChatClient(chatDeploymentName);
-        
+
         // Build chat client with function invocation enabled (Agent Framework pattern)
         // Using Microsoft.Extensions.AI pattern with IChatClient adapter
         var aiChatClient = chatClient.AsIChatClient();
-        
+
         return new ChatClientBuilder(aiChatClient)
             .UseFunctionInvocation()
             .Build();
@@ -155,7 +155,7 @@ Be descriptive and helpful in your analysis. When you see product images, descri
                 MaxOutputTokens = 1000
             }
         });
-}); 
+});
 
 var app = builder.Build();
 

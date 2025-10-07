@@ -18,9 +18,11 @@ var shoppingAgent = builder.AddProject<Projects.ShoppingAssistantAgent>("shoppin
 
 // Add Products API
 var products = builder.AddProject<Projects.Products>("products")
-    .WithReference(shoppingAgent)
     .WithReference(productsDb)
     .WaitFor(productsDb);
+
+// Shopping Agent needs to reference Products API to call it
+shoppingAgent.WithReference(products);
 
 // Add Store (Frontend)
 var store = builder.AddProject<Projects.Store>("store")
@@ -33,7 +35,7 @@ var store = builder.AddProject<Projects.Store>("store")
 if (builder.ExecutionContext.IsPublishMode)
 {
     var appInsights = builder.AddAzureApplicationInsights("appInsights");
-    
+
     var aoai = builder.AddAzureOpenAI("openai");
 
     var gpt41mini = aoai.AddDeployment(name: chatDeploymentName,

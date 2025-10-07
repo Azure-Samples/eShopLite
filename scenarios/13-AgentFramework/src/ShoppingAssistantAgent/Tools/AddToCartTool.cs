@@ -9,12 +9,12 @@ namespace ShoppingAssistantAgent.Tools;
 /// </summary>
 public class AddToCartTool
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly HttpClient _httpClient;
     private readonly ILogger<AddToCartTool> _logger;
 
-    public AddToCartTool(IHttpClientFactory httpClientFactory, ILogger<AddToCartTool> logger)
+    public AddToCartTool(HttpClient httpClient, ILogger<AddToCartTool> logger)
     {
-        _httpClientFactory = httpClientFactory;
+        _httpClient = httpClient;
         _logger = logger;
     }
 
@@ -32,10 +32,8 @@ public class AddToCartTool
                 return "Quantity must be greater than zero.";
             }
 
-            var httpClient = _httpClientFactory.CreateClient("products");
-            
             // First check if product exists
-            var checkResponse = await httpClient.GetAsync($"/api/products/{productId}");
+            var checkResponse = await _httpClient.GetAsync($"/api/products/{productId}");
             if (!checkResponse.IsSuccessStatusCode)
             {
                 return $"Product with ID {productId} not found.";
@@ -48,8 +46,8 @@ public class AddToCartTool
                 Encoding.UTF8,
                 "application/json");
 
-            var response = await httpClient.PostAsync("/api/cart/add", content);
-            
+            var response = await _httpClient.PostAsync("/api/cart/add", content);
+
             if (response.IsSuccessStatusCode)
             {
                 return $"✅ Successfully added {quantity} unit(s) of product {productId} to your cart!";

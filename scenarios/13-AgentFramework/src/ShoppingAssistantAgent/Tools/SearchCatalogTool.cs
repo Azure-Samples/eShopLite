@@ -25,11 +25,11 @@ public class SearchCatalogTool
         {
             _logger.LogInformation("Searching products with query: {Query}", query);
 
-            var response = await httpClient.GetAsync($"/api/search?query={Uri.EscapeDataString(query)}");
+            var response = await httpClient.GetAsync($"/api/Product/search/{Uri.EscapeDataString(query)}");
             response.EnsureSuccessStatusCode();
 
             var searchResponse = await response.Content.ReadFromJsonAsync<SearchResponse>();
-            
+
             if (searchResponse?.Products == null || searchResponse.Products.Count == 0)
             {
                 return "No products found matching your search.";

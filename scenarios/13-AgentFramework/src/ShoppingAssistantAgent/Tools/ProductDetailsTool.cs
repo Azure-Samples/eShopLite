@@ -8,12 +8,12 @@ namespace ShoppingAssistantAgent.Tools;
 /// </summary>
 public class ProductDetailsTool
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly HttpClient _httpClient;
     private readonly ILogger<ProductDetailsTool> _logger;
 
-    public ProductDetailsTool(IHttpClientFactory httpClientFactory, ILogger<ProductDetailsTool> logger)
+    public ProductDetailsTool(HttpClient httpClient, ILogger<ProductDetailsTool> logger)
     {
-        _httpClientFactory = httpClientFactory;
+        _httpClient = httpClient;
         _logger = logger;
     }
 
@@ -25,16 +25,15 @@ public class ProductDetailsTool
         {
             _logger.LogInformation("Getting details for product: {ProductId}", productId);
 
-            var httpClient = _httpClientFactory.CreateClient("products");
-            var response = await httpClient.GetAsync($"/api/products/{productId}");
-            
+            var response = await _httpClient.GetAsync($"/api/products/{productId}");
+
             if (!response.IsSuccessStatusCode)
             {
                 return $"Product with ID {productId} not found.";
             }
 
             var product = await response.Content.ReadFromJsonAsync<Product>();
-            
+
             if (product == null)
             {
                 return $"Product with ID {productId} not found.";
@@ -43,7 +42,7 @@ public class ProductDetailsTool
             var details = $"**{product.Name}**\n\n";
             details += $"- **Price:** ${product.Price:F2}\n";
             details += $"- **Description:** {product.Description}\n";
-            
+
             if (!string.IsNullOrEmpty(product.ImageUrl))
             {
                 details += $"- **Image:** {product.ImageUrl}\n";
