@@ -16,6 +16,10 @@ public class TelemetryAgent
     private readonly Histogram<double> _responseTimeHistogram;
     private readonly ILogger<TelemetryAgent> _logger;
 
+    // Sanitizes potentially user-provided values for logging
+    private static string SanitizeForLog(string input) =>
+        (input ?? string.Empty).Replace("\r", "").Replace("\n", "");
+
     public TelemetryAgent(ILogger<TelemetryAgent> logger)
     {
         _logger = logger;
@@ -62,7 +66,7 @@ public class TelemetryAgent
         
         _logger.LogError(
             "Error recorded - ConversationId: {ConversationId}, Type: {ErrorType}, Message: {ErrorMessage}",
-            conversationId, errorType, errorMessage);
+            SanitizeForLog(conversationId), errorType, errorMessage);
     }
 
     public void RecordResponseTime(string conversationId, double durationMs)
