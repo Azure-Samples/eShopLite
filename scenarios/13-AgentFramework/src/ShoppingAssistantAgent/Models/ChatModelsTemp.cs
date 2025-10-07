@@ -18,6 +18,7 @@ public class ChatResponse
     public string Message { get; set; } = string.Empty;
     public string ConversationId { get; set; } = string.Empty;
     public List<ProductCard>? Products { get; set; }
+    public TelemetryData? Telemetry { get; set; }
 }
 
 /// <summary>
@@ -40,4 +41,28 @@ public class ProductCard
     public decimal Price { get; set; }
     public string? ImageUrl { get; set; }
     public string? Description { get; set; }
+}
+
+/// <summary>
+/// Telemetry data for monitoring agent performance
+/// </summary>
+public class TelemetryData
+{
+    public int? InputTokens { get; set; }
+    public int? OutputTokens { get; set; }
+    public int? TotalTokens { get; set; }
+    public long ResponseTimeMs { get; set; }
+    public List<ToolInvocation>? ToolsUsed { get; set; }
+    public string? Model { get; set; }
+}
+
+/// <summary>
+/// Information about tool invocations during agent execution
+/// </summary>
+public class ToolInvocation
+{
+    public string ToolName { get; set; } = string.Empty;
+    public string? Arguments { get; set; }
+    public string? Result { get; set; }
+    public long DurationMs { get; set; }
 }

@@ -65,6 +65,62 @@
                                                 <span class="ms-2">@msg.Timestamp.ToLocalTime().ToString("h:mm tt")</span>
                                             </div>
                                             <div>@msg.Content</div>
+                                            
+                                            @if (msg.Role == "assistant" && msg.Telemetry != null)
+                                            {
+                                                <div class="mt-2 pt-2 border-top small opacity-75">
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        @if (msg.Telemetry.ResponseTimeMs > 0)
+                                                        {
+                                                            <span class="badge bg-info">
+                                                                <span class="bi bi-clock me-1"></span>@(msg.Telemetry.ResponseTimeMs)ms
+                                                            </span>
+                                                        }
+                                                        @if (msg.Telemetry.TotalTokens.HasValue)
+                                                        {
+                                                            <span class="badge bg-secondary">
+                                                                <span class="bi bi-cpu me-1"></span>@msg.Telemetry.TotalTokens tokens
+                                                            </span>
+                                                        }
+                                                        @if (msg.Telemetry.InputTokens.HasValue)
+                                                        {
+                                                            <span class="badge bg-secondary">
+                                                                ↓ @msg.Telemetry.InputTokens
+                                                            </span>
+                                                        }
+                                                        @if (msg.Telemetry.OutputTokens.HasValue)
+                                                        {
+                                                            <span class="badge bg-secondary">
+                                                                ↑ @msg.Telemetry.OutputTokens
+                                                            </span>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(msg.Telemetry.Model))
+                                                        {
+                                                            <span class="badge bg-secondary">
+                                                                @msg.Telemetry.Model
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                    @if (msg.Telemetry.ToolsUsed?.Any() == true)
+                                                    {
+                                                        <div class="mt-2">
+                                                            <div class="fw-semibold"><span class="bi bi-tools me-1"></span>Tools Used:</div>
+                                                            <div class="mt-1">
+                                                                @foreach (var tool in msg.Telemetry.ToolsUsed)
+                                                                {
+                                                                    <div class="mb-1">
+                                                                        <span class="badge bg-success me-1">@tool.ToolName</span>
+                                                                        @if (!string.IsNullOrEmpty(tool.Arguments))
+                                                                        {
+                                                                            <span class="text-muted small">@tool.Arguments</span>
+                                                                        }
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -253,7 +309,7 @@
         var displayMessage = selectedImage != null 
             ? $"{message} [Image: {selectedImage.Name}]" 
             : message;
-        var userMessage = new ChatMessage("user", displayMessage, DateTime.UtcNow);
+        var userMessage = new ChatMessage("user", displayMessage, DateTime.UtcNow, null);
         messages.Add(userMessage);
         
         isLoading = true;
@@ -280,7 +336,7 @@
             {
                 conversationId = response.ConversationId;
                 
-                var assistantMessage = new ChatMessage("assistant", response.Message, DateTime.UtcNow);
+                var assistantMessage = new ChatMessage("assistant", response.Message, DateTime.UtcNow, response.Telemetry);
                 messages.Add(assistantMessage);
             }
             else

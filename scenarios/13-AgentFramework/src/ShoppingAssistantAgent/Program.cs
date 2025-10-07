@@ -47,10 +47,15 @@ builder.Services.AddHttpClient<AddToCartTool>(
 // Register Telemetry Agent for monitoring and logging
 builder.Services.AddSingleton<TelemetryAgent>();
 
-// Configure OpenAI client with gpt-4o-mini
+// Configure OpenAI client with gpt-4o-mini and enable sensitive telemetry
 var azureOpenAiClientName = "openai";
 var chatDeploymentName = builder.Configuration["OpenAI:DeploymentName"] ?? "gpt-4o-mini";
-builder.AddAzureOpenAIClient(azureOpenAiClientName);
+
+// Add Azure OpenAI client with enhanced telemetry
+builder.AddAzureOpenAIClient(azureOpenAiClientName, settings =>
+{
+    settings.EnableSensitiveTelemetryData = true;
+});
 
 // Create IChatClient with function calling support - Microsoft Agent Framework pattern
 builder.Services.AddSingleton<IChatClient>(serviceProvider =>
@@ -69,7 +74,7 @@ builder.Services.AddSingleton<IChatClient>(serviceProvider =>
 
         return new ChatClientBuilder(aiChatClient)
             .UseFunctionInvocation()
-            .Build();
+            .Build(serviceProvider);
     }
     catch (Exception ex)
     {

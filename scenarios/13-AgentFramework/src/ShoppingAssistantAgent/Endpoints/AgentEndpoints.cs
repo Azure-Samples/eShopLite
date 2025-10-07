@@ -3,13 +3,14 @@ using Microsoft.Agents.AI;
 using ShoppingAssistantAgent.Models;
 using ShoppingAssistantAgent.Services;
 using System.Collections.Concurrent;
+using System.Text.Json;
 using AIMessage = Microsoft.Extensions.AI.ChatMessage;
 
 namespace ShoppingAssistantAgent.Endpoints;
 
 public static class AgentEndpoints
 {
-    // In-memory conversation storage (for demo purposes)
+    // In-memory conversation storage using List<ChatMessage> (persisted conversation pattern)
     private static readonly ConcurrentDictionary<string, List<AIMessage>> ConversationHistory = new();
 
     /// <summary>
@@ -59,20 +60,21 @@ public static class AgentEndpoints
 
             logger.LogInformation("Received chat message: {Message}", request.Message);
 
-            // Get or create conversation history
-            var history = ConversationHistory.GetOrAdd(conversationId, _ => new List<AIMessage>());
+            // Get or create conversation history using List<ChatMessage> (persisted conversation pattern)
+            var chatHistory = ConversationHistory.GetOrAdd(conversationId, _ => new List<AIMessage>());
 
             // Add user message to history
-            var userMessage = new AIMessage(ChatRole.User, request.Message);
-            history.Add(userMessage);
+            chatHistory.Add(new AIMessage(ChatRole.User, request.Message));
 
             // Track telemetry
             telemetryAgent.RecordMessage(conversationId, "user", request.Message.Length);
 
-            logger.LogInformation("Calling ZavaAssistant with {MessageCount} messages", history.Count);
+            logger.LogInformation("Calling ZavaAssistant with {MessageCount} messages", chatHistory.Count);
 
-            // Run the agent using Microsoft Agent Framework pattern
+            // Run the agent using Microsoft Agent Framework pattern with conversation history
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            
+            // Run agent with the latest user message - the agent maintains conversation context internally
             AgentRunResponse response = await zavaAgent.RunAsync(request.Message);
             stopwatch.Stop();
 
@@ -81,13 +83,12 @@ public static class AgentEndpoints
             var assistantText = response.Text ?? "I'm sorry, I couldn't process that request.";
 
             // Add assistant message to history
-            var assistantMessage = new AIMessage(ChatRole.Assistant, assistantText);
-            history.Add(assistantMessage);
+            chatHistory.Add(new AIMessage(ChatRole.Assistant, assistantText));
 
-            // Keep only last 20 messages
-            if (history.Count > 20)
+            // Keep only last 20 messages to manage memory
+            while (chatHistory.Count > 20)
             {
-                history.RemoveRange(0, history.Count - 20);
+                chatHistory.RemoveAt(0);
             }
 
             telemetryAgent.RecordMessage(conversationId, "assistant", assistantText.Length);
@@ -95,10 +96,22 @@ public static class AgentEndpoints
             logger.LogInformation("ZavaAssistant response: {ResponsePreview}",
                 assistantText.Substring(0, Math.Min(100, assistantText.Length)));
 
+            // Extract telemetry data from response
+            var telemetryData = new TelemetryData
+            {
+                ResponseTimeMs = stopwatch.ElapsedMilliseconds,
+                Model = "gpt-4o-mini",
+                ToolsUsed = ExtractToolInvocations(response),
+                InputTokens = ExtractTokenCount(response, "input"),
+                OutputTokens = ExtractTokenCount(response, "output"),
+                TotalTokens = ExtractTokenCount(response, "total")
+            };
+
             return Results.Ok(new Models.ChatResponse
             {
                 Message = assistantText,
-                ConversationId = conversationId
+                ConversationId = conversationId,
+                Telemetry = telemetryData
             });
         }
         catch (Exception ex)
@@ -107,6 +120,71 @@ public static class AgentEndpoints
             logger.LogError(ex, "Error processing chat request");
             return Results.Problem("An error occurred while processing your request.");
         }
+    }
+
+    private static List<ToolInvocation>? ExtractToolInvocations(AgentRunResponse response)
+    {
+        // Extract tool invocations from the response if available
+        // This will capture which tools were called during agent execution
+        var toolInvocations = new List<ToolInvocation>();
+        
+        try
+        {
+            // Check if response contains tool call information in AdditionalProperties
+            if (response.AdditionalProperties?.TryGetValue("tool_calls", out var toolCallsObj) == true)
+            {
+                if (toolCallsObj is List<object> toolCallsList)
+                {
+                    foreach (var toolCall in toolCallsList)
+                    {
+                        if (toolCall is Dictionary<string, object> toolDict)
+                        {
+                            var toolName = toolDict.TryGetValue("name", out var name) ? name.ToString() : "Unknown";
+                            var arguments = toolDict.TryGetValue("arguments", out var args) ? args.ToString() : null;
+                            
+                            toolInvocations.Add(new ToolInvocation
+                            {
+                                ToolName = toolName ?? "Unknown",
+                                Arguments = arguments,
+                                Result = "Executed",
+                                DurationMs = 0
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // If tool extraction fails, return empty list
+        }
+
+        return toolInvocations.Count > 0 ? toolInvocations : null;
+    }
+
+    private static int? ExtractTokenCount(AgentRunResponse response, string type)
+    {
+        try
+        {
+            // Try to extract token usage from response AdditionalProperties
+            if (response.AdditionalProperties?.TryGetValue("usage", out var usage) == true)
+            {
+                if (usage is Dictionary<string, object> usageDict)
+                {
+                    if (type == "input" && usageDict.TryGetValue("prompt_tokens", out var inputTokens))
+                        return Convert.ToInt32(inputTokens);
+                    if (type == "output" && usageDict.TryGetValue("completion_tokens", out var outputTokens))
+                        return Convert.ToInt32(outputTokens);
+                    if (type == "total" && usageDict.TryGetValue("total_tokens", out var totalTokens))
+                        return Convert.ToInt32(totalTokens);
+                }
+            }
+        }
+        catch
+        {
+            // If extraction fails, return null
+        }
+        return null;
     }
 
     private static async Task<IResult> ChatWithAgentAndImage(
@@ -141,8 +219,8 @@ public static class AgentEndpoints
                 ? Guid.NewGuid().ToString() 
                 : conversationId;
 
-            // Get or create conversation history
-            var history = ConversationHistory.GetOrAdd(conversationId, _ => new List<AIMessage>());
+            // Get or create conversation history using List<ChatMessage>
+            var chatHistory = ConversationHistory.GetOrAdd(conversationId, _ => new List<AIMessage>());
 
             // Read image data
             byte[] imageData;
@@ -164,15 +242,16 @@ public static class AgentEndpoints
                 new DataContent(imageDataUri, imageContentType)
             };
 
-            var userMessage = new AIMessage(ChatRole.User, contentParts);
-            history.Add(userMessage);
+            chatHistory.Add(new AIMessage(ChatRole.User, contentParts));
 
             telemetryAgent.RecordMessage(conversationId, "user", message.Length + imageData.Length);
 
-            logger.LogInformation("Calling ImageAgent with image and {MessageCount} messages", history.Count);
+            logger.LogInformation("Calling ImageAgent with image and {MessageCount} messages", chatHistory.Count);
 
-            // Run the image agent
+            // Run the image agent with conversation history
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            
+            // Run agent with the latest user message
             AgentRunResponse response = await imageAgent.RunAsync(message);
             stopwatch.Stop();
 
@@ -181,13 +260,12 @@ public static class AgentEndpoints
             var assistantText = response.Text ?? "I couldn't analyze the image.";
 
             // Add assistant message to history
-            var assistantMessage = new AIMessage(ChatRole.Assistant, assistantText);
-            history.Add(assistantMessage);
+            chatHistory.Add(new AIMessage(ChatRole.Assistant, assistantText));
 
             // Keep only last 20 messages
-            if (history.Count > 20)
+            while (chatHistory.Count > 20)
             {
-                history.RemoveRange(0, history.Count - 20);
+                chatHistory.RemoveAt(0);
             }
 
             telemetryAgent.RecordMessage(conversationId, "assistant", assistantText.Length);
@@ -195,10 +273,22 @@ public static class AgentEndpoints
             logger.LogInformation("ImageAgent response: {ResponsePreview}",
                 assistantText.Substring(0, Math.Min(100, assistantText.Length)));
 
+            // Extract telemetry data
+            var telemetryData = new TelemetryData
+            {
+                ResponseTimeMs = stopwatch.ElapsedMilliseconds,
+                Model = "gpt-4o-mini",
+                ToolsUsed = ExtractToolInvocations(response),
+                InputTokens = ExtractTokenCount(response, "input"),
+                OutputTokens = ExtractTokenCount(response, "output"),
+                TotalTokens = ExtractTokenCount(response, "total")
+            };
+
             return Results.Ok(new Models.ChatResponse
             {
                 Message = assistantText,
-                ConversationId = conversationId
+                ConversationId = conversationId,
+                Telemetry = telemetryData
             });
         }
         catch (Exception ex)
