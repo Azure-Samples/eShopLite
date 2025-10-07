@@ -1,14 +1,16 @@
 using Microsoft.Extensions.AI;
+using Microsoft.Agents.AI;
 using ShoppingAssistantAgent.Models;
 using ShoppingAssistantAgent.Services;
 using System.Collections.Concurrent;
+using AIMessage = Microsoft.Extensions.AI.ChatMessage;
 
 namespace ShoppingAssistantAgent.Endpoints;
 
 public static class AgentEndpoints
 {
     // In-memory conversation storage (for demo purposes)
-    private static readonly ConcurrentDictionary<string, List<Models.ChatMessage>> ConversationHistory = new();
+    private static readonly ConcurrentDictionary<string, List<AIMessage>> ConversationHistory = new();
 
     /// <summary>
     /// Configures the agent-related endpoints for the application.
@@ -42,9 +44,12 @@ public static class AgentEndpoints
 
     private static async Task<IResult> ChatWithAgent(
         ChatRequest request,
-        IAgentOrchestrator agentOrchestrator,
+        [FromKeyedServices("ZavaAssistant")] AIAgent zavaAgent,
+        TelemetryAgent telemetryAgent,
         ILogger<Program> logger)
     {
+        var conversationId = request.ConversationId ?? Guid.NewGuid().ToString();
+        
         try
         {
             if (string.IsNullOrWhiteSpace(request.Message))
@@ -54,33 +59,29 @@ public static class AgentEndpoints
 
             logger.LogInformation("Received chat message: {Message}", request.Message);
 
-            var conversationId = request.ConversationId ?? Guid.NewGuid().ToString();
-
             // Get or create conversation history
-            var history = ConversationHistory.GetOrAdd(conversationId, _ => new List<Models.ChatMessage>());
+            var history = ConversationHistory.GetOrAdd(conversationId, _ => new List<AIMessage>());
 
             // Add user message to history
-            var userMessage = new Models.ChatMessage
-            {
-                Role = "user",
-                Content = request.Message,
-                Timestamp = DateTime.UtcNow
-            };
+            var userMessage = new AIMessage(ChatRole.User, request.Message);
             history.Add(userMessage);
 
-            // Process with agent
-            var response = await agentOrchestrator.ProcessMessageAsync(
-                request.Message,
-                conversationId,
-                history);
+            // Track telemetry
+            telemetryAgent.RecordMessage(conversationId, "user", request.Message.Length);
+
+            logger.LogInformation("Calling ZavaAssistant with {MessageCount} messages", history.Count);
+
+            // Run the agent using Microsoft Agent Framework pattern
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            AgentRunResponse response = await zavaAgent.RunAsync(request.Message);
+            stopwatch.Stop();
+
+            telemetryAgent.RecordResponseTime(conversationId, stopwatch.ElapsedMilliseconds);
+
+            var assistantText = response.Text ?? "I'm sorry, I couldn't process that request.";
 
             // Add assistant message to history
-            var assistantMessage = new Models.ChatMessage
-            {
-                Role = "assistant",
-                Content = response.Message,
-                Timestamp = DateTime.UtcNow
-            };
+            var assistantMessage = new AIMessage(ChatRole.Assistant, assistantText);
             history.Add(assistantMessage);
 
             // Keep only last 20 messages
@@ -89,11 +90,20 @@ public static class AgentEndpoints
                 history.RemoveRange(0, history.Count - 20);
             }
 
-            response.ConversationId = conversationId;
-            return Results.Ok(response);
+            telemetryAgent.RecordMessage(conversationId, "assistant", assistantText.Length);
+
+            logger.LogInformation("ZavaAssistant response: {ResponsePreview}",
+                assistantText.Substring(0, Math.Min(100, assistantText.Length)));
+
+            return Results.Ok(new Models.ChatResponse
+            {
+                Message = assistantText,
+                ConversationId = conversationId
+            });
         }
         catch (Exception ex)
         {
+            telemetryAgent.RecordError(conversationId, "ChatError", ex.Message);
             logger.LogError(ex, "Error processing chat request");
             return Results.Problem("An error occurred while processing your request.");
         }
@@ -101,14 +111,17 @@ public static class AgentEndpoints
 
     private static async Task<IResult> ChatWithAgentAndImage(
         HttpRequest httpRequest,
-        IImageAgentOrchestrator imageAgentOrchestrator,
+        [FromKeyedServices("ImageAgent")] AIAgent imageAgent,
+        TelemetryAgent telemetryAgent,
         ILogger<Program> logger)
     {
+        string conversationId = "unknown";
+        
         try
         {
             var form = await httpRequest.ReadFormAsync();
             var message = form["message"].ToString();
-            var conversationId = form["conversationId"].ToString();
+            conversationId = form["conversationId"].ToString();
             var imageFile = form.Files.GetFile("image");
 
             if (string.IsNullOrWhiteSpace(message))
@@ -129,7 +142,7 @@ public static class AgentEndpoints
                 : conversationId;
 
             // Get or create conversation history
-            var history = ConversationHistory.GetOrAdd(conversationId, _ => new List<Models.ChatMessage>());
+            var history = ConversationHistory.GetOrAdd(conversationId, _ => new List<AIMessage>());
 
             // Read image data
             byte[] imageData;
@@ -139,30 +152,36 @@ public static class AgentEndpoints
                 imageData = memoryStream.ToArray();
             }
 
-            // Add user message to history
-            var userMessage = new Models.ChatMessage
+            // Convert image to base64 for AI processing
+            var base64Image = Convert.ToBase64String(imageData);
+            var imageContentType = imageFile.ContentType ?? "image/jpeg";
+
+            // Create multimodal message with image using DataContent
+            var imageDataUri = $"data:{imageContentType};base64,{base64Image}";
+            var contentParts = new List<AIContent>
             {
-                Role = "user",
-                Content = $"{message} [Image uploaded: {imageFile.FileName}]",
-                Timestamp = DateTime.UtcNow
+                new TextContent(message),
+                new DataContent(imageDataUri, imageContentType)
             };
+
+            var userMessage = new AIMessage(ChatRole.User, contentParts);
             history.Add(userMessage);
 
-            // Process with image agent
-            var response = await imageAgentOrchestrator.ProcessMessageWithImageAsync(
-                message,
-                imageData,
-                imageFile.ContentType,
-                conversationId,
-                history);
+            telemetryAgent.RecordMessage(conversationId, "user", message.Length + imageData.Length);
+
+            logger.LogInformation("Calling ImageAgent with image and {MessageCount} messages", history.Count);
+
+            // Run the image agent
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            AgentRunResponse response = await imageAgent.RunAsync(message);
+            stopwatch.Stop();
+
+            telemetryAgent.RecordResponseTime(conversationId, stopwatch.ElapsedMilliseconds);
+
+            var assistantText = response.Text ?? "I couldn't analyze the image.";
 
             // Add assistant message to history
-            var assistantMessage = new Models.ChatMessage
-            {
-                Role = "assistant",
-                Content = response.Message,
-                Timestamp = DateTime.UtcNow
-            };
+            var assistantMessage = new AIMessage(ChatRole.Assistant, assistantText);
             history.Add(assistantMessage);
 
             // Keep only last 20 messages
@@ -171,11 +190,20 @@ public static class AgentEndpoints
                 history.RemoveRange(0, history.Count - 20);
             }
 
-            response.ConversationId = conversationId;
-            return Results.Ok(response);
+            telemetryAgent.RecordMessage(conversationId, "assistant", assistantText.Length);
+
+            logger.LogInformation("ImageAgent response: {ResponsePreview}",
+                assistantText.Substring(0, Math.Min(100, assistantText.Length)));
+
+            return Results.Ok(new Models.ChatResponse
+            {
+                Message = assistantText,
+                ConversationId = conversationId
+            });
         }
         catch (Exception ex)
         {
+            telemetryAgent.RecordError(conversationId, "ImageChatError", ex.Message);
             logger.LogError(ex, "Error processing chat request with image");
             return Results.Problem("An error occurred while processing your request with image.");
         }

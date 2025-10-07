@@ -7,6 +7,7 @@ using ShoppingAssistantAgent.Endpoints;
 using ShoppingAssistantAgent.Services;
 using ShoppingAssistantAgent.Tools;
 using System.Diagnostics;
+using System.ClientModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,24 +78,83 @@ builder.Services.AddSingleton<IChatClient>(serviceProvider =>
     }
 });
 
-// Register ZavaAssistant - Main shopping assistant agent
-builder.Services.AddScoped<IAgentOrchestrator, ZavaAssistantOrchestrator>();
+// Register ZavaAssistant - Main shopping assistant agent using ChatClientAgent pattern
+builder.AddAIAgent("ZavaAssistant", (sp, key) =>
+{
+    var chatClient = sp.GetRequiredService<IChatClient>();
+    var searchTool = sp.GetRequiredService<SearchCatalogTool>();
+    var detailsTool = sp.GetRequiredService<ProductDetailsTool>();
+    var cartTool = sp.GetRequiredService<AddToCartTool>();
 
-builder.Services.AddScoped<IImageAgentOrchestrator, ImageAgentOrchestrator>();
+    return new ChatClientAgent(
+        chatClient,
+        new ChatClientAgentOptions
+        {
+            Name = key,
+            Instructions = @"You are Zava, a helpful shopping assistant for an outdoor camping products store. 
+You can help customers:
+- Search for products by name or description using the SearchProductsAsync function
+- Get detailed information about specific products using the GetProductDetailsAsync function
+- Add products to their shopping cart using the AddProductToCartAsync function
 
-// Register ImageAgent - Image processing agent
-builder.AddAIAgent("ImageProcessingAgent", (sp, key) =>
+Be friendly, concise, and helpful. When customers ask about products, use the available tools to search the catalog.
+If they want product details, ask for the product ID if not provided.
+When adding to cart, confirm the action with the customer.
+Always be enthusiastic about outdoor adventures and camping!",
+            ChatOptions = new ChatOptions
+            {
+                Temperature = 0.7f,
+                MaxOutputTokens = 800,
+                Tools = [
+                    AIFunctionFactory.Create(searchTool.SearchProductsAsync),
+                    AIFunctionFactory.Create(detailsTool.GetProductDetailsAsync),
+                    AIFunctionFactory.Create(cartTool.AddProductToCartAsync)
+                ],
+            }
+        });
+});
+
+// Register Telemetry and Logging Agent
+builder.AddAIAgent("TelemetryAgent", (sp, key) =>
+{
+    var chatClient = sp.GetRequiredService<IChatClient>();
+    var telemetryAgent = sp.GetRequiredService<TelemetryAgent>();
+
+    return new ChatClientAgent(
+        chatClient,
+        new ChatClientAgentOptions
+        {
+            Name = key,
+            Instructions = @"You are a telemetry and logging assistant that monitors conversations and tracks metrics.
+You observe user interactions and provide insights about usage patterns, popular queries, and system health.
+You help identify issues and suggest improvements based on conversation analysis.",
+            ChatOptions = new ChatOptions
+            {
+                Temperature = 0.3f,
+                MaxOutputTokens = 500
+            }
+        });
+});
+
+// Register ImageAgent - Image processing agent using ChatClientAgent pattern
+builder.AddAIAgent("ImageAgent", (sp, key) =>
 {
     var chatClient = sp.GetRequiredService<IChatClient>();
 
     return new ChatClientAgent(
         chatClient,
-        name: key,
-        instructions:
-            @"You are an AI assistant that can analyze images of outdoor and camping products. 
+        new ChatClientAgentOptions
+        {
+            Name = key,
+            Instructions = @"You are an AI assistant that can analyze images of outdoor and camping products. 
 You can help identify products, assess their condition, suggest similar items, and answer questions about what you see in images.
-Be descriptive and helpful in your analysis."
-    );
+Be descriptive and helpful in your analysis. When you see product images, describe what you observe and suggest relevant products from our catalog.",
+            ChatOptions = new ChatOptions
+            {
+                Temperature = 0.7f,
+                MaxOutputTokens = 1000
+            }
+        });
 }); 
 
 var app = builder.Build();
@@ -114,6 +174,6 @@ app.UseHttpsRedirection();
 app.MapAgentEndpoints();
 
 app.Logger.LogInformation("Shopping Assistant Agent with Microsoft Agent Framework started successfully");
-app.Logger.LogInformation("ZavaAssistant and ImageAgent are ready to process requests");
+app.Logger.LogInformation("ZavaAssistant, ImageAgent, and TelemetryAgent are ready to process requests");
 
 app.Run();

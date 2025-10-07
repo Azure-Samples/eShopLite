@@ -1,6 +1,8 @@
 @page "/assistant"
 @rendermode InteractiveServer
 @using Store.Services
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Net.Http.Json
 @inject IShoppingAgentChatService ChatService
 @inject IJSRuntime JS
 
@@ -84,8 +86,28 @@
                                 <button type="button" class="btn-close" @onclick="ClearError"></button>
                             </div>
                         }
+
+                        @if (selectedImage != null)
+                        {
+                            <div class="alert alert-info alert-dismissible fade show mb-3 d-flex align-items-center" role="alert">
+                                <span class="bi bi-image-fill me-2"></span>
+                                <span class="flex-grow-1">Image attached: @selectedImage.Name (@(selectedImage.Size / 1024)KB)</span>
+                                <button type="button" class="btn-close" @onclick="ClearImage"></button>
+                            </div>
+                        }
                         
                         <form @onsubmit="SendMessage" class="d-flex gap-2">
+                            <InputFile OnChange="HandleImageSelected" 
+                                      accept="image/*" 
+                                      class="d-none" 
+                                      id="imageInput" />
+                            <button type="button" 
+                                    class="btn btn-outline-secondary" 
+                                    @onclick="TriggerImageSelect"
+                                    disabled="@isLoading"
+                                    title="Attach image">
+                                <span class="bi bi-paperclip"></span>
+                            </button>
                             <input type="text" 
                                    class="form-control" 
                                    @bind="userInput" 
@@ -155,6 +177,7 @@
     private string? errorMessage = null;
     private ElementReference transcriptElement;
     private ElementReference inputElement;
+    private IBrowserFile? selectedImage = null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -167,6 +190,42 @@
         await ScrollToBottom();
     }
 
+    private async Task TriggerImageSelect()
+    {
+        await JS.InvokeVoidAsync("eval", "document.getElementById('imageInput').click()");
+    }
+
+    private void HandleImageSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            // Validate file size (max 10MB)
+            if (file.Size > 10 * 1024 * 1024)
+            {
+                errorMessage = "Image size must be less than 10MB";
+                return;
+            }
+
+            // Validate file type
+            if (!file.ContentType.StartsWith("image/"))
+            {
+                errorMessage = "Please select a valid image file";
+                return;
+            }
+
+            selectedImage = file;
+            errorMessage = null;
+            StateHasChanged();
+        }
+    }
+
+    private void ClearImage()
+    {
+        selectedImage = null;
+        StateHasChanged();
+    }
+
     private async Task SendMessage()
     {
         if (string.IsNullOrWhiteSpace(userInput) || isLoading)
@@ -177,7 +236,10 @@
         errorMessage = null;
 
         // Add user message
-        var userMessage = new ChatMessage("user", message, DateTime.UtcNow);
+        var displayMessage = selectedImage != null 
+            ? $"{message} [Image: {selectedImage.Name}]" 
+            : message;
+        var userMessage = new ChatMessage("user", displayMessage, DateTime.UtcNow);
         messages.Add(userMessage);
         
         isLoading = true;
@@ -186,7 +248,19 @@
 
         try
         {
-            var response = await ChatService.SendAsync(message, messages, conversationId);
+            ChatResponse? response;
+            
+            if (selectedImage != null)
+            {
+                // Send with image using multipart form data
+                response = await SendMessageWithImageAsync(message, selectedImage);
+                selectedImage = null; // Clear after sending
+            }
+            else
+            {
+                // Send regular text message
+                response = await ChatService.SendAsync(message, messages, conversationId);
+            }
 
             if (response != null)
             {
@@ -209,6 +283,42 @@
             isLoading = false;
             StateHasChanged();
             await ScrollToBottom();
+        }
+    }
+
+    private async Task<ChatResponse?> SendMessageWithImageAsync(string message, IBrowserFile imageFile)
+    {
+        try
+        {
+            using var content = new MultipartFormDataContent();
+            content.Add(new StringContent(message), "message");
+            
+            if (!string.IsNullOrEmpty(conversationId))
+            {
+                content.Add(new StringContent(conversationId), "conversationId");
+            }
+
+            // Read image data
+            var imageStream = imageFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            var imageContent = new StreamContent(imageStream);
+            imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(imageFile.ContentType);
+            content.Add(imageContent, "image", imageFile.Name);
+
+            // Create HttpClient (note: in production, inject this properly)
+            var httpClient = new HttpClient { BaseAddress = new Uri("https+http://shopping-assistant-agent") };
+            var response = await httpClient.PostAsync("/api/agent/chat-with-image", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            return await response.Content.ReadFromJsonAsync<ChatResponse>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error sending message with image: {ex.Message}");
+            return null;
         }
     }
 
