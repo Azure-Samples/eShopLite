@@ -104,7 +104,7 @@ public class MemoryContext
 
             await foreach (var resultItem in _productsCollection.SearchAsync(vectorSearchQuery, top: 3))
             {
-                if (resultItem.Score > 0.5)
+                if (resultItem.Score > 0.3)
                 {
                     var product = await db.FindAsync<Product>(resultItem.Record.Id);
                     if (product != null)
