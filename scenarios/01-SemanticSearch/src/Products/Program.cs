@@ -1,12 +1,8 @@
-using Azure.AI.OpenAI;
 using Azure.Identity;
 using Microsoft.Extensions.AI;
-using OpenAI;
-using OpenAI.Embeddings;
 using Products.Endpoints;
 using Products.Memory;
 using Products.Models;
-using System.ClientModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
