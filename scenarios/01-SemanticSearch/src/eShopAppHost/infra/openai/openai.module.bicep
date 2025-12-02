@@ -35,11 +35,11 @@ resource gpt_5_mini 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01
 }
 
 resource text_embedding_ada_002 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
-  name: 'text-embedding-ada-002'
+  name: 'text-embedding-3-small'
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'text-embedding-ada-002'
+      name: 'text-embedding-3-small'
       version: '1'
     }
   }

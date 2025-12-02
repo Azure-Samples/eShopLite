@@ -11,9 +11,9 @@ var productsDb = sql
     .WithDataVolume()
     .AddDatabase("productsDb");
 
-IResourceBuilder<IResourceWithConnectionString>? openai;
+IResourceBuilder<IResourceWithConnectionString>? microsoftfoundry;
 var chatDeploymentName = "gpt-5-mini";
-var embeddingsDeploymentName = "text-embedding-ada-002";
+var embeddingsDeploymentName = "text-embedding-3-small";
 
 var products = builder.AddProject<Projects.Products>("products")
     .WithReference(productsDb)
@@ -36,22 +36,23 @@ if (builder.ExecutionContext.IsPublishMode)
     gpt5mini.Resource.SkuName = "GlobalStandard";
 
     var embeddingsDeployment = aoai.AddDeployment(name: embeddingsDeploymentName,
-        modelName: "text-embedding-ada-002",
-        modelVersion: "2");
+        modelName: "text-embedding-3-small",
+        modelVersion: "1");
+    embeddingsDeployment.Resource.SkuName = "GlobalStandard";
 
     products.WithReference(appInsights);
 
     store.WithReference(appInsights)
         .WithExternalHttpEndpoints();
 
-    openai = aoai;
+    microsoftfoundry = aoai;
 }
 else
 {
-    openai = builder.AddConnectionString("openai");
+    microsoftfoundry = builder.AddConnectionString("microsoftfoundry");
 }
 
-products.WithReference(openai)
+products.WithReference(microsoftfoundry)
     .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
     .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
 

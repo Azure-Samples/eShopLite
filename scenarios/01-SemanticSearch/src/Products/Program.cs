@@ -16,12 +16,11 @@ builder.Services.AddProblemDetails();
 // Add DbContext service
 builder.AddSqlServerDbContext<Context>("productsDb");
 
-
-var azureOpenAIConnectionName = "openai";
+var microsoftFoundryConnectionName = "microsoftfoundry";
 var chatDeploymentName = builder.Configuration["AI_ChatDeploymentName"] ?? "gpt-5-mini";
-var embeddingsDeploymentName = builder.Configuration["AI_embeddingsDeploymentName"] ?? "text-embedding-ada-002";
+var embeddingsDeploymentName = builder.Configuration["AI_embeddingsDeploymentName"] ?? "text-embedding-3-small";
 
-builder.AddAzureOpenAIClient(connectionName: azureOpenAIConnectionName,
+builder.AddAzureOpenAIClient(connectionName: microsoftFoundryConnectionName,
     configureSettings: settings =>
     {
         if (string.IsNullOrEmpty(settings.Key))
@@ -30,7 +29,7 @@ builder.AddAzureOpenAIClient(connectionName: azureOpenAIConnectionName,
         }
     }).AddChatClient(chatDeploymentName);
 
-builder.AddAzureOpenAIClient(azureOpenAIConnectionName,
+builder.AddAzureOpenAIClient(microsoftFoundryConnectionName,
     configureSettings: settings =>
     {
         if (string.IsNullOrEmpty(settings.Key))
@@ -66,7 +65,7 @@ app.MapProductEndpoints();
 app.UseStaticFiles();
 
 // log Azure OpenAI resources
-app.Logger.LogInformation($"Azure OpenAI resources\n >> OpenAI Client Name: {azureOpenAIConnectionName}");
+app.Logger.LogInformation($"Azure OpenAI resources\n >> OpenAI Client Name: {microsoftFoundryConnectionName}");
 AppContext.SetSwitch("OpenAI.Experimental.EnableOpenTelemetry", true);
 
 // manage db

@@ -37,7 +37,7 @@ properties:
           - name: AI_ChatDeploymentName
             value: gpt-5-mini
           - name: AI_embeddingsDeploymentName
-            value: text-embedding-ada-002
+            value: text-embedding-3-small
           - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
             value: "true"
           - name: HTTP_PORTS
