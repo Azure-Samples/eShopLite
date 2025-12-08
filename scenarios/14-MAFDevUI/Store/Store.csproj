@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+  <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>preview</LangVersion>
+    <UserSecretsId>8395dfa0-d071-40ba-9442-87a49a3fe11a</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.0.2-preview.1.25603.5" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0" />
+    <PackageReference Include="System.Text.Json" Version="10.0.0" />
+    <!-- DEMO Step 4: DevUI package for agent debugging and visualization -->
+		<PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-preview.251125.1" />
+		<PackageReference Include="Microsoft.Agents.AI.Abstractions" Version="1.0.0-preview.251125.1" />
+		<PackageReference Include="Microsoft.Agents.AI.DevUI" Version="1.0.0-preview.251125.1" />
+		<PackageReference Include="Microsoft.Agents.AI.Hosting" Version="1.0.0-preview.251125.1" />
+		<PackageReference Include="Microsoft.Agents.AI.Hosting.OpenAI" Version="1.0.0-alpha.251125.1" />
+		<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.0.0-preview.251125.1" />
+    <!-- Enhanced logging and observability for agent debugging -->
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AgentServices\AgentServices.csproj" />
+    <ProjectReference Include="..\DataEntities\DataEntities.csproj" />
+    <ProjectReference Include="..\eShopServiceDefaults\eShopServiceDefaults.csproj" />
+    <ProjectReference Include="..\SearchEntities\SearchEntities.csproj" />
+    <ProjectReference Include="..\CartEntities\CartEntities.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,94 @@
+.user-picker {
+    position: relative;
+    display: inline-block;
+}
+
+.current-user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    transition: background-color 0.2s;
+}
+
+.current-user:hover {
+    background-color: #f0f0f0;
+}
+
+.user-name {
+    font-weight: 500;
+}
+
+.dropdown-arrow {
+    font-size: 0.7rem;
+    color: #666;
+}
+
+.membership-badge, .item-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-gold {
+    background-color: #ffd700;
+    color: #333;
+}
+
+.badge-silver {
+    background-color: #c0c0c0;
+    color: #333;
+}
+
+.badge-normal {
+    background-color: #e0e0e0;
+    color: #666;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 200px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    margin-top: 4px;
+}
+
+.dropdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}
+
+.dropdown-item.active {
+    background-color: #e8f4fc;
+}
+
+.dropdown-item:first-child {
+    border-radius: 4px 4px 0 0;
+}
+
+.dropdown-item:last-child {
+    border-radius: 0 0 4px 4px;
+}
+
+.item-name {
+    font-weight: 500;
+}

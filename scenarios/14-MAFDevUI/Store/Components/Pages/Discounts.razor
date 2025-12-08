@@ -1,0 +1,64 @@
+@page "/discounts"
+@using DataEntities
+@rendermode InteractiveServer
+
+<PageTitle>Discounts</PageTitle>
+
+<h1>Discounts</h1>
+
+<p>Manage discount tiers and percentages.</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Discount %</th>
+            <th>Membership Tier</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var discount in discounts)
+        {
+            <tr>
+                <td>@discount.Id</td>
+                <td>@discount.Name</td>
+                <td>@discount.Description</td>
+                <td>@discount.DiscountPercentage%</td>
+                <td>
+                    <span class="badge @GetBadgeClass(discount.MembershipTier)">@discount.MembershipTier</span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    // Sample discounts matching database initialization
+    private List<DiscountViewModel> discounts = new()
+    {
+        new DiscountViewModel { Id = 1, Name = "Gold Member Discount", Description = "Special discount for Gold members", DiscountPercentage = 20m, MembershipTier = MembershipTier.Gold },
+        new DiscountViewModel { Id = 2, Name = "Silver Member Discount", Description = "Special discount for Silver members", DiscountPercentage = 10m, MembershipTier = MembershipTier.Silver },
+        new DiscountViewModel { Id = 3, Name = "Regular Member Discount", Description = "Standard discount for all members", DiscountPercentage = 0m, MembershipTier = MembershipTier.Normal },
+    };
+
+    private string GetBadgeClass(MembershipTier tier)
+    {
+        return tier switch
+        {
+            MembershipTier.Gold => "bg-warning text-dark",
+            MembershipTier.Silver => "bg-secondary",
+            _ => "bg-light text-dark"
+        };
+    }
+
+    private class DiscountViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public decimal DiscountPercentage { get; set; }
+        public MembershipTier MembershipTier { get; set; }
+    }
+}

@@ -1,0 +1,63 @@
+@using CartEntities
+@using Store.Services
+@inject CartService CartService
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<button class="btn btn-primary btn-sm" @onclick="AddToCart" disabled="@(isLoading || !isClientRendered)">
+    @if (isLoading)
+    {
+        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+    }
+    else
+    {
+        <i class="bi bi-cart-plus me-1"></i>
+    }
+    Add to Cart
+</button>
+
+@code {
+    [Parameter] public int ProductId { get; set; }
+    [Parameter] public string ProductName { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnCartUpdated { get; set; }
+    
+    private bool isLoading = false;
+    private bool isClientRendered = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isClientRendered = true;
+            StateHasChanged();
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task AddToCart()
+    {
+        if (isLoading || !isClientRendered) return;
+        
+        isLoading = true;
+        try
+        {
+            await CartService.AddToCartAsync(ProductId);
+            await OnCartUpdated.InvokeAsync();
+            
+            // Show success feedback
+            var message = !string.IsNullOrEmpty(ProductName) 
+                ? $"{ProductName} added to cart!" 
+                : "Product added to cart!";
+            await JSRuntime.InvokeVoidAsync("showToast", message);
+        }
+        catch (Exception)
+        {
+            // Show error feedback
+            await JSRuntime.InvokeVoidAsync("showToast", "Error adding product to cart.", "error");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
