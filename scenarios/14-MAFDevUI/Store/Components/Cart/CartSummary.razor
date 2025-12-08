@@ -1,0 +1,129 @@
+@using CartEntities
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<div class="cart-summary">
+    <div class="d-flex justify-content-between mb-2">
+        <span>Subtotal:</span>
+        <span>@cart.Subtotal.ToString("C")</span>
+    </div>
+    
+    @* DEMO: Agentic checkout discount display *@
+    @if (cart.DiscountAmount > 0)
+    {
+        <div class="d-flex justify-content-between mb-2 text-success">
+            <span>Discount:</span>
+            <span>-@cart.DiscountAmount.ToString("C")</span>
+        </div>
+        @if (!string.IsNullOrEmpty(cart.DiscountReason))
+        {
+            <div class="mb-2">
+                <small class="text-muted fst-italic">@cart.DiscountReason</small>
+            </div>
+        }
+        <div class="d-flex justify-content-between mb-2">
+            <span>After Discount:</span>
+            <span>@cart.TotalAfterDiscount.ToString("C")</span>
+        </div>
+    }
+    
+    <div class="d-flex justify-content-between mb-2">
+        <span>Tax (8%):</span>
+        <span>@cart.Tax.ToString("C")</span>
+    </div>
+    <hr />
+    <div class="d-flex justify-content-between fw-bold">
+        <span>Total:</span>
+        <span>@cart.Total.ToString("C")</span>
+    </div>
+    
+    @* DEMO: Agent steps display for demo visibility *@
+    @if (cart.AgentSteps.Any())
+    {
+        <hr />
+        <div class="agent-steps mt-3">
+            <h6 class="mb-2">
+                <i class="bi bi-robot me-1"></i>Agent Steps
+            </h6>
+            @foreach (var step in cart.AgentSteps)
+            {
+                <div class="d-flex align-items-center mb-1">
+                    @if (step.Status == "Success")
+                    {
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    }
+                    else if (step.Status == "Warning")
+                    {
+                        <i class="bi bi-exclamation-circle-fill text-warning me-2"></i>
+                    }
+                    else if (step.Status == "Error")
+                    {
+                        <i class="bi bi-x-circle-fill text-danger me-2"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-circle text-secondary me-2"></i>
+                    }
+                    <div>
+                        <strong class="small">@step.Name:</strong>
+                        <span class="small text-muted ms-1">@step.Message</span>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    
+    @* DEMO: Mermaid Workflow Viewer - collapsible section *@
+    @if (!string.IsNullOrEmpty(cart.WorkFlowMermaid))
+    {
+        <hr />
+        <div class="workflow-viewer mt-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">
+                    <i class="bi bi-diagram-3 me-1"></i>Workflow Diagram
+                </h6>
+                <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleWorkflow" type="button">
+                    <i class="bi @(isWorkflowExpanded ? "bi-chevron-up" : "bi-chevron-down")"></i>
+                    @(isWorkflowExpanded ? "Hide" : "Show")
+                </button>
+            </div>
+            @if (isWorkflowExpanded)
+            {
+                <div class="mermaid-container p-2 bg-light rounded border" style="overflow-x: auto;">
+                    <div id="@mermaidElementId"></div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Cart cart { get; set; } = new();
+    
+    private bool isWorkflowExpanded = false;
+    private string mermaidElementId = "mermaid-" + Guid.NewGuid().ToString("N");
+    
+    private async Task ToggleWorkflow()
+    {
+        isWorkflowExpanded = !isWorkflowExpanded;
+        if (isWorkflowExpanded && !string.IsNullOrEmpty(cart.WorkFlowMermaid))
+        {
+            // Wait for DOM to update, then render Mermaid
+            await Task.Delay(50);
+            await RenderMermaidAsync();
+        }
+    }
+    
+    private async Task RenderMermaidAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("renderMermaid", mermaidElementId, cart.WorkFlowMermaid);
+        }
+        catch (JSException)
+        {
+            // Mermaid rendering can fail during prerendering or if JS is unavailable
+            // This is expected in some scenarios and can be safely ignored
+        }
+    }
+}

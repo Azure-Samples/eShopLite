@@ -1,0 +1,73 @@
+@using DataEntities
+@using Store.Services
+@inject CustomerService CustomerService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="user-picker">
+    <div class="current-user" @onclick="ToggleDropdown">
+        <span class="user-name">@currentCustomer.FullName</span>
+        <span class="membership-badge @GetMembershipClass()">@currentCustomer.MembershipTier</span>
+        <span class="dropdown-arrow">▼</span>
+    </div>
+    
+    @if (isDropdownOpen)
+    {
+        <div class="dropdown-menu">
+            @foreach (var customer in allCustomers)
+            {
+                <div class="dropdown-item @(customer.Id == currentCustomer.Id ? "active" : "")" @onclick="() => SelectCustomer(customer.Id)">
+                    <span class="item-name">@customer.FullName</span>
+                    <span class="item-badge @GetMembershipClass(customer.MembershipTier)">@customer.MembershipTier</span>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private Customer currentCustomer = new();
+    private List<Customer> allCustomers = new();
+    private bool isDropdownOpen = false;
+
+    protected override void OnInitialized()
+    {
+        LoadCustomers();
+    }
+
+    private void LoadCustomers()
+    {
+        currentCustomer = CustomerService.GetCurrentCustomer();
+        allCustomers = CustomerService.GetAllCustomers();
+    }
+
+    private void ToggleDropdown()
+    {
+        isDropdownOpen = !isDropdownOpen;
+    }
+
+    private void SelectCustomer(int customerId)
+    {
+        CustomerService.SetCurrentCustomer(customerId);
+        currentCustomer = CustomerService.GetCurrentCustomer();
+        isDropdownOpen = false;
+        
+        // Force page refresh to update all components with the new customer
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+    }
+
+    private string GetMembershipClass()
+    {
+        return GetMembershipClass(currentCustomer.MembershipTier);
+    }
+
+    private string GetMembershipClass(MembershipTier tier)
+    {
+        return tier switch
+        {
+            MembershipTier.Gold => "badge-gold",
+            MembershipTier.Silver => "badge-silver",
+            _ => "badge-normal"
+        };
+    }
+}

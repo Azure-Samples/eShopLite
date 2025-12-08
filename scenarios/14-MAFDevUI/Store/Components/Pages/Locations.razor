@@ -1,0 +1,57 @@
+@page "/locations"
+@rendermode InteractiveServer
+
+<PageTitle>Locations</PageTitle>
+
+<h1>Locations</h1>
+
+<p>Manage store locations.</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Country</th>
+            <th>Postal Code</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var location in locations)
+        {
+            <tr>
+                <td>@location.Id</td>
+                <td>@location.Name</td>
+                <td>@location.Address</td>
+                <td>@location.City</td>
+                <td>@location.State</td>
+                <td>@location.Country</td>
+                <td>@location.PostalCode</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    // Sample locations matching database initialization
+    private List<LocationViewModel> locations = new()
+    {
+        new LocationViewModel { Id = 1, Name = "Downtown Store", Address = "123 Main Street", City = "Seattle", State = "WA", Country = "USA", PostalCode = "98101" },
+        new LocationViewModel { Id = 2, Name = "Mall Location", Address = "456 Shopping Ave", City = "Bellevue", State = "WA", Country = "USA", PostalCode = "98004" },
+        new LocationViewModel { Id = 3, Name = "Warehouse Outlet", Address = "789 Industrial Blvd", City = "Redmond", State = "WA", Country = "USA", PostalCode = "98052" },
+    };
+
+    private class LocationViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public string PostalCode { get; set; } = string.Empty;
+    }
+}

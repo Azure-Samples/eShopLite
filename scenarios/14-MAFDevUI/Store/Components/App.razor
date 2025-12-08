@@ -1,0 +1,43 @@
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <base href="/" />
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="Store.styles.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <HeadOutlet />
+</head>
+
+<body>
+    <Routes />
+    <script src="_framework/blazor.web.js"></script>
+    <script src="cart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js" integrity="sha384-0V5nzNEuN+8pAYGmm9a8nVMPeEiNBBQ/M8CYpxjl5NrTgv5kDKZNFwq9wJ3RNYnV" crossorigin="anonymous"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: false, theme: 'default' });
+        window.renderMermaid = async function(elementId, graphDefinition) {
+            const element = document.getElementById(elementId);
+            if (element && graphDefinition) {
+                try {
+                    const { svg } = await mermaid.render('mermaid-graph-' + Date.now(), graphDefinition);
+                    element.innerHTML = svg;
+                } catch (error) {
+                    console.error('Mermaid rendering error:', error);
+                    // Use textContent for fallback to avoid XSS
+                    const pre = document.createElement('pre');
+                    pre.textContent = graphDefinition;
+                    element.replaceChildren(pre);
+                }
+            }
+        };
+    </script>
+</body>
+
+</html>

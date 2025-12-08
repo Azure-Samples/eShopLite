@@ -1,0 +1,56 @@
+@page "/customers"
+@using DataEntities
+@using Store.Services
+@inject CustomerService CustomerService
+@rendermode InteractiveServer
+
+<PageTitle>Customers</PageTitle>
+
+<h1>Customers</h1>
+
+<p>Manage customer information and membership tiers.</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Membership Tier</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in customers)
+        {
+            <tr>
+                <td>@customer.Id</td>
+                <td>@customer.FullName</td>
+                <td>@customer.Email</td>
+                <td>@customer.Phone</td>
+                <td>
+                    <span class="badge @GetBadgeClass(customer.MembershipTier)">@customer.MembershipTier</span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Customer> customers = new();
+
+    protected override void OnInitialized()
+    {
+        customers = CustomerService.GetAllCustomers();
+    }
+
+    private string GetBadgeClass(MembershipTier tier)
+    {
+        return tier switch
+        {
+            MembershipTier.Gold => "bg-warning text-dark",
+            MembershipTier.Silver => "bg-secondary",
+            _ => "bg-light text-dark"
+        };
+    }
+}
