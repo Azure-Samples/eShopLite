@@ -48,26 +48,52 @@ builder.Services.AddDbContext<Context>(options =>
     options.UseSqlServer(productsDbConnectionString, o => o.UseVectorSearch()));
 ```
 
-The `Product` entity stores embeddings as a `float[]`:
+The `Product` entity (from `DataEntities/Product.cs`) stores embeddings as a `float[]`:
 
 ```csharp
 public class Product
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public Product()
+    {
+        Id = 0;
+        Name = "not defined";
+        Description = "not defined";
+        Price = 0;
+        ImageUrl = "not defined";
+    }
+
+    [JsonPropertyName("id")]
+    public virtual int Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public virtual string Name { get; set; }
+
+    [JsonPropertyName("description")]
+    public virtual string Description { get; set; }
+
+    [JsonPropertyName("price")]
+    public virtual decimal Price { get; set; }
+
+    [JsonPropertyName("imageUrl")]
+    public virtual string ImageUrl { get; set; }
+
+    // demo for SQL Server 2025 new vector type
     public float[] Embedding { get; set; } = [];
 }
 ```
 
-The DbContext configures the column type:
+The `Context` class (from `Products/Models/Context.cs`) configures the column type:
 
 ```csharp
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+public class Context(DbContextOptions options) : DbContext(options)
 {
-    modelBuilder.Entity<Product>()
-        .Property(b => b.Embedding)
-        .HasColumnType("vector(1536)");
+    public DbSet<Product> Product => Set<Product>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Configure the float[] property as a vector:
+        modelBuilder.Entity<Product>().Property(b => b.Embedding).HasColumnType("vector(1536)");
+    }
 }
 ```
 

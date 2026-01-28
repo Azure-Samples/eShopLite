@@ -2,12 +2,13 @@
 
 ## Overview
 
-This scenario demonstrates the setup and configuration of SQL Server 2025 with native vector search capabilities. The setup includes container configuration, vector feature enablement, and integration with .NET Aspire for seamless orchestration.
+This scenario demonstrates the setup and configuration of [SQL Server 2025](https://learn.microsoft.com/en-us/sql/sql-server/sql-server-2025-overview) with [native vector search capabilities](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors). The setup includes container configuration, vector feature enablement, and integration with .NET Aspire for seamless orchestration.
 
 ## Container Configuration
 
 ### SQL Server 2025 Image
-The scenario uses the latest SQL Server 2025 preview image with built-in vector support:
+
+The scenario uses the latest SQL Server 2025 preview image with built-in vector support (from `eShopAppHost/Program.cs`):
 
 ```csharp
 var sql = builder.AddSqlServer("sql")
@@ -17,6 +18,7 @@ var sql = builder.AddSqlServer("sql")
 ```
 
 ### Key Configuration Parameters
+
 - **Image Tag**: `2025-latest` provides the latest preview with vector capabilities
 - **Lifetime**: `ContainerLifetime.Persistent` ensures data persistence across restarts
 - **EULA**: Required acceptance for SQL Server container licensing
@@ -25,7 +27,8 @@ var sql = builder.AddSqlServer("sql")
 ## Database Setup
 
 ### Database Creation
-The database is configured with vector search capabilities:
+
+The database is configured with vector search capabilities (from `eShopAppHost/Program.cs`):
 
 ```csharp
 var productsDb = sql
@@ -34,7 +37,8 @@ var productsDb = sql
 ```
 
 ### Entity Framework Configuration
-Custom configuration enables vector search support:
+
+Custom configuration enables vector search support (from `Products/Program.cs`):
 
 ```csharp
 // Custom DbContext configuration for vector search
@@ -48,62 +52,69 @@ builder.Services.AddDbContext<Context>(options =>
 ## Vector Search Features
 
 ### Native Vector Data Types
-SQL Server 2025 introduces native vector data types:
+
+SQL Server 2025 introduces the native [`VECTOR` data type](https://learn.microsoft.com/en-us/sql/t-sql/data-types/vector-data-type):
 
 ```sql
 -- Vector column definition in table
 CREATE TABLE Products (
-    Id int IDENTITY(1,1) PRIMARY KEY,
-    Name nvarchar(255) NOT NULL,
-    Description nvarchar(max),
-    Price decimal(10,2),
-    Brand nvarchar(100),
-    Category nvarchar(100),
-    EmbeddingVector vector(1536)  -- Native vector type for embeddings
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(255) NOT NULL,
+    Description NVARCHAR(MAX),
+    Price DECIMAL(10,2),
+    ImageUrl NVARCHAR(255),
+    Embedding VECTOR(1536)  -- Native vector type for embeddings
 );
 ```
 
 ### Vector Index Creation
-Automatic vector index creation for optimized similarity search:
+
+Create a [vector index](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql) for optimized similarity search using the [DiskANN algorithm](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors#approximate-vector-index-and-vector-search-approximate-nearest-neighbors):
+
+> **Note**: In SQL Server 2025, vector indexes are a preview feature. You must enable preview features first in the target database:
+> ```sql
+> ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON;
+> ```
 
 ```sql
 -- Vector index for cosine similarity search
-CREATE VECTOR INDEX IX_Products_EmbeddingVector 
-ON Products(EmbeddingVector)
-WITH (VECTOR_TYPE = 'COSINE');
+CREATE VECTOR INDEX IX_Products_Embedding 
+ON Products(Embedding)
+WITH (METRIC = 'cosine', TYPE = 'DiskANN');
 ```
+
+**Current limitations of vector indexes (preview):**
+
+- Table must have a single-column, integer primary key clustered index
+- Table becomes read-only while the vector index exists
+- Vector index must be dropped and recreated to incorporate new data
 
 ## Development Environment Setup
 
 ### Prerequisites
+
 - **Docker Desktop**: For container runtime
 - **SQL Server 2025 Preview**: Container image access
 - **.NET 9.0 SDK**: For application development
-- **Entity Framework Core**: Vector search extensions
+- **Entity Framework Core**: Vector search extensions ([EFCore.SqlServer.VectorSearch](https://www.nuget.org/packages/EFCore.SqlServer.VectorSearch/))
 
 ### Local Development Configuration
-The setup automatically handles container lifecycle:
 
-```csharp
-// Aspire automatically manages:
-// - Container download and startup
-// - Database creation and initialization
-// - Connection string configuration
-// - Health checks and monitoring
-```
+The setup automatically handles container lifecycle via .NET Aspire.
 
 ### Connection String Management
+
 Aspire handles connection string generation and injection:
 
 ```csharp
 // Connection string automatically provided by Aspire
 var connectionString = builder.Configuration.GetConnectionString("productsDb");
-// Format: "Server=localhost,<port>;Database=productsDb;..."
 ```
 
 ## Container Management
 
 ### Lifecycle Management
+
 SQL Server 2025 container is managed through Aspire:
 
 - **Startup**: Automatic container download and initialization
@@ -111,102 +122,132 @@ SQL Server 2025 container is managed through Aspire:
 - **Persistence**: Data survives container restarts
 - **Cleanup**: Managed container lifecycle
 
-### Performance Configuration
-Container optimized for development and testing:
-
-```csharp
-// Aspire applies optimal settings for:
-// - Memory allocation
-// - CPU limits  
-// - Storage performance
-// - Network configuration
-```
-
 ### Volume Management
+
 Persistent data storage configuration:
 
 ```csharp
-sql.WithDataVolume()  // Creates persistent volume for:
-    // - Database files (.mdf, .ldf)
-    // - Vector indexes
-    // - Transaction logs
-    // - Backup files
+sql.WithDataVolume()  // Creates persistent volume for database files
 ```
 
 ## Vector Search Integration
 
 ### Entity Framework Vector Support
-The custom configuration enables vector operations:
+
+The `Product` entity (from `DataEntities/Product.cs`):
 
 ```csharp
-// Vector property in entity model
 public class Product
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public decimal Price { get; set; }
-    public string Brand { get; set; }
-    public string Category { get; set; }
-    
-    [Column(TypeName = "vector(1536)")]
-    public float[] EmbeddingVector { get; set; }
+    public Product()
+    {
+        Id = 0;
+        Name = "not defined";
+        Description = "not defined";
+        Price = 0;
+        ImageUrl = "not defined";
+    }
+
+    [JsonPropertyName("id")]
+    public virtual int Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public virtual string Name { get; set; }
+
+    [JsonPropertyName("description")]
+    public virtual string Description { get; set; }
+
+    [JsonPropertyName("price")]
+    public virtual decimal Price { get; set; }
+
+    [JsonPropertyName("imageUrl")]
+    public virtual string ImageUrl { get; set; }
+
+    // demo for SQL Server 2025 new vector type
+    public float[] Embedding { get; set; } = [];
+}
+```
+
+The `Context` class configures the vector column type (from `Products/Models/Context.cs`):
+
+```csharp
+public class Context(DbContextOptions options) : DbContext(options)
+{
+    public DbSet<Product> Product => Set<Product>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Configure the float[] property as a vector:
+        modelBuilder.Entity<Product>().Property(b => b.Embedding).HasColumnType("vector(1536)");
+    }
 }
 ```
 
 ### Vector Operations
-Native SQL Server vector functions:
+
+Using [`VECTOR_DISTANCE`](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-distance-transact-sql) via Entity Framework (from `ProductApiActions.cs`):
 
 ```csharp
-// Entity Framework vector search
-var similarProducts = await context.Products
-    .OrderBy(p => EF.Functions.VectorDistance("cosine", p.EmbeddingVector, queryVector))
-    .Take(5)
+var products = await db.Product
+    .OrderBy(p => EF.Functions.VectorDistance("cosine", p.Embedding, vectorSearch))
+    .Take(3)
     .ToListAsync();
 ```
 
 ## Database Initialization
 
 ### Schema Creation
-Automatic database schema generation:
+
+Database schema is created automatically (from `Products/Program.cs`):
 
 ```csharp
-public async Task InitializeDatabase(Context context)
+using (var scope = app.Services.CreateScope())
 {
-    // Ensure database exists
-    await context.Database.EnsureCreatedAsync();
-    
-    // Create vector indexes
-    await context.Database.ExecuteSqlRawAsync(@"
-        IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Products_EmbeddingVector')
-        CREATE VECTOR INDEX IX_Products_EmbeddingVector 
-        ON Products(EmbeddingVector)
-        WITH (VECTOR_TYPE = 'COSINE')
-    ");
+    var context = scope.ServiceProvider.GetRequiredService<Context>();
+    try
+    {
+        app.Logger.LogInformation("Ensure database created");
+        context.Database.EnsureCreated();
+    }
+    catch (Exception exc)
+    {
+        app.Logger.LogError(exc, "Error creating database");
+    }
+    await DbInitializer.Initialize(context, app.Services.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>());
 }
 ```
 
 ### Data Seeding
-Initial product data and embedding generation:
+
+Initial product data and embedding generation (from `Products/Models/DbInitializer.cs`):
 
 ```csharp
-public async Task SeedProducts(Context context, IEmbeddingGenerator embeddingGenerator)
+public static class DbInitializer
 {
-    if (!context.Products.Any())
+    public static async Task Initialize(Context context, IEmbeddingGenerator<string, Embedding<float>> embeddingClient, int dimensions = 1536)
     {
-        var products = GetSeedProducts();
-        
+        if (context.Product.Any())
+            return;
+
+        var products = new List<Product>
+        {
+            new Product { Name = "Solar Powered Flashlight", Description = "A fantastic product for outdoor enthusiasts", Price = 19.99m, ImageUrl = "product1.png" },
+            new Product { Name = "Hiking Poles", Description = "Ideal for camping and hiking trips", Price = 24.99m, ImageUrl = "product2.png" },
+            new Product { Name = "Outdoor Rain Jacket", Description = "This product will keep you warm and dry in all weathers", Price = 49.99m, ImageUrl = "product3.png" },
+            new Product { Name = "Survival Kit", Description = "A must-have for any outdoor adventurer", Price = 99.99m, ImageUrl = "product4.png" },
+            // ... 5 more products (9 total)
+        };
+
+        // add embeddings
         foreach (var product in products)
         {
-            // Generate embeddings for products
-            var text = $"{product.Name} {product.Description} {product.Brand}";
-            var embedding = await embeddingGenerator.GenerateEmbeddingAsync(text);
-            product.EmbeddingVector = embedding.Vector.ToArray();
-            
-            context.Products.Add(product);
+            var productInformation = $"Name = {product.Name} - Description = {product.Description} - Price = {product.Price}";
+            var productInformationEmbedding = await embeddingClient.GenerateVectorAsync(productInformation, new() { Dimensions = dimensions });
+            product.Embedding = productInformationEmbedding.ToArray();
         }
-        
-        await context.SaveChangesAsync();
+
+        context.AddRange(products);
+        context.SaveChanges();
     }
 }
 ```
@@ -214,37 +255,15 @@ public async Task SeedProducts(Context context, IEmbeddingGenerator embeddingGen
 ## Monitoring and Diagnostics
 
 ### Aspire Dashboard Integration
+
 SQL Server 2025 integrates with Aspire monitoring:
 
 - **Container Status**: Real-time container health
 - **Database Metrics**: Connection counts, query performance
-- **Vector Operations**: Index usage and search performance
 - **Resource Usage**: Memory, CPU, storage metrics
 
-### SQL Server Diagnostics
-Native SQL Server monitoring capabilities:
-
-```sql
--- Vector index statistics
-SELECT 
-    i.name AS IndexName,
-    s.user_seeks,
-    s.user_scans,
-    s.avg_vector_distance_time_ms
-FROM sys.indexes i
-JOIN sys.dm_db_index_usage_stats s ON i.object_id = s.object_id
-WHERE i.type_desc = 'VECTOR';
-```
-
-## Troubleshooting
-
-### Common Issues
-1. **Container Download**: Large image size may require time
-2. **Vector Support**: Ensure SQL Server 2025 preview image
-3. **Memory Requirements**: Vector operations require adequate RAM
-4. **Storage Performance**: SSD recommended for vector indexes
-
 ### Debug Configuration
+
 Enable detailed logging for troubleshooting:
 
 ```csharp
@@ -256,50 +275,36 @@ builder.Services.AddDbContext<Context>(options =>
 });
 ```
 
-### Performance Tuning
-Optimize for vector operations:
+## Troubleshooting
 
-```sql
--- Memory allocation for vector operations
-EXEC sp_configure 'max server memory (MB)', 4096;
-RECONFIGURE;
+### Common Issues
 
--- Enable vector optimization
-ALTER DATABASE productsDb SET VECTOR_OPTIMIZATION = ON;
-```
+1. **Container Download**: Large image size may require time
+2. **Vector Support**: Ensure SQL Server 2025 preview image is used
+3. **Memory Requirements**: Vector operations require adequate RAM
+4. **Storage Performance**: SSD recommended for vector indexes
 
 ## Security Considerations
 
 ### Container Security
-- Use specific image tags rather than 'latest'
+
+- Use specific image tags rather than 'latest' for production
 - Configure appropriate resource limits
 - Secure connection strings and credentials
 - Regular security updates for container images
 
 ### Database Security
+
 - Enable encryption at rest for sensitive data
 - Configure appropriate user permissions
 - Use strong passwords for SA account
 - Network security for container communications
 
-## Migration from External Vector Stores
+## Additional Resources
 
-### From Chroma DB
-```sql
--- Import data from Chroma DB export
-BULK INSERT Products_Temp
-FROM '/data/chroma_export.csv'
-WITH (FORMAT = 'CSV', FIRSTROW = 2);
-
--- Convert to native vector format
-INSERT INTO Products (Name, Description, EmbeddingVector)
-SELECT Name, Description, 
-       CAST(VectorData AS vector(1536))
-FROM Products_Temp;
-```
-
-### Performance Benefits
-- **Unified Storage**: No data synchronization overhead
-- **ACID Compliance**: Full transactional consistency
-- **Backup/Recovery**: Standard SQL Server procedures
-- **Security**: Integrated SQL Server security model
+- [SQL Server 2025 Overview (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/sql-server/sql-server-2025-overview)
+- [Vector Search Overview (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors)
+- [VECTOR Data Type (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/t-sql/data-types/vector-data-type)
+- [CREATE VECTOR INDEX (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql)
+- [VECTOR_DISTANCE Function (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-distance-transact-sql)
+- [EFCore.SqlServer.VectorSearch NuGet Package](https://www.nuget.org/packages/EFCore.SqlServer.VectorSearch/)
