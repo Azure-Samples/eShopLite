@@ -5,6 +5,7 @@
 SQL Server 2025 introduces [native vector search capabilities](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors) that eliminate the need for external vector databases. This implementation demonstrates how to leverage built-in vector data types, indexing, and similarity search directly within SQL Server.
 
 > **Note**: In SQL Server 2025, vector features are in preview. To use vector indexes and `VECTOR_SEARCH`, you must enable [preview features](https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql#preview_features---on--off-):
+>
 > ```sql
 > ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON;
 > ```
@@ -30,6 +31,7 @@ VALUES (1, 'Hiking Poles', 'Ideal for camping', '[0.1, 0.2, 0.3, ...]');
 ```
 
 **Key characteristics:**
+
 - Dimensions must be between 1 and 1998
 - Each element is stored as single-precision float (float32) by default
 - Half-precision (float16) is available as a preview feature
@@ -76,11 +78,13 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 The [`VECTOR_DISTANCE`](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-distance-transact-sql) function calculates the exact distance between two vectors. It performs an exact search and **does not use vector indexes**.
 
 **Syntax:**
+
 ```sql
 VECTOR_DISTANCE(distance_metric, vector1, vector2)
 ```
 
 **Supported distance metrics:**
+
 | Metric | Description | Range |
 |--------|-------------|-------|
 | `cosine` | Cosine (angular) distance | [0, 2] - 0 = identical, 2 = opposing |
@@ -88,6 +92,7 @@ VECTOR_DISTANCE(distance_metric, vector1, vector2)
 | `dot` | Negative dot product | [-∞, +∞] - smaller = more similar |
 
 **Example - Exact K-NN search:**
+
 ```sql
 DECLARE @QueryVector VECTOR(1536) = '[0.1, 0.2, ...]';
 
@@ -107,6 +112,7 @@ ORDER BY Distance ASC;
 For larger datasets (50,000+ vectors), create a [vector index](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql) to enable Approximate Nearest Neighbor (ANN) search using the [DiskANN algorithm](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors#approximate-vector-index-and-vector-search-approximate-nearest-neighbors):
 
 **Syntax:**
+
 ```sql
 CREATE VECTOR INDEX index_name
 ON table_name (vector_column)
@@ -118,6 +124,7 @@ WITH (
 ```
 
 **Example:**
+
 ```sql
 -- Create a vector index for cosine similarity search
 CREATE VECTOR INDEX IX_Products_Embedding
@@ -126,6 +133,7 @@ WITH (METRIC = 'cosine', TYPE = 'DiskANN');
 ```
 
 **Current limitations of vector indexes (preview):**
+
 - Table must have a single-column, integer primary key clustered index
 - Table becomes read-only while the vector index exists (in SQL Server 2025)
 - Vector index must be dropped and recreated to incorporate new data
@@ -139,6 +147,7 @@ WITH (METRIC = 'cosine', TYPE = 'DiskANN');
 The [`VECTOR_SEARCH`](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-search-transact-sql) function performs approximate nearest neighbor search using a vector index:
 
 **Syntax:**
+
 ```sql
 SELECT columns
 FROM VECTOR_SEARCH(
@@ -151,6 +160,7 @@ FROM VECTOR_SEARCH(
 ```
 
 **Example:**
+
 ```sql
 DECLARE @QueryVector VECTOR(1536) = '[0.1, 0.2, ...]';
 
@@ -170,6 +180,7 @@ ORDER BY s.distance;
 ```
 
 The result includes:
+
 - All columns from the source table
 - An additional `distance` column representing similarity
 
@@ -253,52 +264,20 @@ WHERE p.Price BETWEEN 50 AND 500
 ORDER BY Distance ASC;
 ```
 
-## Best Practices
-
-### When to Use Each Approach
-
-| Scenario | Recommended Approach |
-|----------|---------------------|
-| Small datasets (< 50,000 vectors) | `VECTOR_DISTANCE` with ORDER BY |
-| Large datasets (50,000+ vectors) | `VECTOR_SEARCH` with vector index |
-| Exact results required | `VECTOR_DISTANCE` |
-| Performance-critical workloads | `VECTOR_SEARCH` with DiskANN index |
-
-### Vector Storage Best Practices
-- Use appropriate embedding dimensions for your model
-- Consider float16 for reduced storage (preview feature)
-- Normalize vectors before storing for cosine similarity
-
-### Query Optimization
-- Use `TOP` clauses to limit results
-- Apply filters in WHERE clause after vector search
-- Consider materializing frequently accessed query results
-
-## Comparison with External Vector Databases
-
-### Advantages of SQL Server Native Vectors
-- **ACID Compliance**: Full transactional consistency
-- **Unified Storage**: Products and vectors in single database
-- **Familiar Tools**: Standard SQL tools and Entity Framework
-- **Integrated Security**: SQL Server security model applies
-- **Backup/Recovery**: Standard database backup procedures
-
-### Current Limitations
-- Vector indexes are read-only (table modifications require dropping the index)
-- Maximum 1998 dimensions per vector
-- Preview feature requiring explicit enablement
-
 ## Dependencies
 
 ### Required Packages
+
 - **EFCore.SqlServer.VectorSearch**: Version 9.0.0-preview.2 or later
 - **.NET 9.0** or later
 
 ### SQL Server Requirements
+
 - SQL Server 2025 container image (`mcr.microsoft.com/mssql/server:2025-latest`)
 - Preview features enabled for vector indexes and `VECTOR_SEARCH`
 
 ### Container Configuration
+
 ```csharp
 var sql = builder.AddSqlServer("sql")
     .WithLifetime(ContainerLifetime.Persistent)
