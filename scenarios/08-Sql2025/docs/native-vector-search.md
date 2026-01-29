@@ -186,7 +186,7 @@ BEGIN
     
     CREATE VECTOR INDEX IX_Products_EmbeddingVector 
     ON dbo.Products(EmbeddingVector)
-    WITH (METRIC = 'COSINE');
+    WITH (METRIC = 'cosine');
 END;
 ```
 
@@ -216,26 +216,22 @@ The DiskANN vector index creation process requires internal operations (includin
    -- Then create the vector index separately
    CREATE VECTOR INDEX IX_Products_EmbeddingVector 
    ON dbo.Products(EmbeddingVector)
-   WITH (METRIC = 'COSINE');
+   WITH (METRIC = 'cosine');
    ```
 
-2. **Dynamic SQL with sp_executesql**: Use dynamic SQL outside the stored procedure context:
+2. **SQL Generation Script**: Create a utility to generate vector index statements for manual execution:
    ```sql
-   -- Create a helper procedure that uses dynamic SQL
-   CREATE PROCEDURE CreateVectorIndex
-       @TableName NVARCHAR(128),
-       @ColumnName NVARCHAR(128),
-       @IndexName NVARCHAR(128)
-   AS
-   BEGIN
-       DECLARE @SQL NVARCHAR(MAX);
-       SET @SQL = N'CREATE VECTOR INDEX ' + QUOTENAME(@IndexName) + 
-                  N' ON ' + QUOTENAME(@TableName) + N'(' + QUOTENAME(@ColumnName) + N')' +
-                  N' WITH (METRIC = ''COSINE'');';
-       
-       -- Execute outside stored procedure via a job or manual execution
-       PRINT @SQL;
-   END;
+   -- Utility to generate vector index creation SQL
+   SELECT 
+       'CREATE VECTOR INDEX IX_' + t.name + '_' + c.name + 
+       ' ON ' + SCHEMA_NAME(t.schema_id) + '.' + t.name + 
+       '(' + c.name + ') WITH (METRIC = ''cosine'');' AS IndexCreationSQL
+   FROM sys.tables t
+   INNER JOIN sys.columns c ON t.object_id = c.object_id
+   INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+   WHERE ty.name = 'vector';
+   
+   -- Copy the generated SQL and execute it directly (outside any stored procedure)
    ```
 
 3. **Migration Scripts**: Use separate migration scripts for schema changes:
@@ -249,7 +245,7 @@ The DiskANN vector index creation process requires internal operations (includin
    -- migration-002-create-vector-indexes.sql
    CREATE VECTOR INDEX IX_Products_EmbeddingVector 
    ON dbo.Products(EmbeddingVector)
-   WITH (METRIC = 'COSINE');
+   WITH (METRIC = 'cosine');
    ```
 
 4. **SQL Server 2025 (Self-Hosted)**: If you require stored procedure-based index creation, consider using SQL Server 2025 in a self-hosted environment where these restrictions may not apply.
