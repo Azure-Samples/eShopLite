@@ -7,7 +7,7 @@
 **Key Technologies:**
 - .NET 9 with .NET Aspire for orchestration
 - Blazor for UI
-- Azure OpenAI (GPT-4o, GPT-4.1-mini, embeddings)
+- Azure OpenAI (GPT-4o, GPT-4o-mini, embeddings)
 - Vector databases (In-memory, Azure AI Search, Chroma DB, SQL Server 2025)
 - Model Context Protocol (MCP) for agent interactions
 - Azure services (Container Apps, AI Search, Application Insights, Functions)
@@ -239,7 +239,7 @@ dotnet restore
 **Using Azure Developer CLI (azd):**
 
 ```bash
-# Navigate to scenario root (where azure.yaml is located)
+# Navigate to the eShopAppHost directory (where azure.yaml is located)
 cd scenarios/01-SemanticSearch/src/eShopAppHost
 
 # Login to Azure (first time only)
@@ -437,7 +437,7 @@ dotnet user-secrets set "ConnectionStrings:openai" "<value>"
 - **Solution:** Aspire automatically assigns ports. Check Aspire Dashboard for actual URLs
 
 **Issue:** Azure deployment fails
-- **Solution:** Ensure `az login` is authenticated and subscription has correct permissions
+- **Solution:** Ensure `azd auth login` is authenticated and subscription has correct permissions
 
 **Issue:** Tests failing after changes
 - **Solution:** Run `dotnet restore` and `dotnet build` before `dotnet test`
