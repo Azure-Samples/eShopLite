@@ -1,0 +1,28 @@
+using System.Text.Json.Serialization;
+
+namespace SearchEntities;
+
+public class SearchResponse
+{
+    public SearchResponse()
+    {
+        Products = new List<DataEntities.Product>();
+        Response = string.Empty;
+        McpFunctionCallName = string.Empty;
+    }
+
+    [JsonPropertyName("response")]
+    public string? Response { get; set; }
+
+    [JsonPropertyName("products")]
+    public List<DataEntities.Product>? Products { get; set; }
+
+    [JsonPropertyName("mcpFunctionCallName")]
+    public string? McpFunctionCallName { get; set; }
+}
+
+
+[JsonSerializable(typeof(SearchResponse))]
+public sealed partial class SearchResponseSerializerContext : JsonSerializerContext
+{
+}

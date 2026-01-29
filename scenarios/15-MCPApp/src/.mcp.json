@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "eshoplite-search": {
+      "type": "http",
+      "url": "http://localhost:5200/mcp"
+    }
+  }
+}
