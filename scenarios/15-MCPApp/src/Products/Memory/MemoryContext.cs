@@ -13,7 +13,7 @@ namespace Products.Memory;
 
 public class MemoryContext
 {
-    private ILogger _logger;
+    private readonly ILogger _logger;
     public IChatClient? _chatClient;
     public IEmbeddingGenerator<string, Embedding<float>>? _embeddingGenerator;
     public VectorStoreCollection<int, ProductVector>? _productsCollection;
