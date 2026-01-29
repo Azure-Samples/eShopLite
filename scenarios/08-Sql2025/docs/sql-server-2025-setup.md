@@ -89,6 +89,8 @@ WITH (METRIC = 'cosine', TYPE = 'DiskANN');
 - Table becomes read-only while the vector index exists
 - Vector index must be dropped and recreated to incorporate new data
 
+> **⚠️ Azure SQL Database Limitation**: Vector indexes cannot be created inside stored procedures in Azure SQL Database due to internal permission requirements. Create vector indexes using direct SQL statements outside stored procedure contexts. See the [Native Vector Search](./native-vector-search.md#known-issue-vector-indexes-in-stored-procedures-azure-sql-database) documentation for detailed workarounds.
+
 ## Development Environment Setup
 
 ### Prerequisites

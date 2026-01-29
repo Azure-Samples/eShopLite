@@ -166,6 +166,98 @@ WITH (METRIC = 'cosine', TYPE = 'DiskANN');
 - No partition support
 - Views and temporary tables not supported
 
+### Known Issue: Vector Indexes in Stored Procedures (Azure SQL Database)
+
+> **⚠️ Important**: Creating vector indexes inside stored procedures is not currently supported in Azure SQL Database and will fail with permission errors.
+
+When attempting to create a vector index within a stored procedure in Azure SQL Database, you may encounter the following error:
+
+```sql
+CREATE PROCEDURE vector_sample AS
+BEGIN
+    DROP TABLE IF EXISTS dbo.Products;
+    
+    CREATE TABLE dbo.Products (
+        Id int PRIMARY KEY,
+        EmbeddingVector vector(1536)
+    );
+    
+    DROP INDEX IF EXISTS IX_Products_EmbeddingVector ON dbo.Products;
+    
+    CREATE VECTOR INDEX IX_Products_EmbeddingVector 
+    ON dbo.Products(EmbeddingVector)
+    WITH (METRIC = 'COSINE');
+END;
+```
+
+**Error Message:**
+
+```
+Msg: 2571, Line 13, State: 3, Level: 14
+User 'dbo' does not have permission to run DBCC TRACEON.
+Msg: 42234, Line 13, State: 1, Level: 16
+DiskANN vector index build failed with an internal error 200.
+```
+
+**Root Cause:**
+
+The DiskANN vector index creation process requires internal operations (including DBCC TRACEON) that are not permitted within stored procedure execution contexts in Azure SQL Database.
+
+**Workarounds:**
+
+1. **Direct Execution (Recommended)**: Execute vector index creation statements directly outside stored procedures:
+   ```sql
+   -- Create table first
+   CREATE TABLE dbo.Products (
+       Id int PRIMARY KEY,
+       EmbeddingVector vector(1536)
+   );
+   
+   -- Then create the vector index separately
+   CREATE VECTOR INDEX IX_Products_EmbeddingVector 
+   ON dbo.Products(EmbeddingVector)
+   WITH (METRIC = 'COSINE');
+   ```
+
+2. **Dynamic SQL with sp_executesql**: Use dynamic SQL outside the stored procedure context:
+   ```sql
+   -- Create a helper procedure that uses dynamic SQL
+   CREATE PROCEDURE CreateVectorIndex
+       @TableName NVARCHAR(128),
+       @ColumnName NVARCHAR(128),
+       @IndexName NVARCHAR(128)
+   AS
+   BEGIN
+       DECLARE @SQL NVARCHAR(MAX);
+       SET @SQL = N'CREATE VECTOR INDEX ' + QUOTENAME(@IndexName) + 
+                  N' ON ' + QUOTENAME(@TableName) + N'(' + QUOTENAME(@ColumnName) + N')' +
+                  N' WITH (METRIC = ''COSINE'');';
+       
+       -- Execute outside stored procedure via a job or manual execution
+       PRINT @SQL;
+   END;
+   ```
+
+3. **Migration Scripts**: Use separate migration scripts for schema changes:
+   ```sql
+   -- migration-001-create-tables.sql
+   CREATE TABLE dbo.Products (
+       Id int PRIMARY KEY,
+       EmbeddingVector vector(1536)
+   );
+   
+   -- migration-002-create-vector-indexes.sql
+   CREATE VECTOR INDEX IX_Products_EmbeddingVector 
+   ON dbo.Products(EmbeddingVector)
+   WITH (METRIC = 'COSINE');
+   ```
+
+4. **SQL Server 2025 (Self-Hosted)**: If you require stored procedure-based index creation, consider using SQL Server 2025 in a self-hosted environment where these restrictions may not apply.
+
+**Best Practice:**
+
+For production deployments with Azure SQL Database, maintain vector index creation in dedicated deployment scripts separate from stored procedures, and execute them as part of your database migration pipeline.
+
 ## Approximate Nearest Neighbor Search
 
 ### VECTOR_SEARCH Function

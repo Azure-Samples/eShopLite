@@ -164,6 +164,10 @@ builder.AddAzureOpenAIClient(azureOpenAiClientName, configureSettings: settings 
 - Azure OpenAI service with text-embedding-3-small model
 - .NET 9.0 SDK
 
+### Important Considerations
+
+> **⚠️ Azure SQL Database Limitations**: When deploying to Azure SQL Database (as opposed to the containerized SQL Server 2025), be aware that vector indexes cannot be created inside stored procedures. See the [Native Vector Search documentation](./native-vector-search.md#known-issue-vector-indexes-in-stored-procedures-azure-sql-database) for detailed guidance on workarounds and best practices.
+
 ### Local Development
 1. Configure Azure OpenAI user secrets
 2. Ensure Docker is running
