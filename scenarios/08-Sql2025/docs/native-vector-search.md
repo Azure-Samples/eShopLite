@@ -223,9 +223,11 @@ The DiskANN vector index creation process requires internal operations (includin
    ```sql
    -- Utility to generate vector index creation SQL
    SELECT 
-       'CREATE VECTOR INDEX IX_' + t.name + '_' + c.name + 
-       ' ON ' + SCHEMA_NAME(t.schema_id) + '.' + t.name + 
-       '(' + c.name + ') WITH (METRIC = ''cosine'');' AS IndexCreationSQL
+       CONCAT(
+           'CREATE VECTOR INDEX IX_', t.name, '_', c.name,
+           ' ON ', SCHEMA_NAME(t.schema_id), '.', t.name,
+           '(', c.name, ') WITH (METRIC = ''cosine'');'
+       ) AS IndexCreationSQL
    FROM sys.tables t
    INNER JOIN sys.columns c ON t.object_id = c.object_id
    INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
