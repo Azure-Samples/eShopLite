@@ -1,0 +1,420 @@
+@page "/assistant"
+@rendermode InteractiveServer
+@using Store.Services
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Net.Http.Json
+@inject IShoppingAgentChatService ChatService
+@inject IJSRuntime JS
+
+<PageTitle>Shopping Assistant</PageTitle>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <span class="bi bi-chat-dots-fill me-2"></span>
+                Shopping Assistant
+            </h1>
+            <p class="text-muted mb-4">Ask me anything about products, search the catalog, or get help with your order!</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 col-xl-6 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <!-- Chat transcript -->
+                    <div class="chat-transcript p-3" @ref="transcriptElement" style="height: 500px; overflow-y: auto;">
+                        @if (!messages.Any())
+                        {
+                            <div class="text-center text-muted py-5">
+                                <span class="bi bi-chat-square-text" style="font-size: 3rem;"></span>
+                                <p class="mt-3">Start a conversation with your shopping assistant!</p>
+                                <div class="mt-4">
+                                    <p class="mb-3 fw-semibold">Try asking:</p>
+                                    <div class="d-flex flex-column gap-2 align-items-center">
+                                        <button class="btn btn-outline-primary btn-sm" style="max-width: 400px;" @onclick='() => SetSuggestedQuestion("What do you suggest to go hiking on a rainy day?")'>
+                                            <span class="bi bi-cloud-rain me-2"></span>What do you suggest to go hiking on a rainy day?
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" style="max-width: 400px;" @onclick='() => SetSuggestedQuestion("Show me camping gear for beginners")'>
+                                            <span class="bi bi-compass me-2"></span>Show me camping gear for beginners
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" style="max-width: 400px;" @onclick='() => SetSuggestedQuestion("What are your best sleeping bags?")'>
+                                            <span class="bi bi-moon-stars me-2"></span>What are your best sleeping bags?
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var msg in messages)
+                            {
+                                <div class="mb-3 @(msg.Role == "user" ? "text-end" : "")">
+                                    <div class="d-inline-block text-start" style="max-width: 80%;">
+                                        <div class="@(msg.Role == "user" ? "bg-primary text-white" : "bg-light") rounded p-3 shadow-sm">
+                                            <div class="small opacity-75 mb-1">
+                                                @if (msg.Role == "user")
+                                                {
+                                                    <span class="bi bi-person-fill me-1"></span><strong>You</strong>
+                                                }
+                                                else
+                                                {
+                                                    <span class="bi bi-robot me-1"></span><strong>Assistant</strong>
+                                                }
+                                                <span class="ms-2">@msg.Timestamp.ToLocalTime().ToString("h:mm tt")</span>
+                                            </div>
+                                            <div>@msg.Content</div>
+                                            
+                                            @if (msg.Role == "assistant" && msg.Telemetry != null)
+                                            {
+                                                <div class="mt-2 pt-2 border-top small opacity-75">
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        @if (msg.Telemetry.ResponseTimeMs > 0)
+                                                        {
+                                                            <span class="badge bg-info">
+                                                                <span class="bi bi-clock me-1"></span>@(msg.Telemetry.ResponseTimeMs)ms
+                                                            </span>
+                                                        }
+                                                        @if (msg.Telemetry.TotalTokens.HasValue)
+                                                        {
+                                                            <span class="badge bg-secondary">
+                                                                <span class="bi bi-cpu me-1"></span>@msg.Telemetry.TotalTokens tokens
+                                                            </span>
+                                                        }
+                                                        @if (msg.Telemetry.InputTokens.HasValue)
+                                                        {
+                                                            <span class="badge bg-secondary">
+                                                                ↓ @msg.Telemetry.InputTokens
+                                                            </span>
+                                                        }
+                                                        @if (msg.Telemetry.OutputTokens.HasValue)
+                                                        {
+                                                            <span class="badge bg-secondary">
+                                                                ↑ @msg.Telemetry.OutputTokens
+                                                            </span>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(msg.Telemetry.Model))
+                                                        {
+                                                            <span class="badge bg-secondary">
+                                                                @msg.Telemetry.Model
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                    @if (msg.Telemetry.ToolsUsed?.Any() == true)
+                                                    {
+                                                        <div class="mt-2">
+                                                            <div class="fw-semibold"><span class="bi bi-tools me-1"></span>Tools Used:</div>
+                                                            <div class="mt-1">
+                                                                @foreach (var tool in msg.Telemetry.ToolsUsed)
+                                                                {
+                                                                    <div class="mb-1">
+                                                                        <span class="badge bg-success me-1">@tool.ToolName</span>
+                                                                        @if (!string.IsNullOrEmpty(tool.Arguments))
+                                                                        {
+                                                                            <span class="text-muted small">@tool.Arguments</span>
+                                                                        }
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        
+                        @if (isLoading)
+                        {
+                            <div class="mb-3">
+                                <div class="d-inline-block text-start" style="max-width: 80%;">
+                                    <div class="bg-light rounded p-3 shadow-sm">
+                                        <div class="small opacity-75 mb-1">
+                                            <span class="bi bi-robot me-1"></span><strong>Assistant</strong>
+                                        </div>
+                                        <div class="typing-indicator">
+                                            <span></span>
+                                            <span></span>
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Input area -->
+                    <div class="border-top p-3 bg-light">
+                        @if (!string.IsNullOrWhiteSpace(errorMessage))
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                                <span class="bi bi-exclamation-triangle-fill me-2"></span>
+                                @errorMessage
+                                <button type="button" class="btn-close" @onclick="ClearError"></button>
+                            </div>
+                        }
+
+                        @if (selectedImage != null)
+                        {
+                            <div class="alert alert-info alert-dismissible fade show mb-3 d-flex align-items-center" role="alert">
+                                <span class="bi bi-image-fill me-2"></span>
+                                <span class="flex-grow-1">Image attached: @selectedImage.Name (@(selectedImage.Size / 1024)KB)</span>
+                                <button type="button" class="btn-close" @onclick="ClearImage"></button>
+                            </div>
+                        }
+                        
+                        <form @onsubmit="SendMessage" class="d-flex gap-2">
+                            <InputFile OnChange="HandleImageSelected" 
+                                      accept="image/*" 
+                                      class="d-none" 
+                                      id="imageInput" />
+                            <button type="button" 
+                                    class="btn btn-outline-secondary" 
+                                    @onclick="TriggerImageSelect"
+                                    disabled="@isLoading"
+                                    title="Attach image">
+                                <span class="bi bi-paperclip"></span>
+                            </button>
+                            <input type="text" 
+                                   class="form-control" 
+                                   @bind="userInput" 
+                                   @bind:event="oninput"
+                                   placeholder="Type your message..."
+                                   disabled="@isLoading"
+                                   @ref="inputElement" />
+                            <button type="submit" 
+                                    class="btn btn-primary" 
+                                    disabled="@(isLoading || string.IsNullOrWhiteSpace(userInput))">
+                                @if (isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                }
+                                else
+                                {
+                                    <span class="bi bi-send-fill"></span>
+                                }
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .typing-indicator {
+        display: inline-flex;
+        gap: 4px;
+    }
+    
+    .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #6c757d;
+        animation: typing 1.4s infinite;
+    }
+    
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @@keyframes typing {
+        0%, 60%, 100% {
+            opacity: 0.3;
+            transform: translateY(0);
+        }
+        30% {
+            opacity: 1;
+            transform: translateY(-10px);
+        }
+    }
+</style>
+
+@code {
+    private List<ChatMessage> messages = new();
+    private string userInput = string.Empty;
+    private string? conversationId = null;
+    private bool isLoading = false;
+    private string? errorMessage = null;
+    private ElementReference transcriptElement;
+    private ElementReference inputElement;
+    private IBrowserFile? selectedImage = null;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await inputElement.FocusAsync();
+        }
+        
+        // Scroll to bottom after rendering
+        await ScrollToBottom();
+    }
+
+    private async Task TriggerImageSelect()
+    {
+        await JS.InvokeVoidAsync("eval", "document.getElementById('imageInput').click()");
+    }
+
+    private void HandleImageSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            // Validate file size (max 10MB)
+            if (file.Size > 10 * 1024 * 1024)
+            {
+                errorMessage = "Image size must be less than 10MB";
+                return;
+            }
+
+            // Validate file type
+            if (!file.ContentType.StartsWith("image/"))
+            {
+                errorMessage = "Please select a valid image file";
+                return;
+            }
+
+            selectedImage = file;
+            errorMessage = null;
+            StateHasChanged();
+        }
+    }
+
+    private void ClearImage()
+    {
+        selectedImage = null;
+        StateHasChanged();
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(userInput) || isLoading)
+            return;
+
+        var message = userInput.Trim();
+        userInput = string.Empty;
+        errorMessage = null;
+
+        // Add user message
+        var displayMessage = selectedImage != null 
+            ? $"{message} [Image: {selectedImage.Name}]" 
+            : message;
+        var userMessage = new ChatMessage("user", displayMessage, DateTime.UtcNow, null);
+        messages.Add(userMessage);
+        
+        isLoading = true;
+        StateHasChanged();
+        await ScrollToBottom();
+
+        try
+        {
+            ChatResponse? response;
+            
+            if (selectedImage != null)
+            {
+                // Send with image using multipart form data
+                response = await SendMessageWithImageAsync(message, selectedImage);
+                selectedImage = null; // Clear after sending
+            }
+            else
+            {
+                // Send regular text message
+                response = await ChatService.SendAsync(message, messages, conversationId);
+            }
+
+            if (response != null)
+            {
+                conversationId = response.ConversationId;
+                
+                var assistantMessage = new ChatMessage("assistant", response.Message, DateTime.UtcNow, response.Telemetry);
+                messages.Add(assistantMessage);
+            }
+            else
+            {
+                errorMessage = "Failed to get response from assistant. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+            await ScrollToBottom();
+        }
+    }
+
+    private async Task<ChatResponse?> SendMessageWithImageAsync(string message, IBrowserFile imageFile)
+    {
+        try
+        {
+            using var content = new MultipartFormDataContent();
+            content.Add(new StringContent(message), "message");
+            
+            if (!string.IsNullOrEmpty(conversationId))
+            {
+                content.Add(new StringContent(conversationId), "conversationId");
+            }
+
+            // Read image data
+            var imageStream = imageFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            var imageContent = new StreamContent(imageStream);
+            imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(imageFile.ContentType);
+            content.Add(imageContent, "image", imageFile.Name);
+
+            // Create HttpClient (note: in production, inject this properly)
+            var httpClient = new HttpClient { BaseAddress = new Uri("https+http://shopping-assistant-agent") };
+            var response = await httpClient.PostAsync("/api/agent/chat-with-image", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            return await response.Content.ReadFromJsonAsync<ChatResponse>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error sending message with image: {ex.Message}");
+            return null;
+        }
+    }
+
+    private async Task ScrollToBottom()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("eval", 
+                $"document.querySelector('.chat-transcript').scrollTop = document.querySelector('.chat-transcript').scrollHeight");
+        }
+        catch
+        {
+            // Ignore JS errors
+        }
+    }
+
+    private void ClearError()
+    {
+        errorMessage = null;
+    }
+
+    private async Task SetSuggestedQuestion(string question)
+    {
+        userInput = question;
+        StateHasChanged();
+        await Task.Delay(100); // Small delay to ensure UI updates
+        await SendMessage();
+    }
+}

@@ -1,0 +1,166 @@
+@page "/checkout"
+@using CartEntities
+@using Store.Services
+@using Store.Components.Cart
+@inject ICartService CartService
+@inject ICheckoutService CheckoutService
+@inject NavigationManager Navigation
+@attribute [StreamRendering(true)]
+
+<PageTitle>Checkout</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Checkout</h1>
+    <button class="btn btn-outline-secondary" @onclick="BackToCart">
+        <i class="bi bi-arrow-left me-1"></i>Back to Cart
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Loading checkout...</p>
+    </div>
+}
+else if (shoppingCart.Items.Any())
+{
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <CheckoutForm customer="customer" OnValidSubmit="ProcessOrder" OnCancel="BackToCart" />
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Items (@shoppingCart.ItemCount)</h6>
+                    @foreach (var item in shoppingCart.Items)
+                    {
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center">
+                                <img src="https://raw.githubusercontent.com/MicrosoftDocs/mslearn-dotnet-cloudnative/main/dotnet-docker/Products/wwwroot/images/@item.ImageUrl" 
+                                     alt="@item.Name" class="me-2" style="width: 30px; height: 30px; object-fit: cover;" />
+                                <div>
+                                    <small class="fw-medium">@item.Name</small>
+                                    <div class="text-muted" style="font-size: 0.8em;">Qty: @item.Quantity</div>
+                                </div>
+                            </div>
+                            <small class="fw-bold">@item.Total.ToString("C")</small>
+                        </div>
+                    }
+                    <hr />
+                    <CartSummary cart="shoppingCart" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="bi bi-cart-x display-1 text-muted"></i>
+        </div>
+        <h3 class="text-muted">Your cart is empty</h3>
+        <p class="text-muted">Add items to your cart before checking out.</p>
+        <button class="btn btn-primary" @onclick="ContinueShopping">
+            <i class="bi bi-bag me-1"></i>Start Shopping
+        </button>
+    </div>
+}
+
+@if (isProcessing)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <div class="spinner-border mb-3" role="status">
+                        <span class="visually-hidden">Processing...</span>
+                    </div>
+                    <h5>Processing Your Order</h5>
+                    <p class="text-muted">Please wait while we process your order...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private CartEntities.Cart shoppingCart = new();
+    private Customer customer = new();
+    private bool isLoading = true;
+    private bool isProcessing = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCart();
+    }
+
+    private async Task LoadCart()
+    {
+        try
+        {
+            isLoading = true;
+            shoppingCart = await CartService.GetCartAsync();
+        }
+        catch (Exception)
+        {
+            shoppingCart = new CartEntities.Cart();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ProcessOrder(Customer submittedCustomer)
+    {
+        try
+        {
+            isProcessing = true;
+            
+            // Ensure shipping address is set correctly
+            if (submittedCustomer.SameAsShipping)
+            {
+                submittedCustomer.ShippingAddress = submittedCustomer.BillingAddress;
+            }
+
+            // Process the order
+            var order = await CheckoutService.ProcessOrderAsync(submittedCustomer, shoppingCart);
+            
+            // Clear the cart
+            await CartService.ClearCartAsync();
+            
+            // Navigate to confirmation page
+            Navigation.NavigateTo($"/order-confirmation/{order.OrderNumber}");
+        }
+        catch (Exception)
+        {
+            // Handle error - could show error message
+            isProcessing = false;
+        }
+    }
+
+    private void BackToCart()
+    {
+        Navigation.NavigateTo("/cart");
+    }
+
+    private void ContinueShopping()
+    {
+        Navigation.NavigateTo("/products");
+    }
+}

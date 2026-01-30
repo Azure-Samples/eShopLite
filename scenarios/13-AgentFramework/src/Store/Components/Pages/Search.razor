@@ -1,0 +1,73 @@
+﻿@page "/search"
+@using Store.Services
+
+@inject IProductService ProductService
+@inject IConfiguration Configuration
+@attribute [StreamRendering(true)]
+@rendermode InteractiveServer
+
+<PageTitle>Search Products</PageTitle>
+
+<h1>Search Products</h1>
+
+<p>Search our amazing outdoor products that you can purchase.</p>
+
+<div class="form-group">
+    <label for="search" class="form-label">Type your question:</label>
+    <div class="input-group mb-3">
+        <input type="text" id="search" class="form-control" @bind="searchTerm" placeholder="Enter search term..." />
+        <button id="btnSearch" class="btn btn-primary" @onclick="DoSearch" type="submit">Search</button>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <InputCheckbox id="smartSearch2" @bind-Value="smartSearch" />
+        <label class="form-check-label" for="smartSearch">Use Semantic Search</label>
+    </div>
+    <hr />
+    <p class="quote">@aiResponse</p>
+</div>
+
+
+@if (products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <!-- Simulating images being hosted on a CDN -->
+                    <td><img height="80" width="80" src="https://raw.githubusercontent.com/MicrosoftDocs/mslearn-dotnet-cloudnative/main/dotnet-docker/Products/wwwroot/images/@product.ImageUrl" /></td>
+                    <td>@product.Name</td>
+                    <td>@product.Description</td>
+                    <td>@product.Price</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private string searchTerm = "";
+    private List<DataEntities.Product>? products;
+    private string aiResponse = "";
+    private bool smartSearch = false;
+
+    private async Task DoSearch(MouseEventArgs e)
+    {
+        await Task.Delay(500);
+        var response = await ProductService.Search(searchTerm, smartSearch);
+        aiResponse = response.Response;
+        products = response.Products;
+    }
+}
