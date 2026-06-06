@@ -1,0 +1,232 @@
+﻿@page "/search"
+@using Markdig
+@using SearchEntities
+@using global::Services
+
+@inject Store.Services.McpServerService McpServerService
+@inject IConfiguration Configuration
+@attribute [StreamRendering(true)]
+@rendermode InteractiveServer
+
+<PageTitle>Search Products</PageTitle>
+
+<h1>Search Products</h1>
+
+<p>Search our amazing outdoor products that you can purchase.</p>
+
+<div class="form-group">
+    <label for="search" class="form-label">Type your question:</label>
+    <div class="input-group mb-3">
+        <input type="text" id="search" class="form-control" @bind="searchTerm" placeholder="Enter search term..." />
+        <button id="btnSearch" class="btn btn-primary" @onclick="DoSearch" type="submit" disabled="@isLoading">Search</button>
+    </div>
+    @if (tools?.Any() == true)
+    {
+        <div class="card mb-3">
+            <div class="card-header" @onclick="ToggleToolsInfo" style="cursor: pointer;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Available MCP Server Tools</span>
+                    <i class="@(showToolsInfo ? "oi oi-chevron-top" : "oi oi-chevron-bottom")"></i>
+                </div>
+            </div>
+            <div class="collapse @(showToolsInfo ? "show" : "")">
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               id="areAllToolsSelected"
+                                               type="checkbox" @onchange="ToggleAllTools" />
+                                    </div>
+                                </th>
+                                <th>Name</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var tool in tools)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox"
+                                                   @onchange="e => ToggleToolSelection(tool, (bool)e.Value)"
+                                                   checked="@selectedTools.GetValueOrDefault(tool.Name, false)" />
+                                        </div>
+                                    </td>
+                                    <td>@tool.Name</td>
+                                    <td>@tool.Description</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <hr />
+</div>
+
+@if (!string.IsNullOrEmpty(searchResponse.McpFunctionCallId))
+{
+    <div class="card mb-3">
+        <div class="card-header" @onclick="ToggleFunctionInfo" style="cursor: pointer;">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>Function Call Details</span>
+                <i class="@(showFunctionInfo ? "oi oi-chevron-top" : "oi oi-chevron-bottom")"></i>
+            </div>
+        </div>
+        <div class="collapse @(showFunctionInfo ? "show" : "")">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4"><strong>Function Call ID:</strong></div>
+                    <div class="col-md-8">@searchResponse.McpFunctionCallId</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4"><strong>Function Name:</strong></div>
+                    <div class="col-md-8">@searchResponse.McpFunctionCallName</div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (isLoading)
+{
+    <div class="loading">
+        <p><em>Loading...</em></p>
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (!string.IsNullOrEmpty(searchResponse.Response))
+{
+    <div>
+        <h2>Response</h2>
+        @((MarkupString)RenderMarkdown(searchResponse.Response))
+    </div>
+}
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @errorMessage
+    </div>
+}
+@if (searchResponse.Products?.Count > 0)
+{
+    <div>
+        <h2>Product List</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in searchResponse.Products)
+                {
+                    <tr>
+                        <td><img height="80" width="80" src="@product.ImageUrl" alt="@product.Name" /></td>
+                        <td>@product.Name</td>
+                        <td>@product.Description</td>
+                        <td>@product.Price</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private SearchResponse searchResponse = new();
+    private string searchTerm = string.Empty;
+    private bool isLoading;
+    private string errorMessage = string.Empty;
+    private bool showFunctionInfo = true;
+    private bool showToolsInfo;
+    private IList<ModelContextProtocol.Client.McpClientTool> tools = new List<ModelContextProtocol.Client.McpClientTool>();
+    private Dictionary<string, bool> selectedTools = new();
+    private MarkdownPipeline markdownPipeline;
+    private bool areAllToolsSelected;
+
+    private bool mcpSearch => selectedTools.Values.Any(v => v);
+
+    protected override void OnInitialized()
+    {
+        tools = McpServerService.GetTools() ?? new List<ModelContextProtocol.Client.McpClientTool>();
+
+        markdownPipeline = new MarkdownPipelineBuilder()
+            .UseAdvancedExtensions()
+            .Build();
+
+        foreach (var tool in tools)
+        {
+            selectedTools[tool.Name] = false;
+        }
+    }
+
+    private void ToggleToolSelection(ModelContextProtocol.Client.McpClientTool tool, bool isSelected)
+    {
+        selectedTools[tool.Name] = isSelected;
+    }
+
+    private IList<ModelContextProtocol.Client.McpClientTool> GetSelectedTools()
+    {
+        return tools.Where(t => selectedTools.GetValueOrDefault(t.Name, false)).ToList();
+    }
+
+    private string RenderMarkdown(string markdown)
+    {
+        return string.IsNullOrEmpty(markdown) ? string.Empty : Markdig.Markdown.ToHtml(markdown, markdownPipeline);
+    }
+
+    private async Task DoSearch(MouseEventArgs e)
+    {
+        if (isLoading) return;
+
+        try
+        {
+            isLoading = true;
+            errorMessage = string.Empty;
+            searchResponse = new();
+
+            var selectedToolsList = GetSelectedTools();
+            if (!selectedToolsList.Any())
+            {
+                errorMessage = "Please select at least one tool before performing a search.";
+                return;
+            }
+
+            searchResponse = await McpServerService.GetResponseAsync(searchTerm, selectedToolsList);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ToggleFunctionInfo() => showFunctionInfo = !showFunctionInfo;
+
+    private void ToggleToolsInfo() => showToolsInfo = !showToolsInfo;
+
+    private void ToggleAllTools(ChangeEventArgs e)
+    {
+        areAllToolsSelected = (bool)e.Value;
+
+        foreach (var tool in tools)
+        {
+            selectedTools[tool.Name] = areAllToolsSelected;
+        }
+    }
+}

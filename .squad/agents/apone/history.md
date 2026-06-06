@@ -60,3 +60,11 @@ Fleet completion: All 13 scenarios (.NET 10/Aspire 13) + 1 reference pattern.
 - Vasquez: Verification complete (13/13 Release builds green, 63/63 tests pass)
 
 Approved exceptions documented. Ready for production deployment.
+
+## Learnings
+- 2026-06-06T14:03:53.471-04:00: Session docs for the .NET Agentic Modernization plan live under `docs/26 06 16 NET Agentic Modernization/`, with deployment kept slide-only and Hosted Agents treated as an evaluation path.
+- 2026-06-06T14:03:53.471-04:00: The main infra anchors for the session are `scenarios/01-SemanticSearch/src/eShopAppHost/Program.cs`, `scenarios/06-mcp/src/eShopAppHost/Program.cs`, `scenarios/09-AzureAppService/README.md`, and `scenarios/10-A2ANet/src/eShopAppHost/Program.cs`.
+- 2026-06-06T14:03:53.471-04:00: Scenario baselines should stay centered on 01-SemanticSearch unless a scenario needs MCP, A2A, or deployment-specific infrastructure.
+
+- 2026-06-06T14:03:53.471-04:00: Scaffolded scenario README stubs for 13-17 to match the agentic modernization plan, with the session docs keeping deployment slide-only and Hosted Agents as an evaluation path.
+

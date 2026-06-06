@@ -1,0 +1,62 @@
+@using Store.Services
+@inject ICartService CartService
+@implements IDisposable
+@rendermode InteractiveServer
+
+<div class="cart-icon-container position-relative">
+    <button class="btn btn-link text-white p-0" @onclick="ToggleCart" title="Shopping Cart">
+        <i class="bi bi-cart3 fs-4"></i>
+        @if (itemCount > 0)
+        {
+            <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                @itemCount
+            </span>
+        }
+    </button>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnToggleCart { get; set; }
+    
+    private int itemCount = 0;
+    private Timer? timer;
+    private bool isClientRendered = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isClientRendered = true;
+            await UpdateCartCount();
+            
+            // Set up periodic updates every 5 seconds
+            timer = new Timer(async _ => await InvokeAsync(UpdateCartCount), null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task UpdateCartCount()
+    {
+        if (!isClientRendered) return;
+        
+        try
+        {
+            itemCount = await CartService.GetCartItemCountAsync();
+            StateHasChanged();
+        }
+        catch (Exception)
+        {
+            // Silently handle errors
+        }
+    }
+
+    private async Task ToggleCart()
+    {
+        await OnToggleCart.InvokeAsync();
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

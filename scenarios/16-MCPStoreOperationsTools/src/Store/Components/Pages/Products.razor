@@ -1,0 +1,68 @@
+﻿@page "/products"
+@using DataEntities
+@using global::Services
+@inject Store.Services.McpServerService McpServerService
+@inject IConfiguration Configuration
+@attribute [StreamRendering(true)]
+
+<PageTitle>Products</PageTitle>
+
+<h1>Products</h1>
+
+<p>Here are some of our amazing outdoor products that you can purchase.</p>
+
+@if (products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <!-- Simulating images being hosted on a CDN -->
+                    <td><img height="80" width="80" src="@product.ImageUrl" /></td>
+                    <td>@product.Name</td>
+                    <td>@product.Description</td>
+                    <td>@product.Price</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Product>? products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var tools = McpServerService.GetTools();
+        // select the tool named "KeyWordSearchProducts" from the tools collection, and create an array with that tool
+        var selectedTools = tools.Where(t => t.Name == "KeyWordSearchProducts").ToArray();
+        // specific prompt to get all products
+        var promptGetAllProducts  = "Perform a keyword search of products with the query criteria: '*'";
+
+        // run the tool with the prompt
+        var response = await McpServerService.GetResponseAsync(promptGetAllProducts, selectedTools);
+
+        if (response != null)
+        {
+            products = response.Products;
+        }
+        else
+        {
+            // Handle the case where the response is null
+            products = new List<Product>();
+        }
+    }
+}

@@ -1,0 +1,159 @@
+@using CartEntities
+@using Store.Services
+@inject ICartService CartService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<!-- Offcanvas Cart -->
+<div class="offcanvas offcanvas-end @(isVisible ? "show" : "")" tabindex="-1" id="cartOffcanvas" style="visibility: @(isVisible ? "visible" : "hidden");">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Shopping Cart</h5>
+        <button type="button" class="btn-close" @onclick="CloseCart" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+        @if (cart.Items.Any())
+        {
+            <div class="flex-grow-1">
+                @foreach (var item in cart.Items)
+                {
+                    <div class="cart-item d-flex align-items-center mb-3 p-2 border rounded">
+                        <img src="https://raw.githubusercontent.com/MicrosoftDocs/mslearn-dotnet-cloudnative/main/dotnet-docker/Products/wwwroot/images/@item.ImageUrl" 
+                             alt="@item.Name" class="cart-item-image me-3" style="width: 50px; height: 50px; object-fit: cover;" />
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">@item.Name</h6>
+                            <small class="text-muted">@item.Price.ToString("C")</small>
+                            <div class="d-flex align-items-center mt-1">
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => DecreaseQuantity(item.ProductId)">-</button>
+                                <span class="mx-2">@item.Quantity</span>
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => IncreaseQuantity(item.ProductId)">+</button>
+                                <button class="btn btn-sm btn-outline-danger ms-2" @onclick="() => RemoveItem(item.ProductId)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <strong>@item.Total.ToString("C")</strong>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <div class="border-top pt-3">
+                <CartSummary cart="cart" />
+                <div class="d-grid gap-2 mt-3">
+                    <button class="btn btn-outline-primary" @onclick="ViewCart">View Cart</button>
+                    <button class="btn btn-primary" @onclick="Checkout">Checkout</button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-cart-x display-4 text-muted"></i>
+                <p class="mt-3 text-muted">Your cart is empty</p>
+                <button class="btn btn-primary" @onclick="ContinueShopping">Continue Shopping</button>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Backdrop -->
+@if (isVisible)
+{
+    <div class="offcanvas-backdrop fade show" @onclick="CloseCart"></div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public EventCallback OnCartUpdated { get; set; }
+
+    private Cart cart = new();
+    private bool isVisible => IsVisible;
+    private bool isClientRendered = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isClientRendered = true;
+            await LoadCart();
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsVisible && isClientRendered)
+        {
+            await LoadCart();
+        }
+    }
+
+    private async Task LoadCart()
+    {
+        if (!isClientRendered) return;
+        
+        try
+        {
+            cart = await CartService.GetCartAsync();
+            StateHasChanged();
+        }
+        catch (Exception)
+        {
+            cart = new Cart();
+        }
+    }
+
+    private async Task CloseCart()
+    {
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task IncreaseQuantity(int productId)
+    {
+        var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+        if (item != null)
+        {
+            await CartService.UpdateQuantityAsync(productId, item.Quantity + 1);
+            await LoadCart();
+            await OnCartUpdated.InvokeAsync();
+        }
+    }
+
+    private async Task DecreaseQuantity(int productId)
+    {
+        var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+        if (item != null && item.Quantity > 1)
+        {
+            await CartService.UpdateQuantityAsync(productId, item.Quantity - 1);
+            await LoadCart();
+            await OnCartUpdated.InvokeAsync();
+        }
+    }
+
+    private async Task RemoveItem(int productId)
+    {
+        await CartService.RemoveFromCartAsync(productId);
+        await LoadCart();
+        await OnCartUpdated.InvokeAsync();
+    }
+
+    private async Task ViewCart()
+    {
+        await CloseCart();
+        Navigation.NavigateTo("/cart");
+    }
+
+    private async Task Checkout()
+    {
+        await CloseCart();
+        Navigation.NavigateTo("/checkout");
+    }
+
+    private async Task ContinueShopping()
+    {
+        await CloseCart();
+        Navigation.NavigateTo("/products");
+    }
+}

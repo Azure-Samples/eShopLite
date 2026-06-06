@@ -48,3 +48,8 @@ Fleet completion: All 13 scenarios (.NET 10/Aspire 13) + 1 reference pattern.
 - Vasquez: Verification complete (13/13 Release builds green, 63/63 tests pass)
 
 Approved exceptions documented. Ready for production deployment.
+
+## Learnings
+- 2026-06-06T14:05:16.637-04:00: The agentic modernization scaffold clones 01-SemanticSearch for scenarios 13-15, 06-mcp for 16, and 10-A2ANet for 17 so each new scenario stays runnable while the new story is added.
+- 2026-06-06T14:05:16.637-04:00: The shared session docs live under `docs/26 06 16 NET Agentic Modernization/` and anchor the narrative around observability, product discovery, store intelligence, MCP tools, and A2A.
+- 2026-06-06T14:05:16.637-04:00: The repo tolerates OpenTelemetry NU1902 and System.Text.Json NU1510 warnings in these baselines, so build/test validation should record them but not block the scaffold.

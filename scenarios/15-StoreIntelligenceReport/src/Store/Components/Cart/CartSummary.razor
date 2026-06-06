@@ -1,0 +1,21 @@
+@using CartEntities
+
+<div class="cart-summary">
+    <div class="d-flex justify-content-between mb-2">
+        <span>Subtotal:</span>
+        <span>@cart.Subtotal.ToString("C")</span>
+    </div>
+    <div class="d-flex justify-content-between mb-2">
+        <span>Tax (8%):</span>
+        <span>@cart.Tax.ToString("C")</span>
+    </div>
+    <hr />
+    <div class="d-flex justify-content-between fw-bold">
+        <span>Total:</span>
+        <span>@cart.Total.ToString("C")</span>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Cart cart { get; set; } = new();
+}

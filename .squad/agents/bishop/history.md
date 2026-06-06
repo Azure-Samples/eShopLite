@@ -94,3 +94,8 @@ products
 - `Microsoft.Extensions.VectorData.Abstractions` reached GA in May 2025.
 - As of 2026-06-06: no non-SK-named Azure AI Search VectorData connector exists on NuGet (`CommunityToolkit.VectorData.AzureAISearch` and `Microsoft.Extensions.VectorData.AzureAISearch` both not found).
 - **Recommendation: Option A — keep the SK-named connector.** Lowest effort, fully supported, zero SK runtime. Revisit when a neutral package appears or when the connector leaves `-preview`.
+
+## Learnings
+- 2026-06-06T14:05:16.188-04:00: Started the agentic modernization implementation by cloning the closest working scenario baselines (01 for 13-15, 06 for 16, 10 for 17) so each new scenario stays runnable while the story is added.
+- 2026-06-06T14:05:16.188-04:00: The new session documentation lives under docs/26 06 16 NET Agentic Modernization/ and centers the narrative on observability, product discovery, store intelligence, MCP tools, and A2A.
+- 2026-06-06T14:05:16.188-04:00: The reusable backend pattern is to keep Aspire wiring explicit and preserve the existing 4-parameter Azure OpenAI shape while documenting any non-01 baseline choice in the scenario README.

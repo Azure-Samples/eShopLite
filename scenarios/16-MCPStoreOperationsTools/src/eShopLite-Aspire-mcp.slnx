@@ -1,0 +1,30 @@
+<Solution>
+  <Folder Name="/1 Aspire/">
+    <Project Path="eShopAppHost/eShopAppHost.csproj" />
+    <Project Path="eShopServiceDefaults/eShopServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/2 FrontEnd/">
+    <Project Path="Store/Store.csproj" />
+  </Folder>
+  <Folder Name="/3 Backend/">
+    <Project Path="eShopMcpSseServer/eShopMcpSseServer.csproj" />
+    <Project Path="Products/Products.csproj" />
+  </Folder>
+  <Folder Name="/4 AI Agents/">
+    <Project Path="OnlineResearcher/OnlineResearcher.csproj" />
+    <Project Path="ParkInformationAgent/ParkInformationAgent.csproj" />
+    <Project Path="WeatherAgent/WeatherAgent.csproj" />
+  </Folder>
+  <Folder Name="/5 Services/">
+    <Project Path="Services/Services.csproj" />
+  </Folder>
+  <Folder Name="/6 Models/">
+    <Project Path="DataEntities/DataEntities.csproj" />
+    <Project Path="McpToolsEntities/McpToolsEntities.csproj" />
+    <Project Path="SearchEntities/SearchEntities.csproj" />
+    <Project Path="VectorEntities/VectorEntities.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".mcp.json" />
+  </Folder>
+</Solution>

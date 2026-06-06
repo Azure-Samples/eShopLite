@@ -1,0 +1,117 @@
+﻿@page "/search"
+@using Store.Services
+@using SearchEntities
+
+@inject IProductService ProductService
+@inject IConfiguration Configuration
+@attribute [StreamRendering(true)]
+@rendermode InteractiveServer
+
+<PageTitle>Search Products</PageTitle>
+
+<h1>Search Products</h1>
+
+<p>Search our amazing outdoor products that you can purchase.</p>
+
+<div class="form-group">
+    <label for="search" class="form-label">Type your question:</label>
+    <div class="input-group mb-3">
+        <input type="text" id="search" class="form-control" @bind="searchTerm" placeholder="Enter search term..." />
+        <button id="btnSearch" class="btn btn-primary" @onclick="DoSearch" type="submit">Search</button>
+    </div>
+
+    <div class="mb-3">
+        <label for="searchType" class="form-label">Search Type:</label>
+        <select id="searchType" class="form-select" @bind="selectedSearchType">
+            <option value="@SearchType.Standard">Standard Search</option>
+            <option value="@SearchType.Semantic">Semantic Search</option>
+            <option value="@SearchType.A2A">A2A Search (Agent-to-Agent)</option>
+        </select>
+    </div>
+
+    <hr />
+    <p class="quote">@aiResponse</p>
+</div>
+
+
+@if (products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var product in products)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <img src="https://raw.githubusercontent.com/MicrosoftDocs/mslearn-dotnet-cloudnative/main/dotnet-docker/Products/wwwroot/images/@product.ImageUrl"
+                        class="card-img-top" alt="@product.Name" style="object-fit:cover;height:180px;" />
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text">@GetMainDescription(product.Description)</p>
+                        <p class="card-text"><strong>Price:</strong> @product.Price.ToString("C")</p>
+                        @if (selectedSearchType == SearchType.A2A && HasA2AInfo(product.Description))
+                        {
+                            var info = ParseA2AInfo(product.Description);
+                            <ul class="list-group list-group-flush mb-2">
+                                <li class="list-group-item"><strong>Stock:</strong> @info.Stock</li>
+                                <li class="list-group-item"><strong>Promotions:</strong> @info.Promotions</li>
+                                <li class="list-group-item"><strong>Reviews:</strong> @info.Reviews</li>
+                            </ul>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private string searchTerm = "";
+    private List<DataEntities.Product>? products;
+    private string aiResponse = "";
+    private SearchType selectedSearchType = SearchType.Standard;
+
+    private async Task DoSearch(MouseEventArgs e)
+    {
+        await Task.Delay(500);
+        var response = await ProductService.SearchWithType(searchTerm, selectedSearchType);
+        aiResponse = response?.Response ?? "No response";
+        products = response?.Products ?? new List<DataEntities.Product>();
+    }
+
+    // Helper to extract main description (before the pipe)
+    private string GetMainDescription(string description)
+    {
+        if (string.IsNullOrEmpty(description)) return "";
+        var idx = description.IndexOf("|");
+        return idx > 0 ? description.Substring(0, idx).Trim() : description;
+    }
+
+    // Helper to check if A2A info is present
+    private bool HasA2AInfo(string description)
+    {
+        return !string.IsNullOrEmpty(description) && description.Contains("Stock:") && description.Contains("Promotions:") &&
+        description.Contains("Reviews:");
+    }
+
+    // Helper to parse A2A info from description
+    private (string Stock, string Promotions, string Reviews) ParseA2AInfo(string description)
+    {
+        // Format: "desc | Stock: X | Promotions: Y | Reviews: Z"
+        var stock = "-";
+        var promos = "-";
+        var reviews = "-";
+        if (string.IsNullOrEmpty(description)) return (stock, promos, reviews);
+        var parts = description.Split('|');
+        foreach (var part in parts)
+        {
+            var p = part.Trim();
+            if (p.StartsWith("Stock:")) stock = p.Replace("Stock:", "").Trim();
+            else if (p.StartsWith("Promotions:")) promos = p.Replace("Promotions:", "").Trim();
+            else if (p.StartsWith("Reviews:")) reviews = p.Replace("Reviews:", "").Trim();
+        }
+        return (stock, promos, reviews);
+    }
+}

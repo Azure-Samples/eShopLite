@@ -5,6 +5,11 @@
 - Requested by: Bruno Capuano
 - Stack: Blazor on .NET 10 with Aspire 13.0.1-orchestrated services
 
+## Learnings
+- Scenario READMEs should explicitly state which existing scenario they were derived from and why.
+- The Azure App Service scenario is the deployment reference for the agentic modernization session docs.
+- The session docs folder should link back to the deployment scenario so the story stays grounded in the app implementation.
+
 ## 2026-06-06 — Secrets CLI Standardization (`aspire secret set`)
 
 ### Summary

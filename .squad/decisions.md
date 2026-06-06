@@ -2,7 +2,98 @@
 
 ## Active Decisions
 
-No decisions recorded yet.
+### ripley-agentic-modernization
+# Decision: Agentic Modernization Implementation Plan
+
+**Date:** 2026-06-06T14:03:53.471-04:00
+**Author:** Ripley
+**Status:** Active
+**Requested by:** Bruno Capuano
+
+## Decision
+Implement the modernization story as a doc-led, app-first sequence:
+1. lock the session narrative and speaker assets in `docs/26 06 16 NET Agentic Modernization/`,
+2. keep Scenario 13 focused on local observability,
+3. treat Hosted Agents as an extension path for Scenario 17 rather than the main demo,
+4. reuse `01-SemanticSearch`, `06-mcp`, and `10-A2ANet` as the baseline patterns for discovery, tools, and orchestration.
+
+## Why
+This keeps the session grounded in the modernized app rather than in agent hype. It also makes the demo repeatable: local observability first, then grounded discovery, then tools, then multi-agent collaboration.
+
+## Follow-up
+Scenario code should evolve from the baseline patterns once the docs are in place and the demo order is stable.
+
+---
+
+### newt-documentation-first-package
+# Decision: document-first modernization package
+
+Implement the modernization session as a documentation-first package under `docs/26 06 16 NET Agentic Modernization/`.
+
+- Use the existing scenario baselines (01, 06, 10) as the live demo source material.
+- Keep hosted-agent and DevUI content as supporting documentation until the planned scenario scaffolds exist.
+- Preserve Aspire AppHost composition as the organizing model for all future implementation work.
+
+---
+
+### hicks-scenario-derivation-docs
+# Hicks Docs UX Plan
+
+## Decision
+Scenario 09 now explicitly frames itself as derived from Scenario 01 - Semantic Search and links back to the agentic modernization session docs.
+
+## Why
+This keeps the deployment scenario aligned with the PRD requirement that each scenario explain its derivation and gives readers a clear path from the deployment sample to the broader session story.
+
+## Impact
+Future docs work should keep scenario READMEs explicit about origin, purpose, and session-doc links.
+
+---
+
+### bishop-backend-bootstrap
+# Bishop backend plan
+
+Date: 2026-06-06T14:05:16.188-04:00
+
+## Decision
+- Start the agentic modernization work by cloning the closest working baselines.
+- Scenarios 13, 14, and 15 use scenario 01 as the starter baseline.
+- Scenario 16 uses the MCP baseline from scenario 06.
+- Scenario 17 uses the A2A baseline from scenario 10.
+- Keep the new story runnable while the new docs and app capabilities land.
+
+---
+
+### apone-docs-first-infra
+# Session Docs-First Implementation Plan
+
+**Date:** 2026-06-06T14:03:53.471-04:00
+**Author:** Apone (DevOps/Infra)
+**Requested by:** Bruno Capuano
+
+## Decision
+Start the agentic modernization work by landing the session documentation pack and source-scenario mapping first.
+
+## Why
+- Keeps the plan traceable while scenario scaffolding is still being shaped.
+- Preserves scenario independence by documenting the baseline anchors before code changes.
+- Keeps deployment guidance slide-only, which matches the PRD and reduces infra churn.
+
+## Notes
+- Hosted Agents stay documented as an evaluation path until the current Aspire API names are verified.
+- Baseline anchors for the session are scenarios 01, 06, 09, and 10.
+
+---
+
+### vasquez-scaffold-validation
+# Vasquez tests plan
+
+Date: 2026-06-06T14:05:16.637-04:00
+
+## Decision
+- Validate the new agentic modernization scaffold by building all five scenario solutions and running tests on the 13 and 17 baselines.
+- Treat the unchanged 14 and 15 code as covered by the shared semantic-search baseline once the 13 build/test passes.
+- Keep the validated warnings (OpenTelemetry and System.Text.Json NU1902/NU1510) documented as non-blocking unless the repo decides to upgrade those packages.
 
 ## Governance
 

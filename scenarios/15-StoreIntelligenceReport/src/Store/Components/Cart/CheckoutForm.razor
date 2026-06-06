@@ -1,0 +1,144 @@
+@using CartEntities
+@using System.ComponentModel.DataAnnotations
+
+<EditForm Model="customer" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Contact Information</h5>
+            <div class="mb-3">
+                <label class="form-label">First Name</label>
+                <InputText @bind-Value="customer.FirstName" class="form-control" />
+                <ValidationMessage For="() => customer.FirstName" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Last Name</label>
+                <InputText @bind-Value="customer.LastName" class="form-control" />
+                <ValidationMessage For="() => customer.LastName" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <InputText @bind-Value="customer.Email" class="form-control" type="email" />
+                <ValidationMessage For="() => customer.Email" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phone</label>
+                <InputText @bind-Value="customer.Phone" class="form-control" />
+                <ValidationMessage For="() => customer.Phone" />
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <h5>Billing Address</h5>
+            <div class="mb-3">
+                <label class="form-label">Street</label>
+                <InputText @bind-Value="customer.BillingAddress.Street" class="form-control" />
+                <ValidationMessage For="() => customer.BillingAddress.Street" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">City</label>
+                <InputText @bind-Value="customer.BillingAddress.City" class="form-control" />
+                <ValidationMessage For="() => customer.BillingAddress.City" />
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">State</label>
+                    <InputText @bind-Value="customer.BillingAddress.State" class="form-control" />
+                    <ValidationMessage For="() => customer.BillingAddress.State" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Postal Code</label>
+                    <InputText @bind-Value="customer.BillingAddress.PostalCode" class="form-control" />
+                    <ValidationMessage For="() => customer.BillingAddress.PostalCode" />
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Country</label>
+                <InputText @bind-Value="customer.BillingAddress.Country" class="form-control" />
+                <ValidationMessage For="() => customer.BillingAddress.Country" />
+            </div>
+            
+            <div class="mb-3">
+                <div class="form-check">
+                    <InputCheckbox @bind-Value="customer.SameAsShipping" class="form-check-input" id="sameAsShipping" />
+                    <label class="form-check-label" for="sameAsShipping">
+                        Shipping address same as billing
+                    </label>
+                </div>
+            </div>
+            
+            @if (!customer.SameAsShipping)
+            {
+                <h5>Shipping Address</h5>
+                <div class="mb-3">
+                    <label class="form-label">Street</label>
+                    <InputText @bind-Value="customer.ShippingAddress.Street" class="form-control" />
+                    <ValidationMessage For="() => customer.ShippingAddress.Street" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">City</label>
+                    <InputText @bind-Value="customer.ShippingAddress.City" class="form-control" />
+                    <ValidationMessage For="() => customer.ShippingAddress.City" />
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">State</label>
+                        <InputText @bind-Value="customer.ShippingAddress.State" class="form-control" />
+                        <ValidationMessage For="() => customer.ShippingAddress.State" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Postal Code</label>
+                        <InputText @bind-Value="customer.ShippingAddress.PostalCode" class="form-control" />
+                        <ValidationMessage For="() => customer.ShippingAddress.PostalCode" />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Country</label>
+                    <InputText @bind-Value="customer.ShippingAddress.Country" class="form-control" />
+                    <ValidationMessage For="() => customer.ShippingAddress.Country" />
+                </div>
+            }
+        </div>
+    </div>
+    
+    <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-outline-secondary" @onclick="OnCancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+            @if (isSubmitting)
+            {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            Place Order
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired] public Customer customer { get; set; } = new();
+    [Parameter] public EventCallback<Customer> OnValidSubmit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    
+    private bool isSubmitting = false;
+
+    protected override void OnParametersSet()
+    {
+        if (customer.SameAsShipping)
+        {
+            customer.ShippingAddress = customer.BillingAddress;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        isSubmitting = true;
+        try
+        {
+            await OnValidSubmit.InvokeAsync(customer);
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

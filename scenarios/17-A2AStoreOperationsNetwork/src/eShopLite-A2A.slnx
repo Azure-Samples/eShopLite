@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/1 Aspire/">
+    <Project Path="eShopAppHost/eShopAppHost.csproj" />
+    <Project Path="eShopServiceDefaults/eShopServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/2 eShoplite/">
+    <Project Path="Products/Products.csproj" />
+    <Project Path="Store/Store.csproj" />
+  </Folder>
+  <Folder Name="/3 Agents/">
+    <Project Path="InventoryAgent/InventoryAgent.csproj" />
+    <Project Path="PromotionsAgent/PromotionsAgent.csproj" />
+    <Project Path="ResearcherAgent/ResearcherAgent.csproj" />
+  </Folder>
+  <Folder Name="/4 Models/">
+    <Project Path="DataEntities/DataEntities.csproj" />
+    <Project Path="SearchEntities/SearchEntities.csproj" />
+    <Project Path="VectorEntities/VectorEntities.csproj" />
+  </Folder>
+  <Folder Name="/5 Tests/">
+    <Project Path="Products.Tests/Products.Tests.csproj" />
+  </Folder>
+  <Project Path="CartEntities/CartEntities.csproj" />
+  <Project Path="Store.Tests/Store.Tests.csproj" />
+</Solution>
