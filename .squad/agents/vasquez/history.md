@@ -37,3 +37,14 @@
 
 Total tests: 63 passed, 0 failed, 0 skipped.  
 Full details in `.squad\decisions\inbox\vasquez-verify.md`.
+
+## Team Update: .NET 10 Modernization Shipped
+**Date:** 2026-06-06 **Status:** ✅ Complete
+
+Fleet completion: All 13 scenarios (.NET 10/Aspire 13) + 1 reference pattern.
+- Bishop: 12 scenario modernizations + reference pattern
+- Apone: CI bump + infra audit/apply (11 scenarios)
+- Hicks: Docs/READMEs/PRDs/speaker-scripts updated
+- Vasquez: Verification complete (13/13 Release builds green, 63/63 tests pass)
+
+Approved exceptions documented. Ready for production deployment.

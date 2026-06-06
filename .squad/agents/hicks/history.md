@@ -53,3 +53,14 @@ Updated all markdown documentation to reflect the .NET 10 / Aspire 13.0.1 / MEAI
 - 05-deepseek requires 7 parameters (4 AOAI + 3 DeepSeek).
 - 11-GitHubModels is dual-mode: local uses `GitHubModelsToken`; deployed uses the 4 AOAI params.
 - 08-Sql2025 test projects pin `Microsoft.EntityFrameworkCore.InMemory` at 9.0.x (not 10.x) due to EFCore.SqlServer.VectorSearch constraint — this is intentional and not reflected in user-facing docs.
+
+## Team Update: .NET 10 Modernization Shipped
+**Date:** 2026-06-06 **Status:** ✅ Complete
+
+Fleet completion: All 13 scenarios (.NET 10/Aspire 13) + 1 reference pattern.
+- Bishop: 12 scenario modernizations + reference pattern
+- Apone: CI bump + infra audit/apply (11 scenarios)
+- Hicks: Docs/READMEs/PRDs/speaker-scripts updated
+- Vasquez: Verification complete (13/13 Release builds green, 63/63 tests pass)
+
+Approved exceptions documented. Ready for production deployment.
