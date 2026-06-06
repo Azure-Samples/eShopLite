@@ -5,8 +5,37 @@
 - Requested by: Bruno Capuano
 - Stack: Blazor on .NET 10 with Aspire 13.0.1-orchestrated services
 
-## Learnings
-- Scenario-driven UI work must stay compatible with per-scenario AppHost orchestration.
+## 2026-06-06 — Secrets CLI Standardization (`aspire secret set`)
+
+### Summary
+Standardized all scenario docs to use the **Aspire CLI** (`aspire secret set`) instead of `dotnet user-secrets set`. Added the new `scripts\Set-AzureOpenAISecrets.ps1` quick-setup script to the main README, along with the Aspire CLI as a prerequisite.
+
+Requested by: Bruno Capuano.
+
+### Files Changed
+
+| File | Changes |
+|------|---------|
+| `README.md` (top-level) | Added Aspire CLI to prerequisites; added "Quick setup — Azure OpenAI secrets" section documenting the script, its `-DryRun` flag, the 4 prompted values, and the manual `aspire secret set` alternative |
+| `scenarios/01-SemanticSearch/README.md` | Replaced 4 `dotnet user-secrets set` commands with `aspire secret set` equivalents; added Tip for script |
+| `scenarios/02-AzureAISearch/README.md` | Same; `--apphost` path: `scenarios/02-AzureAISearch/src/eShopAppHost/eShopAppHost.csproj` |
+| `scenarios/03-RealtimeAudio/README.md` | Replaced 5 commands (4 standard + `AzureOpenAIRealtimeDeploymentName`); Tip notes extra param must be set manually |
+| `scenarios/04-chromadb/README.md` | Replaced 4 `dotnet user-secrets set` commands with `aspire secret set`; added Tip |
+| `scenarios/05-deepseek/README.md` | Replaced 7 commands (4 standard AOAI + 3 DeepSeek); Tip notes 3 DeepSeek params must be set manually |
+| `scenarios/06-mcp/README.md` | Replaced 4 `dotnet user-secrets set` commands with `aspire secret set`; added Tip |
+| `scenarios/07-AgentsConcurrent/README.md` | Replaced 4 `dotnet user-secrets set` commands with `aspire secret set`; added Tip |
+| `scenarios/08-Sql2025/README.md` | Replaced 4 `dotnet user-secrets set` commands with `aspire secret set`; added Tip |
+| `scenarios/09-AzureAppService/README.md` | Replaced 4 `dotnet user-secrets set` commands with `aspire secret set`; added Tip |
+| `scenarios/11-GitHubModels/README.md` | Replaced `dotnet user-secrets set` for `GitHubModelsToken` with `aspire secret set`; added Tip noting token must still be set manually |
+| `scenarios/12-AzureFunctions/README.md` | Replaced 4 `dotnet user-secrets set` commands with `aspire secret set`; added Tip |
+| `scenarios/08-Sql2025/docs/README.md` | Replaced 4 `dotnet user-secrets set` commands with `aspire secret set`; heading updated to reflect Aspire CLI |
+
+### Notes
+- 10-A2ANet and 14-MAFDevUI have no markdown secret-setup snippets; no changes needed.
+- All `aspire secret set` commands include the full `--apphost <scenario-path>` so they can be run from the repo root.
+- Scenario 03 retains the 5th `AzureOpenAIRealtimeDeploymentName` parameter; Scenario 05 retains all 3 DeepSeek parameters; Scenario 11 retains `GitHubModelsToken`.
+
+
 
 ## 2026-06-06 — Documentation Modernization (All Scenarios)
 

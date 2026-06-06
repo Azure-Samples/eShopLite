@@ -51,9 +51,10 @@ dotnet run
 During the first run, Aspire prompts for your GitHub token as a secure parameter (`Parameters:GitHubModelsToken`). You can also set it manually beforehand:
 
 ```bash
-cd src/eShopAppHost
-dotnet user-secrets set "Parameters:GitHubModelsToken" "<your-github-pat>"
+aspire secret set Parameters:GitHubModelsToken "<your-github-pat>" --apphost scenarios/11-GitHubModels/src/eShopAppHost/eShopAppHost.csproj
 ```
+
+> **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once. Note: `Parameters:GitHubModelsToken` (used locally) must still be set manually as shown above.
 
 The app then uses:
 

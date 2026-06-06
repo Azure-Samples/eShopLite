@@ -95,16 +95,18 @@ dotnet run
 
 **Local development requires Azure OpenAI credentials:**
 
-1. **Set user secrets in the AppHost project (new parameter-based approach):**
+1. **Set AppHost parameter secrets with the Aspire CLI (parameter-based approach):**
+
+   Easiest: run `scripts/Set-AzureOpenAISecrets.ps1` from the repo root to set the four common
+   values for every scenario at once (`-DryRun` previews). Or set them per scenario with the
+   [`aspire secret`](https://aspire.dev/reference/cli/commands/aspire-secret/) command:
 
 ```bash
-cd scenarios/<scenario-name>/src/eShopAppHost
-
-# Set Azure OpenAI parameters (required for most scenarios)
-dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-endpoint>.openai.azure.com/"
-dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-key>"
-dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
-dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
+# Set Azure OpenAI parameters (required for most scenarios) — point --apphost at the scenario's AppHost
+aspire secret set Parameters:AzureOpenAIEndpoint "https://<your-endpoint>.openai.azure.com/" --apphost scenarios/<scenario-name>/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIApiKey "<your-key>" --apphost scenarios/<scenario-name>/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-4.1-mini" --apphost scenarios/<scenario-name>/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-3-small" --apphost scenarios/<scenario-name>/src/eShopAppHost/eShopAppHost.csproj
 
 # Scenario-specific extras:
 # 03-RealtimeAudio: also set Parameters:AzureOpenAIRealtimeDeploymentName
@@ -347,7 +349,7 @@ cat README.md
 ### Authentication and Secrets
 
 - **Never commit secrets or API keys to source control**
-- Use `dotnet user-secrets` for local development
+- Use the `aspire secret` CLI (or `scripts/Set-AzureOpenAISecrets.ps1`) for local development
 - Use Azure Managed Identity for production (automatically configured by azd)
 - Azure OpenAI keys are stored in user secrets or Key Vault
 
@@ -428,11 +430,11 @@ cd scenarios/<name>/src/eShopAppHost && dotnet run
 # Deploy to Azure
 cd scenarios/<name>/src/eShopAppHost && azd up
 
-# Set secrets (new parameter-based approach)
-dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "<your-endpoint>"
-dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-key>"
-dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
-dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
+# Set secrets (Aspire parameter-based approach) — or run scripts/Set-AzureOpenAISecrets.ps1
+aspire secret set Parameters:AzureOpenAIEndpoint "<your-endpoint>" --apphost scenarios/<name>/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIApiKey "<your-key>" --apphost scenarios/<name>/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-4.1-mini" --apphost scenarios/<name>/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-3-small" --apphost scenarios/<name>/src/eShopAppHost/eShopAppHost.csproj
 ```
 
 ### Troubleshooting

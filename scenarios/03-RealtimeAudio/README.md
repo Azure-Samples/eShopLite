@@ -140,17 +140,17 @@ This Azure OpenAI service must contain:
 - a `gpt-4o-realtime-preview` model named **gpt-4o-realtime-preview**
 - a `text-embedding-ada-002` model named **text-embedding-ada-002**
 
-Run these commands from the `src/eShopAppHost` directory:
+Run these commands from the **repo root**:
 
 ```bash
-cd src/eShopAppHost
-
-dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
-dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
-dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4o-mini"
-dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
-dotnet user-secrets set "Parameters:AzureOpenAIRealtimeDeploymentName" "gpt-4o-realtime-preview"
+aspire secret set Parameters:AzureOpenAIEndpoint "https://<your-resource>.openai.azure.com/" --apphost scenarios/03-RealtimeAudio/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIApiKey "<your-api-key>" --apphost scenarios/03-RealtimeAudio/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-4o-mini" --apphost scenarios/03-RealtimeAudio/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-ada-002" --apphost scenarios/03-RealtimeAudio/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIRealtimeDeploymentName "gpt-4o-realtime-preview" --apphost scenarios/03-RealtimeAudio/src/eShopAppHost/eShopAppHost.csproj
 ```
+
+> **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once. Note: `Parameters:AzureOpenAIRealtimeDeploymentName` (the 5th parameter above) must still be set manually.
 
 ### Telemetry with .NET Aspire and Azure Application Insights
 

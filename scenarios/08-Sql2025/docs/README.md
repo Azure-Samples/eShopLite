@@ -149,15 +149,18 @@ builder.Services.AddEmbeddingGenerator(aoaiClient.GetEmbeddingClient(embDeploy).
 
 ## Configuration
 
-### Parameters (set as user secrets in eShopAppHost)
+### Parameters (set via Aspire CLI in eShopAppHost)
+
+Run these commands from the **repo root**:
 
 ```bash
-cd src/eShopAppHost
-dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
-dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
-dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
-dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-3-small"
+aspire secret set Parameters:AzureOpenAIEndpoint "https://<your-resource>.openai.azure.com/" --apphost scenarios/08-Sql2025/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIApiKey "<your-api-key>" --apphost scenarios/08-Sql2025/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-4.1-mini" --apphost scenarios/08-Sql2025/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-3-small" --apphost scenarios/08-Sql2025/src/eShopAppHost/eShopAppHost.csproj
 ```
+
+> **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once.
 
 ### Authentication
 - **Development**: API key via `Parameters:AzureOpenAIApiKey`; omit the key to fall back to `DefaultAzureCredential` (Managed Identity / Azure CLI)

@@ -97,6 +97,23 @@ Store (UI)
   - If using Visual Studio Code, install the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit)
 - .NET Aspire workload ([setup guide](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire))
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/)
+- [.NET Aspire CLI](https://aspire.dev/) (`dotnet tool install -g aspire.cli`) — used to set local secrets
+
+### Configure Azure OpenAI secrets
+
+This scenario reads its Azure OpenAI configuration from Aspire AppHost parameters. Set them as local
+secrets with the [`aspire secret`](https://aspire.dev/reference/cli/commands/aspire-secret/) command,
+targeting this scenario's AppHost project:
+
+```shell
+aspire secret set Parameters:AzureOpenAIEndpoint "https://<your-resource>.openai.azure.com/" --apphost ./src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIApiKey "<your-api-key>" --apphost ./src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-4.1-mini" --apphost ./src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-3-small" --apphost ./src/eShopAppHost/eShopAppHost.csproj
+```
+
+> Tip: run `scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set these four common Azure OpenAI
+> values for every scenario at once (use `-DryRun` to preview).
 
 ### Running Locally
 

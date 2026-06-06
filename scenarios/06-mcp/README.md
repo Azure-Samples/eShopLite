@@ -211,14 +211,16 @@ The eShopLite MCP solution leverages .NET Aspire to create and manage the necess
 
 To use existing AI models (like gpt-4.1-mini) for local development, set the Azure OpenAI parameters as user secrets in the `eShopAppHost` project:
 
-```bash
-cd src/eShopAppHost
+Run these commands from the **repo root**:
 
-dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
-dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
-dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
-dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
+```bash
+aspire secret set Parameters:AzureOpenAIEndpoint "https://<your-resource>.openai.azure.com/" --apphost scenarios/06-mcp/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIApiKey "<your-api-key>" --apphost scenarios/06-mcp/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-4.1-mini" --apphost scenarios/06-mcp/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-ada-002" --apphost scenarios/06-mcp/src/eShopAppHost/eShopAppHost.csproj
 ```
+
+> **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once.
 
 ### Telemetry with .NET Aspire and Azure Application Insights
 

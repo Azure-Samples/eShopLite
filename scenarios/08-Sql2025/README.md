@@ -125,14 +125,16 @@ The solution is in the `./src` folder, the main solution is **[eShopLite-Sql2025
 
 To run locally with an existing Azure OpenAI service containing **gpt-4.1-mini** and **text-embedding-3-small** models, set the parameters as user secrets in the `eShopAppHost` project:
 
-```bash
-cd src/eShopAppHost
+Run these commands from the **repo root**:
 
-dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
-dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
-dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
-dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-3-small"
+```bash
+aspire secret set Parameters:AzureOpenAIEndpoint "https://<your-resource>.openai.azure.com/" --apphost scenarios/08-Sql2025/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIApiKey "<your-api-key>" --apphost scenarios/08-Sql2025/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-4.1-mini" --apphost scenarios/08-Sql2025/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-3-small" --apphost scenarios/08-Sql2025/src/eShopAppHost/eShopAppHost.csproj
 ```
+
+> **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once.
 
 Ensure Docker is running before starting the AppHost — SQL Server 2025 is provisioned as a container by Aspire.
 

@@ -133,19 +133,19 @@ This Azure OpenAI service must contain:
 - a `gpt-4.1-mini` model named **gpt-4.1-mini**
 - a `text-embedding-ada-002` model named **text-embedding-ada-002**
 
-Run these commands from the `src/eShopAppHost` directory:
+Run these commands from the **repo root**:
 
 ```bash
-cd src/eShopAppHost
-
-dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
-dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
-dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
-dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
-dotnet user-secrets set "Parameters:DeepSeekEndpoint" "https://<resource>.eastus.models.ai.azure.com/"
-dotnet user-secrets set "Parameters:DeepSeekApiKey" "<your-deepseek-key>"
-dotnet user-secrets set "Parameters:DeepSeekDeploymentName" "DeepSeek-R1"
+aspire secret set Parameters:AzureOpenAIEndpoint "https://<your-resource>.openai.azure.com/" --apphost scenarios/05-deepseek/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIApiKey "<your-api-key>" --apphost scenarios/05-deepseek/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-4.1-mini" --apphost scenarios/05-deepseek/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-ada-002" --apphost scenarios/05-deepseek/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:DeepSeekEndpoint "https://<resource>.eastus.models.ai.azure.com/" --apphost scenarios/05-deepseek/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:DeepSeekApiKey "<your-deepseek-key>" --apphost scenarios/05-deepseek/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:DeepSeekDeploymentName "DeepSeek-R1" --apphost scenarios/05-deepseek/src/eShopAppHost/eShopAppHost.csproj
 ```
+
+> **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once. Note: the 3 DeepSeek parameters (`Parameters:DeepSeekEndpoint`, `Parameters:DeepSeekApiKey`, `Parameters:DeepSeekDeploymentName`) must still be set manually.
 
 ### DeepSeek-R1 Model Integration
 
