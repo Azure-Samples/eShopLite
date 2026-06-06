@@ -1,10 +1,10 @@
 # Copilot Coding Instructions for eShopLite
 
-This repository contains practical, beginner-friendly samples and lessons for building Generative AI applications using .NET 9 and Blazor. It is focused on the eShopLite scenario, demonstrating modern .NET, Generative AI, Blazor, MCP,  Semantic Search integration and more.
+This repository contains practical, beginner-friendly samples and lessons for building Generative AI applications using .NET 10 and Blazor. It is focused on the eShopLite scenario, demonstrating modern .NET, Generative AI, Blazor, MCP, Semantic Search integration and more.
 
 ## Repository Intent & Goals
-- Provide hands-on, accessible code samples for integrating Generative AI in a sample eCommerce .NET 9 application.
-- Showcase best practices for Blazor, .NET 9, Azure AI Search, MCP, and Semantic Search in a multi-project solution.
+- Provide hands-on, accessible code samples for integrating Generative AI in a sample eCommerce .NET 10 application.
+- Showcase best practices for Blazor, .NET 10, Azure AI Search, MCP, and Semantic Search in a multi-project solution.
 - Enable beginners to learn, build, and extend AI-powered .NET applications.
 
 ## Repository Structure
@@ -33,7 +33,7 @@ This repository contains practical, beginner-friendly samples and lessons for bu
 6. For Azure AI integrations (Azure OpenAI, Azure AI Search, etc.), follow official SDK and security guidelines
 7. Use configuration via `appsettings.json` and dependency injection for new .NET code
 8. Keep code and documentation accessible for beginners—add comments and links to docs where helpful
-9. Prioritize Blazor and .NET 9 patterns over older ASP.NET approaches
+9. Prioritize Blazor and .NET 10 patterns over older ASP.NET approaches
 
 ## AI & Azure Guidelines
 - Use Azure AI Search and Generative AI services following Microsoft best practices

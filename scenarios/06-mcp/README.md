@@ -112,7 +112,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
 
 To run the project locally, you'll need to make sure the following tools are installed:
 
-- [.NET 9](https://dotnet.microsoft.com/downloads/)
+- [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Git](https://git-scm.com/downloads)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
@@ -206,15 +206,18 @@ private async Task DoSearch(MouseEventArgs e)
 
 ## .NET Aspire Azure Resources creation
 The eShopLite MCP solution leverages .NET Aspire to create and manage the necessary Azure resources for deployment. For information on how .NET Aspire creates Azure resources, check the [.NET Aspire Azure hosting integrations](https://learn.microsoft.com/dotnet/aspire/azure/local-provisioning#net-aspire-azure-hosting-integrations) documentation.
-The eShopLite MCP solution leverages .NET Aspire to create and manage the necessary Azure resources for deployment. For information on how .NET Aspire creates Azure resources, check the [.NET Aspire Azure hosting integrations](https://learn.microsoft.com/dotnet/aspire/azure/local-provisioning#net-aspire-azure-hosting-integrations) documentation.
 
 ### Local development using an existing model
 
-To use existing AI models (like gpt-4.1-mini) for local development, you can configure the connection string using user secrets:
+To use existing AI models (like gpt-4.1-mini) for local development, set the Azure OpenAI parameters as user secrets in the `eShopAppHost` project:
 
 ```bash
-cd src/Products
-dotnet user-secrets set "ConnectionStrings:openaidev" "Endpoint=https://<endpoint>.openai.azure.com/;Key=<key>;"
+cd src/eShopAppHost
+
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
 ```
 
 ### Telemetry with .NET Aspire and Azure Application Insights

@@ -88,11 +88,16 @@ builder.Services.AddDbContext<Context>(options =>
 Modern AI service integration using Microsoft.Extensions.AI:
 
 ```csharp
-var embeddingsDeploymentName = "text-embedding-3-small";
-builder.AddAzureOpenAIClient(azureOpenAiClientName, configureSettings: settings =>
-{
-    settings.Credential = new AzureCliCredential();
-}).AddEmbeddingGenerator(embeddingsDeploymentName);
+// From Products/Program.cs — AzureOpenAIClient constructed from Aspire parameters
+var endpoint = builder.Configuration["AzureOpenAIEndpoint"] ?? "";
+var apiKey   = builder.Configuration["AzureOpenAIApiKey"] ?? "";
+var embDeploy = builder.Configuration["AzureOpenAIEmbeddingsDeploymentName"] ?? "text-embedding-3-small";
+
+AzureOpenAIClient aoaiClient = string.IsNullOrEmpty(apiKey)
+    ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
+    : new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+
+builder.Services.AddEmbeddingGenerator(aoaiClient.GetEmbeddingClient(embDeploy).AsIEmbeddingGenerator());
 ```
 
 ## Model Configuration
@@ -144,12 +149,18 @@ builder.AddAzureOpenAIClient(azureOpenAiClientName, configureSettings: settings 
 
 ## Configuration
 
-### Environment Variables
-- `AI_ChatDeploymentName`: "gpt-4.1-mini"
-- `AI_embeddingsDeploymentName`: "text-embedding-3-small"
+### Parameters (set as user secrets in eShopAppHost)
+
+```bash
+cd src/eShopAppHost
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-3-small"
+```
 
 ### Authentication
-- **Development**: Azure CLI credential for local development
+- **Development**: API key via `Parameters:AzureOpenAIApiKey`; omit the key to fall back to `DefaultAzureCredential` (Managed Identity / Azure CLI)
 - **Production**: Managed Identity for secure Azure authentication
 
 ### Container Requirements
@@ -162,7 +173,7 @@ builder.AddAzureOpenAIClient(azureOpenAiClientName, configureSettings: settings 
 ### Prerequisites
 - Docker Desktop with SQL Server 2025 container support
 - Azure OpenAI service with text-embedding-3-small model
-- .NET 9.0 SDK
+- .NET 10.0 SDK
 
 ### Local Development
 1. Configure Azure OpenAI user secrets

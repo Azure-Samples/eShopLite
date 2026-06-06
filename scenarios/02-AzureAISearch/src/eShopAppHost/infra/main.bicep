@@ -96,3 +96,4 @@ output AZURE_VOLUMES_STORAGE_ACCOUNT string = resources.outputs.AZURE_VOLUMES_ST
 output APPINSIGHTS_APPINSIGHTSCONNECTIONSTRING string = appInsights.outputs.appInsightsConnectionString
 output AZUREAISEARCH_CONNECTIONSTRING string = azureaisearch.outputs.connectionString
 output OPENAI_CONNECTIONSTRING string = openai.outputs.connectionString
+output OPENAI_ENDPOINT string = openai.outputs.endpoint

@@ -69,4 +69,5 @@ output AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN string = resources.output
 output SERVICE_SQL_VOLUME_ESHOPAPPHOSTC8479139E4SQLDATA_NAME string = resources.outputs.SERVICE_SQL_VOLUME_ESHOPAPPHOSTC8479139E4SQLDATA_NAME
 output APPINSIGHTS_APPINSIGHTSCONNECTIONSTRING string = appInsights.outputs.appInsightsConnectionString
 output OPENAI_CONNECTIONSTRING string = openai.outputs.connectionString
+output OPENAI_ENDPOINT string = openai.outputs.endpoint
 output AZURE_VOLUMES_STORAGE_ACCOUNT string = resources.outputs.AZURE_VOLUMES_STORAGE_ACCOUNT

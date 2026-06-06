@@ -51,7 +51,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
 
 ### Prerequisites
 
-- [.NET 9](https://dotnet.microsoft.com/downloads/)
+- [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Git](https://git-scm.com/downloads)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
@@ -193,18 +193,22 @@ Follow these steps to run the project, locally or in CodeSpaces:
 
 Check the [Video Resources](#resources) for a step-by-step on how to run this project.
 
-> **Note:** Working with .NET Aspire in GitHub Codespaces is not fully supported yet. As a developer you need to perform a lot of manual steps to access the .NET Aspire portal, like changing ports to public, copy the access token and more. The .NET Aspire version 9.1 will improve the whole developer experience. We will update these steps when the version 9.1 is released.
+> **Note:** Working with .NET Aspire in GitHub Codespaces requires manual steps to access the .NET Aspire portal, such as changing ports to public and copying the access token.
 
 ### Local development using an existing gpt-4.1-mini and ada-002 model
 
-In order to use existing models: gpt-4.1-mini and text-embedding-ada-002, you need to define the specific connection string in the `Products` project.
+In order to use existing models: gpt-4.1-mini and text-embedding-ada-002, set the Azure OpenAI parameters as user secrets in the `eShopAppHost` project.
 
-- Configure the Application: Add user secrets in Products project to connect to Azure OpenAI services.
+Run these commands from the `src/eShopAppHost` directory:
 
-   ```bash
-    dotnet user-secrets init
-    dotnet user-secrets set "openai" "Endpoint=https://<endpoint>.openai.azure.com/;Key=<ApiKey>;" 
-   ```
+```bash
+cd src/eShopAppHost
+
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
+```
 
 ## Resources
 

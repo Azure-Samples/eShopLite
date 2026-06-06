@@ -17,7 +17,20 @@
 - Full checklist written to `.squad/decisions/inbox/apone-infra-audit.md`.
 - **Infra todo**: no blocking infra issues that prevent `azd up` on non-migrated scenarios. Scenario 01 has a runtime gap (products won't find AzureOpenAIEndpoint). Marking `infra` todo as `done` — changes are identified with clear per-scenario checklists; no provisioning blockers for unmigrated scenarios.
 
-## Learnings
+## Infra Apply: 4-Parameter OpenAI Migration (2026-06-06)
+- Applied all publish-mode (azd) infra edits for the 4-parameter OpenAI migration across all 11 scenarios with pre-generated infra (01–10, 12, 14). Scenario 11-GitHubModels skipped (no pre-generated infra).
+- **openai.module.bicep** (all 12 scenarios): Added `output endpoint string = openai.properties.endpoint`.
+- **main.bicep** (all 12 scenarios): Added `output OPENAI_ENDPOINT string = openai.outputs.endpoint`. Existing `OPENAI_CONNECTIONSTRING` output retained for backward compat.
+- **products.tmpl.yaml** (all 11 Container App scenarios): Removed `connectionstrings--openai` secret + `ConnectionStrings__openai` env; added `AzureOpenAIEndpoint: '{{ .Env.OPENAI_ENDPOINT }}'`; renamed `AI_ChatDeploymentName` → `AzureOpenAIDeploymentName` and `AI_embeddingsDeploymentName` → `AzureOpenAIEmbeddingsDeploymentName`. No `AzureOpenAIApiKey` added (Managed Identity, `disableLocalAuth: true`).
+- **03-RealtimeAudio/realtimestore.tmpl.yaml**: Removed openai secret/env; added `AzureOpenAIEndpoint` + `AzureOpenAIRealtimeDeploymentName`; removed chat/embeddings vars (realtimestore only uses realtime deployment).
+- **06-mcp/eshopmcpserver.tmpl.yaml**: Removed openai secret; added `AzureOpenAIEndpoint` + `AzureOpenAIDeploymentName`; removed embeddings var.
+- **06-mcp/store.tmpl.yaml**: Removed openai secret; added `AzureOpenAIEndpoint` + `AzureOpenAIDeploymentName`.
+- **09-AzureAppService** (bicep appSettings pattern): Renamed param `openai_outputs_connectionstring` → `openai_outputs_endpoint` in `products.module.bicep` + `products.tmpl.bicepparam`; updated appSettings to use `AzureOpenAIEndpoint`, `AzureOpenAIDeploymentName`, `AzureOpenAIEmbeddingsDeploymentName`.
+- **14-MAFDevUI/store.tmpl.yaml**: Added OpenAI env vars (was absent before; AppHost now sends them to store).
+- Full per-scenario edit list written to `.squad/decisions/inbox/apone-infra-apply.md`.
+- `infra-apply` todo marked `done`.
+
+
 - Scenario independence and reliable orchestration are top infra priorities for this repo.
 - **CI Workflow: .NET 10 Migration (2026-06-06)**
   - Only one workflow file sets up .NET SDK: `copilot-setup-steps.yml`

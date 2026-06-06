@@ -13,7 +13,7 @@ param products_containerimage string
 
 param products_containerport string
 
-param openai_outputs_connectionstring string
+param openai_outputs_endpoint string
 
 param products_identity_outputs_id string
 
@@ -62,15 +62,15 @@ resource webapp 'Microsoft.Web/sites@2024-04-01' = {
           value: products_containerport
         }
         {
-          name: 'ConnectionStrings__openai'
-          value: openai_outputs_connectionstring
+          name: 'AzureOpenAIEndpoint'
+          value: openai_outputs_endpoint
         }
         {
-          name: 'AI_ChatDeploymentName'
+          name: 'AzureOpenAIDeploymentName'
           value: 'gpt-41-mini'
         }
         {
-          name: 'AI_embeddingsDeploymentName'
+          name: 'AzureOpenAIEmbeddingsDeploymentName'
           value: 'text-embedding-ada-002'
         }
         {

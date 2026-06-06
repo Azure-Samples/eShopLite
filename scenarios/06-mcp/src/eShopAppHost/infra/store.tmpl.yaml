@@ -23,8 +23,6 @@ properties:
     secrets:
       - name: applicationinsights-connection-string
         value: '{{ .Env.APPINSIGHTS_APPINSIGHTSCONNECTIONSTRING }}'
-      - name: connectionstrings--openai
-        value: '{{ .Env.OPENAI_CONNECTIONSTRING }}'
   template:
     containers:
       - image: {{ .Image }}
@@ -32,6 +30,10 @@ properties:
         env:
           - name: AZURE_CLIENT_ID
             value: {{ .Env.MANAGED_IDENTITY_CLIENT_ID }}
+          - name: AzureOpenAIEndpoint
+            value: '{{ .Env.OPENAI_ENDPOINT }}'
+          - name: AzureOpenAIDeploymentName
+            value: gpt-41-mini
           - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
             value: "true"
           - name: HTTP_PORTS
@@ -48,8 +50,6 @@ properties:
             value: https://eshopmcpserver.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
           - name: APPLICATIONINSIGHTS_CONNECTION_STRING
             secretRef: applicationinsights-connection-string
-          - name: ConnectionStrings__openai
-            secretRef: connectionstrings--openai
     scale:
       minReplicas: 1
 tags:

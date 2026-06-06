@@ -295,7 +295,7 @@ ORDER BY Distance ASC;
 ### Required Packages
 
 - **EFCore.SqlServer.VectorSearch**: Version 9.0.0-preview.2 or later
-- **.NET 9.0** or later
+- **.NET 10.0** or later
 
 ### SQL Server Requirements
 

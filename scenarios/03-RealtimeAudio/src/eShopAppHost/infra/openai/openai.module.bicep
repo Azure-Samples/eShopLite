@@ -87,3 +87,5 @@ resource text_embedding_ada_002 'Microsoft.CognitiveServices/accounts/deployment
 }
 
 output connectionString string = 'Endpoint=${openai.properties.endpoint}'
+
+output endpoint string = openai.properties.endpoint

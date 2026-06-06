@@ -33,20 +33,20 @@ This document describes a Product Requirements Document (PRD) for adding a mock 
 
 ## Assumptions
 
-- Repository targets .NET 9 and the Aspire host is already configured in `src/ZavaAppHost`.
+- Repository targets .NET 10 and the Aspire host is already configured in `src/ZavaAppHost`.
 - Local dev uses project references and file-based or lightweight DBs (SQLite) by default for demos.
 - No real payment gateway integration is required; this is a sandbox/mock flow only.
 
 ## Design overview
 
-- Service: `PaymentsService` (Blazor Server, net9.0) — exposes Web API for payments and a Blazor UI to view stored payments.
+- Service: `PaymentsService` (Blazor Server, net10.0) — exposes Web API for payments and a Blazor UI to view stored payments.
 - Storage: `paymentsdb` — created/provisioned by the Aspire host; suggested provider for local dev: SQLite (file: `Data/payments.db`).
 - Frontend: `Store` will show a mock payment dialog at checkout and call the Payment Service API.
 
 ## Project layout suggestion
 
 - `src/PaymentsService/`
-  - `PaymentsService.csproj` (net9.0)
+  - `PaymentsService.csproj` (net10.0)
   - `Program.cs` (Aspire registration comments and wiring)
   - `Controllers/PaymentsController.cs` (API)
   - `Pages/Payments.razor` (grid UI)
@@ -138,7 +138,7 @@ This document describes a Product Requirements Document (PRD) for adding a mock 
 
 ## Acceptance criteria (detailed)
 
-- [ ] Payment Service project exists at `src/PaymentsService` and targets `net9.0`.
+- [ ] Payment Service project exists at `src/PaymentsService` and targets `net10.0`.
 - [ ] PaymentsService registers with Aspire (commented location in `Program.cs`).
 - [ ] Aspire host provisions `paymentsdb` and exposes connection string to PaymentsService.
 - [ ] Store shows a mock payment dialog at checkout and posts to PaymentsService.
@@ -147,7 +147,7 @@ This document describes a Product Requirements Document (PRD) for adding a mock 
 
 ## Developer implementation checklist (detailed tasks)
 
-1. Create Blazor Server project: `dotnet new blazorserver -n PaymentsService -o src/PaymentsService --framework net9.0`.
+1. Create Blazor Server project: `dotnet new blazorserver -n PaymentsService -o src/PaymentsService --framework net10.0`.
 2. Add NuGet packages: `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.Sqlite`, Aspire packages, `Swashbuckle.AspNetCore` (optional).
 3. Implement `PaymentsDbContext`, `PaymentRecord` model and EF Core migrations.
 4. Implement `PaymentsController` endpoints and repository.

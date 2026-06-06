@@ -55,7 +55,7 @@ The project includes several scenarios demonstrating different capabilities:
 
 ### Prerequisites
 
-- [.NET 9](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd) (for Azure deployment)
 - [Git](https://git-scm.com/downloads)

@@ -84,7 +84,20 @@ The solution is in the `./src` folder, the main solution is **[eShopLite-Aspire-
 
 ## Deploying
 
-> **Note:** The deployment process for this scenario is the same as in [scenario 01 - Semantic Search](../01-SemanticSearch/README.md). Please refer to the [Deploying](../01-SemanticSearch/README.md#deploying) section in that README for detailed steps and requirements. All Azure resource provisioning, local development, and Codespaces instructions are identical for this scenario.
+> **Note:** The deployment process for this scenario is the same as in [scenario 01 - Semantic Search](../01-SemanticSearch/README.md). Please refer to the [Deploying](../01-SemanticSearch/README.md#deploying) section in that README for detailed steps and requirements.
+
+## Local development using existing models
+
+To run locally with an existing Azure OpenAI service, set the parameters as user secrets in the `eShopAppHost` project:
+
+```bash
+cd src/eShopAppHost
+
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
+```
 
 ## Guidance
 

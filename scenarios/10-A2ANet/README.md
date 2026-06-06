@@ -1,5 +1,3 @@
-dotnet user-secrets set "ConnectionStrings:openai" "Endpoint=https://<endpoint>.openai.azure.com/;Key=<key>;"
-
 # A2A eShopLite Demo – Agent-to-Agent Orchestration with the Official Microsoft A2A .NET SDK
 
 ## Overview
@@ -92,7 +90,7 @@ Store (UI)
 
 ### Prerequisites
 
-- [.NET 9](https://dotnet.microsoft.com/downloads/)
+- [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Git](https://git-scm.com/downloads)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)

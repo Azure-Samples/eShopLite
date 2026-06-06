@@ -60,5 +60,6 @@ output APPSVC_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID string = appsvc.outpu
 output APPSVC_PLANID string = appsvc.outputs.planId
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = appsvc.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
 output OPENAI_CONNECTIONSTRING string = openai.outputs.connectionString
+output OPENAI_ENDPOINT string = openai.outputs.endpoint
 output PRODUCTS_IDENTITY_CLIENTID string = products_identity.outputs.clientId
 output PRODUCTS_IDENTITY_ID string = products_identity.outputs.id

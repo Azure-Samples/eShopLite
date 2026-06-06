@@ -96,7 +96,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
 
 To run the project locally, you'll need to make sure the following tools are installed:
 
-- [.NET 9](https://dotnet.microsoft.com/downloads/)
+- [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Git](https://git-scm.com/downloads)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
@@ -132,7 +132,7 @@ Follow these steps to run the project, locally or in CodeSpaces:
 
 Check the [Video Resources](#resources) for a step-by-step on how to run this project.
 
-> **Note:** Working with .NET Aspire in GitHub Codespaces is not fully supported yet. As a developer you need to perform a lot of manual steps to access the .NET Aspire portal, like changing ports to public, copy the access token and more. The .NET Aspire version 9.1 will improve the whole developer experience. We will update these steps when the version 9.1 is released.
+> **Note:** Working with .NET Aspire in GitHub Codespaces requires manual steps to access the .NET Aspire portal, such as changing ports to public and copying the access token.
 
 ## .NET Aspire Azure Resources creation
 
@@ -196,49 +196,24 @@ You can also open the Azure AI Search resource in the Azure portal, and check th
 
 ### Local development using an existing services
 
-In order to use existing **Azure AI Search Services** and existing **Azure OpenAI models**, like gpt-4.1-mini and text-embedding-ada-002, you need to make changes in 2 projects:
+In order to use existing **Azure AI Search Services** and existing **Azure OpenAI models**, like gpt-4.1-mini and text-embedding-ada-002, you need to configure two separate credential sources:
 
-#### Aspire AppHost
+#### Azure OpenAI — set parameters in AppHost
 
-Open the `program.cs` in `.\src\eShopAppHost\`, and comment the main aspire lines, and uncomment the lines to only create and run the sqldb, the api project and the front end.
-
-![Comment the aspire lines and uncomment the last lines](./images/30RunUsingExistingServices.png)
-
-#### Products
-
-Edit and define specific connection strings in the `Products` project.
-
-Add a user secret running the commands:
+Run these commands from `.\src\eShopAppHost\`:
 
 ```bash
-cd src/Products
-dotnet user-secrets set "ConnectionStrings:openaidev" "Endpoint=https://<endpoint>.openai.azure.com/;Key=<Azure OpenAI Service key>;"
-dotnet user-secrets set "ConnectionStrings:azureaisearchdev" "Endpoint=https://<endpoint>.search.windows.net/;Key=<Azure AI Search key>;"
+cd src/eShopAppHost
+
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<endpoint>.openai.azure.com/"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<Azure OpenAI Service key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
 ```
 
-Update the code to use connection strings which names are `azureaisearchdev` and `openaidev`. Change this:
+#### Azure AI Search — authenticate via Azure CLI
 
-```csharp
-// To reuse existing Azure AI Search resources, this to "azureaisearchdev", and check the documentation on how to reuse the resources
-var azureAiSearchName = "azureaisearch";
-builder.AddAzureSearchClient(azureAiSearchName);
-
-// To reuse existing Azure OpenAI resources, this to "openaidev", and check the documentation on how to reuse the resources
-var azureOpenAiClientName = "openai";
-builder.AddAzureOpenAIClient(azureOpenAiClientName);
-```
-
-to this:
-
-```csharp
-// To reuse existing Azure AI Search resources, this to "azureaisearchdev", and check the documentation on how to reuse the resources
-var azureAiSearchName = "azureaisearchdev";
-builder.AddAzureSearchClient(azureAiSearchName);
-
-// To reuse existing Azure OpenAI resources, this to "openaidev", and check the documentation on how to reuse the resources
-var azureOpenAiClientName = "openaidev";
-builder.AddAzureOpenAIClient(azureOpenAiClientName);
-```
+Azure AI Search is still provisioned and accessed via the Azure credential configured in `eShopAppHost`. Run `az login` before starting the AppHost so that the `AzureCliCredential` can provision and connect to your Azure AI Search resource.
 
 ### Telemetry with .NET Aspire and Azure Application Insights
 

@@ -75,18 +75,13 @@ From a Terminal window, open the folder with the clone of this repo and run the 
 
 > **Troubleshooting Reasoning Search**
 >
-> If the reasoning search feature is not working after deployment, you may need to update the DeepSeek-R1 connection string:
+> If the reasoning search feature is not working after deployment, verify the DeepSeek-R1 parameters are set correctly:
 >
 > 1. Open the Azure Portal and navigate to the Azure Container App for **Products**.
-> 2. Go to **Security** > **Secrets**.
-> 3. Find the secret named `connectionstrings--deepseekr1`.
-> 4. Update its value to something like:
+> 2. Go to **Settings** > **Environment variables** (or **Secrets** for the API key).
+> 3. Confirm the values for `DeepSeekEndpoint`, `DeepSeekApiKey`, and `DeepSeekDeploymentName`.
 >
->    `Endpoint=https://<resource group name>.cognitiveservices.azure.com/models;Key=<your key>;`
->
->    - **Note:** The correct endpoint and key for the DeepSeek-R1 model can be found in the Azure AI Foundry resource that was created for DeepSeek-R1 in your Azure subscription.
->
-> Make sure to use the correct endpoint and key for your Azure OpenAI resource that contains the DeepSeek-R1 model.
+>    The correct endpoint and key for the DeepSeek-R1 model can be found in the Azure AI Foundry resource in your Azure subscription.
 
 ### GitHub CodeSpaces
 
@@ -100,7 +95,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
 
 To run the project locally, you'll need to make sure the following tools are installed:
 
-- [.NET 9](https://dotnet.microsoft.com/downloads/)
+- [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Git](https://git-scm.com/downloads)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
@@ -130,29 +125,26 @@ Follow these steps to run the project, locally or in CodeSpaces:
 
 ### Local development using existing models
 
-In order to use existing models: deepseek-r1, gpt-4.1-mini and text-embedding-ada-002, you need to define the specific connection string in the `Products` project.
+In order to use existing models: deepseek-r1, gpt-4.1-mini and text-embedding-ada-002, set the Azure OpenAI and DeepSeek parameters as user secrets in the `eShopAppHost` project.
 
-Add a user secret named `ConnectionStrings:openai` with the configuration for the Azure OpenAI service that contains the **gpt-4.1-mini** and **text-embedding-ada-002** models, and a user secret named `ConnectionStrings:deepseek-r1` with the configuration for the Azure OpenAI service that contains the **DeepSeek-R1** model.
-
-```bash
-cd src/Products
-
-dotnet user-secrets set "ConnectionStrings:openai" "Endpoint=https://<endpoint>.openai.azure.com/;Key=<key>;"
-
-dotnet user-secrets set "ConnectionStrings:deepseek-r1" "Endpoint=https://<endpoint>.openai.azure.com/;Key=<key>;"
-```
-
-This Azure OpenAI services must contain:
+This Azure OpenAI service must contain:
 
 - a `deepseek-r1` model named **DeepSeek-R1**
 - a `gpt-4.1-mini` model named **gpt-4.1-mini**
 - a `text-embedding-ada-002` model named **text-embedding-ada-002**
 
-To use these services, the `program.cs` will create a client in this way:
+Run these commands from the `src/eShopAppHost` directory:
 
-```csharp
-var azureOpenAiClientName = "openai";
-builder.AddAzureOpenAIClient(azureOpenAiClientName);
+```bash
+cd src/eShopAppHost
+
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
+dotnet user-secrets set "Parameters:DeepSeekEndpoint" "https://<resource>.eastus.models.ai.azure.com/"
+dotnet user-secrets set "Parameters:DeepSeekApiKey" "<your-deepseek-key>"
+dotnet user-secrets set "Parameters:DeepSeekDeploymentName" "DeepSeek-R1"
 ```
 
 ### DeepSeek-R1 Model Integration

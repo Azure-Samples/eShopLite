@@ -95,7 +95,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
 
 To run the project locally, you'll need to make sure the following tools are installed:
 
-- [.NET 9](https://dotnet.microsoft.com/downloads/)
+- [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Git](https://git-scm.com/downloads)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
@@ -155,20 +155,25 @@ Consider the following example for the *appsettings.json* file in the eShopAppHo
 
 Check [.NET Aspire Azure hosting integrations](https://learn.microsoft.com/dotnet/aspire/azure/local-provisioning#net-aspire-azure-hosting-integrations) for more information on how .NET Aspire create the necessary cloud resources for local development.
 
-### Local development using an existing gpt-5-mini and ada-002 model
+### Local development using an existing gpt-4.1-mini and ada-002 model
 
-In order to use existing models: gpt-5-mini and text-embedding-ada-002, you need to define the specific connection string in the `AppHost` project.
+In order to use existing models: gpt-4.1-mini and text-embedding-ada-002, set the Azure OpenAI parameters as user secrets in the `eShopAppHost` project.
 
 This Azure OpenAI service must contain:
 
-- a `gpt-5-mini` model named **gpt-5-mini**
-- a `text-embedding-ada-002` model named **text-embedding-ada-002**
+- a chat model named **gpt-4.1-mini** (or your preferred chat deployment)
+- a `text-embedding-ada-002` model named **text-embedding-ada-002** (or your preferred embeddings deployment)
 
-Once run the AppHost for the 1st time, the .NET Aspire dashboard will ask for the `openai` connection string as seen the image below. Set this value and the solution will be ready to use.
+Run these commands from the `src/eShopAppHost` directory:
 
-![Aspire Dashboard requiring openai connection string](./images/16AspireDashboardSetOpenAIConnectionString.png)
+```bash
+cd src/eShopAppHost
 
-If you need to change this value, update the `openai` user secret in the AppHost project.
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
+```
 
 ### Telemetry with .NET Aspire and Azure Application Insights
 

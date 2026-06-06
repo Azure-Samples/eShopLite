@@ -92,12 +92,11 @@ This scenario demonstrates how to use [SQL Server 2025's Vector search and Vecto
 - The `ProductApiActions` class ([`scenarios/08-Sql2025/src/Products/Endpoints/ProductApiActions.cs`](./src/Products/Endpoints/ProductApiActions.cs)) implements an `AISearch()` function that performs semantic search using [EFCore.SqlServer.VectorSearch](https://www.nuget.org/packages/EFCore.SqlServer.VectorSearch/9.0.0-preview.2#show-readme-container) functions:
 
     ```csharp
-    public static async Task<IResult> AISearch(string search, Context db, EmbeddingClient embeddingClient, int dimensions = 1536)
+    public static async Task<IResult> AISearch(
+        string search, Context db, IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, int dimensions = 1536)
     {
-        Console.WriteLine("Querying for similar products...");
-    
-        var embeddingSearch = embeddingClient.GenerateEmbedding(search, new() { Dimensions = dimensions });
-        var vectorSearch = embeddingSearch.Value.ToFloats().ToArray();
+        var embeddingSearch = await embeddingGenerator.GenerateVectorAsync(search, new() { Dimensions = dimensions });
+        var vectorSearch = embeddingSearch.ToArray();
         var products = await db.Product
             .OrderBy(p => EF.Functions.VectorDistance("cosine", p.Embedding, vectorSearch))
             .Take(3)
@@ -120,7 +119,22 @@ The solution is in the `./src` folder, the main solution is **[eShopLite-Sql2025
 
 ## Deploying
 
-> **Note:** The deployment process for this scenario is the same as in [scenario 01 - Semantic Search](../01-SemanticSearch/README.md). Please refer to the [Deploying](../01-SemanticSearch/README.md#deploying) section in that README for detailed steps and requirements. All Azure resource provisioning, local development, and Codespaces instructions are identical for this scenario.
+> **Note:** The deployment process for this scenario is the same as in [scenario 01 - Semantic Search](../01-SemanticSearch/README.md). Please refer to the [Deploying](../01-SemanticSearch/README.md#deploying) section in that README for detailed steps and requirements.
+
+## Local development using existing models
+
+To run locally with an existing Azure OpenAI service containing **gpt-4.1-mini** and **text-embedding-3-small** models, set the parameters as user secrets in the `eShopAppHost` project:
+
+```bash
+cd src/eShopAppHost
+
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-3-small"
+```
+
+Ensure Docker is running before starting the AppHost — SQL Server 2025 is provisioned as a container by Aspire.
 
 ## Guidance
 

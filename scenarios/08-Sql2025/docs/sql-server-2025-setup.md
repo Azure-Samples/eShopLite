@@ -95,7 +95,7 @@ WITH (METRIC = 'cosine', TYPE = 'DiskANN');
 
 - **Docker Desktop**: For container runtime
 - **SQL Server 2025 Preview**: Container image access
-- **.NET 9.0 SDK**: For application development
+- **.NET 10.0 SDK**: For application development
 - **Entity Framework Core**: Vector search extensions ([EFCore.SqlServer.VectorSearch](https://www.nuget.org/packages/EFCore.SqlServer.VectorSearch/))
 
 ### Local Development Configuration

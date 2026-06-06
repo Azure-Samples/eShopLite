@@ -30,6 +30,12 @@ properties:
         env:
           - name: AZURE_CLIENT_ID
             value: {{ .Env.MANAGED_IDENTITY_CLIENT_ID }}
+          - name: AzureOpenAIEndpoint
+            value: '{{ .Env.OPENAI_ENDPOINT }}'
+          - name: AzureOpenAIDeploymentName
+            value: gpt-5-mini
+          - name: AzureOpenAIEmbeddingsDeploymentName
+            value: text-embedding-3-small
           - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
             value: "true"
           - name: HTTP_PORTS

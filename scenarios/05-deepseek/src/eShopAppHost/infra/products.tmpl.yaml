@@ -23,8 +23,6 @@ properties:
     secrets:
       - name: applicationinsights-connection-string
         value: '{{ .Env.APPINSIGHTS_APPINSIGHTSCONNECTIONSTRING }}'
-      - name: connectionstrings--openai
-        value: '{{ .Env.OPENAI_CONNECTIONSTRING }}'
       - name: connectionstrings--deepseekr1
         value: '{{ .Env.DEEPSEEKR1_CONNECTIONSTRING }}'
       - name: connectionstrings--sqldb
@@ -36,9 +34,11 @@ properties:
         env:
           - name: AZURE_CLIENT_ID
             value: {{ .Env.MANAGED_IDENTITY_CLIENT_ID }}
-          - name: AI_ChatDeploymentName
+          - name: AzureOpenAIEndpoint
+            value: '{{ .Env.OPENAI_ENDPOINT }}'
+          - name: AzureOpenAIDeploymentName
             value: gpt-41-mini
-          - name: AI_embeddingsDeploymentName
+          - name: AzureOpenAIEmbeddingsDeploymentName
             value: text-embedding-ada-002
           - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
             value: "true"
@@ -52,8 +52,6 @@ properties:
             value: in_memory
           - name: APPLICATIONINSIGHTS_CONNECTION_STRING
             secretRef: applicationinsights-connection-string
-          - name: ConnectionStrings__openai
-            secretRef: connectionstrings--openai
           - name: ConnectionStrings__sqldb
             secretRef: connectionstrings--sqldb
           - name: ConnectionStrings__deepseekr1

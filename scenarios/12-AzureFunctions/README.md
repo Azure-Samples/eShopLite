@@ -112,7 +112,18 @@ sequenceDiagram
 
 ## Running locally
 
-1. Build & start via AppHost (preferred unified experience):
+1. Set Azure OpenAI parameters as user secrets in the `eShopAppHost` project:
+
+```bash
+cd src/eShopAppHost
+
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-3-small"
+```
+
+2. Build & start via AppHost:
 
 ```powershell
 dotnet run --project src/eShopAppHost

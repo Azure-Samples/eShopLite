@@ -32,8 +32,8 @@ The 01-SemanticSearch scenario demonstrates a comprehensive eCommerce platform w
                                         ▼
                               ┌─────────────────────┐
                               │ In-Memory Vector    │
-                              │ Store (Semantic     │
-                              │ Kernel)             │
+                              │ Store (Community    │
+                              │ Toolkit VectorData) │
                               └─────────────────────┘
 ```
 
@@ -46,7 +46,8 @@ The 01-SemanticSearch scenario demonstrates a comprehensive eCommerce platform w
 ### Key Technologies
 - **.NET Aspire**: Cloud-native orchestration and service discovery
 - **Azure OpenAI**: GPT-4.1-mini for chat, text-embedding-ada-002 for embeddings
-- **Semantic Kernel**: In-memory vector store for semantic search
+- **Microsoft.Extensions.AI (MEAI)**: `IChatClient` and `IEmbeddingGenerator` abstractions
+- **CommunityToolkit.VectorData.InMemory**: In-memory vector store for semantic search
 - **Entity Framework Core**: Data access and ORM
 - **ASP.NET Core**: Web API and minimal APIs
 
@@ -84,4 +85,5 @@ The solution uses .NET Aspire's configuration system with support for:
 - [Main Scenario README](../README.md)
 - [.NET Aspire Documentation](https://learn.microsoft.com/en-us/dotnet/aspire/)
 - [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/cognitive-services/openai-service/)
-- [Semantic Kernel](https://learn.microsoft.com/en-us/semantic-kernel/)
+- [Microsoft.Extensions.AI](https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai)
+- [CommunityToolkit.VectorData](https://www.nuget.org/packages/CommunityToolkit.VectorData.InMemory)

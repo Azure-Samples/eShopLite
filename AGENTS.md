@@ -5,11 +5,13 @@
 **eShopLite** is a modular .NET Aspire-based reference eCommerce platform demonstrating advanced AI, search, and orchestration patterns. This is a **scenario-driven monorepo** where each scenario in `scenarios/` is a self-contained solution showcasing different capabilities like Semantic Search, Model Context Protocol (MCP), Reasoning models, vector databases, real-time audio, and more.
 
 **Key Technologies:**
-- .NET 9 with .NET Aspire for orchestration
+- .NET 10 with .NET Aspire 13.0.1 for orchestration
 - Blazor for UI
 - Azure OpenAI (GPT-4o, GPT-4o-mini, embeddings)
-- Vector databases (In-memory, Azure AI Search, Chroma DB, SQL Server 2025)
+- Microsoft.Extensions.AI (MEAI) `IChatClient` / `IEmbeddingGenerator` abstractions
+- Vector databases (In-memory via CommunityToolkit.VectorData, Azure AI Search, Chroma DB, SQL Server 2025)
 - Model Context Protocol (MCP) for agent interactions
+- Microsoft Agent Framework (MAF) for concurrent agent orchestration
 - Azure services (Container Apps, AI Search, Application Insights, Functions)
 - Docker/Podman for containerized services
 
@@ -22,8 +24,8 @@
 Install the following prerequisites:
 
 ```bash
-# Install .NET 9 SDK
-# Download from: https://dotnet.microsoft.com/download/dotnet/9.0
+# Install .NET 10 SDK
+# Download from: https://dotnet.microsoft.com/download/dotnet/10.0
 
 # Install Azure Developer CLI
 # macOS/Linux:
@@ -39,7 +41,7 @@ curl -fsSL https://aka.ms/install-azd.sh | bash
 dotnet workload install aspire
 
 # Verify installations
-dotnet --version  # Should be 9.0 or higher
+dotnet --version  # Should be 10.0 or higher
 azd version
 docker --version  # or podman --version
 ```
@@ -87,26 +89,31 @@ dotnet run
 
 ### Hot Reload and Watch Mode
 
-.NET 9 includes hot reload by default. Code changes in Blazor and API projects will auto-refresh without full restart.
+.NET 10 includes hot reload by default. Code changes in Blazor and API projects will auto-refresh without full restart.
 
 ### Configuration and Secrets
 
 **Local development requires Azure OpenAI credentials:**
 
-1. **Set user secrets in the AppHost project:**
+1. **Set user secrets in the AppHost project (new parameter-based approach):**
 
 ```bash
 cd scenarios/<scenario-name>/src/eShopAppHost
 
-# Set OpenAI connection string (required for most scenarios)
-dotnet user-secrets set "ConnectionStrings:openai" "Endpoint=https://<your-endpoint>.openai.azure.com/;Key=<your-key>"
+# Set Azure OpenAI parameters (required for most scenarios)
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-endpoint>.openai.azure.com/"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
 
-# For Azure AI Search scenarios
-dotnet user-secrets set "ConnectionStrings:azureaisearch" "Endpoint=https://<your-endpoint>.search.windows.net;Key=<your-key>"
+# Scenario-specific extras:
+# 03-RealtimeAudio: also set Parameters:AzureOpenAIRealtimeDeploymentName
+# 05-deepseek: also set Parameters:DeepSeekEndpoint, Parameters:DeepSeekApiKey, Parameters:DeepSeekDeploymentName
+# 11-GitHubModels (local): set Parameters:GitHubModelsToken instead of the AOAI params
 ```
 
 2. **Or configure via Aspire Dashboard at first run:**
-   - On first run, Aspire Dashboard will prompt for missing connection strings
+   - On first run, Aspire Dashboard will prompt for missing parameters
    - Enter values in the dashboard UI
    - Values are stored as user secrets automatically
 
@@ -182,7 +189,7 @@ dotnet format eShopLite-Aspire.slnx
 
 ### Coding Conventions
 
-- Follow C# and .NET 9 best practices
+- Follow C# and .NET 10 best practices
 - Use modern C# features (top-level statements, nullable reference types, file-scoped namespaces)
 - Follow async/await patterns consistently
 - Use dependency injection for service registration
@@ -421,13 +428,16 @@ cd scenarios/<name>/src/eShopAppHost && dotnet run
 # Deploy to Azure
 cd scenarios/<name>/src/eShopAppHost && azd up
 
-# Set secrets
-dotnet user-secrets set "ConnectionStrings:openai" "<value>"
+# Set secrets (new parameter-based approach)
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "<your-endpoint>"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
 ```
 
 ### Troubleshooting
 
-**Issue:** "Connection string 'openai' is missing"
+**Issue:** Azure OpenAI parameters are missing
 - **Solution:** Set user secrets as described in Configuration section
 
 **Issue:** Docker/Podman not running

@@ -29,12 +29,12 @@ Quick links:
 Local development uses GitHub Models; publish/deploy uses Azure OpenAI. The Products service toggles via Aspire-provided environment settings:
 
 - AI_UseGitHubModels: true for local; false for publish/deploy
-- GitHubToken: GitHub Personal Access Token used locally for GitHub Models
+- GitHubModelsToken: GitHub Personal Access Token used locally for GitHub Models (set as `Parameters:GitHubModelsToken`)
 - Endpoint (local): [https://models.inference.ai.azure.com](https://models.inference.ai.azure.com)
 
 ## Prerequisites (local dev only)
 
-- .NET 9 SDK and .NET Aspire tooling
+- .NET 10 SDK and .NET Aspire tooling
 - Docker Desktop or Podman (recommended)
 - GitHub account and access to GitHub Models
 - A GitHub Personal Access Token (PAT) with access to GitHub Models
@@ -48,7 +48,14 @@ cd ./src/eShopAppHost/
 dotnet run
 ```
 
-During the first run, Aspire prompts for your GitHub token as a secure parameter. The app then uses:
+During the first run, Aspire prompts for your GitHub token as a secure parameter (`Parameters:GitHubModelsToken`). You can also set it manually beforehand:
+
+```bash
+cd src/eShopAppHost
+dotnet user-secrets set "Parameters:GitHubModelsToken" "<your-github-pat>"
+```
+
+The app then uses:
 
 - Chat: gpt-4.1-mini (GitHub Models)
 - Embeddings: text-embedding-3-small (GitHub Models)

@@ -7,7 +7,7 @@ The semantic search feature enables intelligent product discovery by understandi
 ## Architecture
 
 ### Vector Store
-The implementation uses an in-memory vector store powered by Semantic Kernel:
+The implementation uses an in-memory vector store powered by `CommunityToolkit.VectorData.InMemory`:
 
 ```csharp
 var vectorProductStore = new InMemoryVectorStore();
@@ -195,9 +195,9 @@ public class SearchResult
 ## Dependencies
 
 ### Required Packages
-- `Microsoft.SemanticKernel.Connectors.InMemory` (1.54.0-preview)
-- `Aspire.Azure.AI.OpenAI` for embedding generation
-- `Microsoft.Extensions.VectorData` for vector operations
+- `CommunityToolkit.VectorData.InMemory` (1.0.0-preview.3) — in-memory vector store
+- `Microsoft.Extensions.AI.OpenAI` (10.6.0) — `IEmbeddingGenerator` and `IChatClient`
+- `Microsoft.Extensions.VectorData.Abstractions` (10.6.0) — vector operations
 
 ### External Services
 - Azure OpenAI text-embedding-ada-002 model

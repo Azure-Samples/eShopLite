@@ -102,7 +102,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
 
 To run the project locally, you'll need to make sure the following tools are installed:
 
-- [.NET 9](https://dotnet.microsoft.com/downloads/)
+- [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Git](https://git-scm.com/downloads)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
@@ -132,20 +132,7 @@ Follow these steps to run the project, locally or in CodeSpaces:
 
 ### Local development using existing models
 
-In order to use existing models: gpt-4o-mini, gpt-4o-realtime and text-embedding-ada-002, you need to define the specific connection string in the `Products` and `RealtimeStore` projects.
-
-Add a user secret with the configuration:
-
-```bash
-cd src/Products
-
-dotnet user-secrets set "ConnectionStrings:openai" "Endpoint=https://<endpoint>.openai.azure.com/;Key=<key>;"
-
-cd ..
-cd src/RealtimeStore
-
-dotnet user-secrets set "ConnectionStrings:openai" "Endpoint=https://<endpoint>.openai.azure.com/;Key=<key>;"
-```
+In order to use existing models: gpt-4o-mini, gpt-4o-realtime and text-embedding-ada-002, set the Azure OpenAI parameters as user secrets in the `eShopAppHost` project.
 
 This Azure OpenAI service must contain:
 
@@ -153,11 +140,16 @@ This Azure OpenAI service must contain:
 - a `gpt-4o-realtime-preview` model named **gpt-4o-realtime-preview**
 - a `text-embedding-ada-002` model named **text-embedding-ada-002**
 
-To use these services, the `program.cs` file will load the information from the USer secrets instead of getting this information from the Aspire deploy.
+Run these commands from the `src/eShopAppHost` directory:
 
-```csharp
-var azureOpenAiClientName = "openai";
-builder.AddAzureOpenAIClient(azureOpenAiClientName);
+```bash
+cd src/eShopAppHost
+
+dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
+dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
+dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4o-mini"
+dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
+dotnet user-secrets set "Parameters:AzureOpenAIRealtimeDeploymentName" "gpt-4o-realtime-preview"
 ```
 
 ### Telemetry with .NET Aspire and Azure Application Insights
