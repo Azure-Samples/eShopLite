@@ -39,6 +39,17 @@
   - Other workflows (CodeQL, squad triage, label sync, etc.) do not require .NET setup
   - Aspire workload (`dotnet workload install aspire`) remains unchanged in setup
 
+## Script: Set-AzureOpenAISecrets.ps1 (2026-06-06)
+- Created `scripts\Set-AzureOpenAISecrets.ps1` to interactively set all 4 Azure OpenAI Aspire parameter secrets across every scenario AppHost.
+- Uses `aspire secret set Parameters:<Name> <value> --apphost <path> --non-interactive` (Aspire CLI secret mechanism).
+- Parameters set: `AzureOpenAIEndpoint`, `AzureOpenAIApiKey` (SecureString, never echoed), `AzureOpenAIDeploymentName`, `AzureOpenAIEmbeddingsDeploymentName`.
+- Discovers 13 AppHost projects dynamically via `Get-ChildItem -Recurse -Filter eShopAppHost.csproj`; handles 14-MAFDevUI (no `src` subfolder).
+- Supports `-DryRun` (prints masked commands, no execution) and `-ScenariosRoot` override.
+- Prereq check: errors with install instructions if `aspire` CLI not on PATH.
+- Prints per-scenario OK/FAILED summary table; exits non-zero on any failure.
+- Parse check: clean (`ParseFile` 0 errors). Dry-run: prereq OK, 13 projects discovered, prompts display correctly.
+- `t2-script` todo marked `done`.
+
 ## Team Update: .NET 10 Modernization Shipped
 **Date:** 2026-06-06 **Status:** ✅ Complete
 

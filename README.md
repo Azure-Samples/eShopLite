@@ -59,6 +59,7 @@ The project includes several scenarios demonstrating different capabilities:
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd) (for Azure deployment)
 - [Git](https://git-scm.com/downloads)
+- [Aspire CLI](https://aspire.dev) — install with `dotnet tool install -g aspire.cli` (used for setting local secrets via `aspire secret set`)
 
 ### Installation
 
@@ -87,6 +88,38 @@ The project includes several scenarios demonstrating different capabilities:
     ```
 
     It will prompt you to provide an `azd` environment name (like "eShopLite"), select a subscription from your Azure account, and select a [location where the necessary models, like gpt-4.1-mini and ADA-002 are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all), a sample region can be "eastus2".
+
+### Quick setup — Azure OpenAI secrets
+
+The script `scripts\Set-AzureOpenAISecrets.ps1` configures all 13 scenarios at once. Run it from the **repo root**:
+
+```powershell
+pwsh .\scripts\Set-AzureOpenAISecrets.ps1
+```
+
+The script interactively prompts for four values:
+
+| Prompt | Parameter set |
+|--------|---------------|
+| Azure OpenAI endpoint | `Parameters:AzureOpenAIEndpoint` |
+| Azure OpenAI API key *(masked)* | `Parameters:AzureOpenAIApiKey` |
+| Chat deployment name | `Parameters:AzureOpenAIDeploymentName` |
+| Embeddings deployment name | `Parameters:AzureOpenAIEmbeddingsDeploymentName` |
+
+Use `-DryRun` to preview the commands without executing them:
+
+```powershell
+pwsh .\scripts\Set-AzureOpenAISecrets.ps1 -DryRun
+```
+
+Internally, the script calls the **Aspire CLI** (`aspire secret set`) for each AppHost it discovers. To set a single value manually, use the same command directly:
+
+```bash
+aspire secret set Parameters:AzureOpenAIEndpoint "https://<your-resource>.openai.azure.com/" \
+  --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
+```
+
+> **Note:** Scenario-specific extra parameters (e.g., `Parameters:AzureOpenAIRealtimeDeploymentName` in 03-RealtimeAudio, `Parameters:DeepSeekEndpoint` in 05-deepseek, `Parameters:GitHubModelsToken` in 11-GitHubModels) must still be set manually. See each scenario's README for details.
 
 ### Quickstart
 

@@ -81,3 +81,16 @@ products
     .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
 
 *(Full detailed scenario logs archived in .squad/decisions.md)*
+
+## 2026-06-06 — t3-analysis: Azure AI Search VectorStore Connector Document
+
+**Task:** Write explanation + recommendation doc on the single remaining SK package in the repo.
+
+**Deliverable:** `scenarios\02-AzureAISearch\docs\azure-ai-search-vectorstore.md`
+
+**Key findings:**
+- `Microsoft.SemanticKernel.Connectors.AzureAISearch` 1.74.0-preview is the sole SK reference repo-wide.
+- It is a pure `Microsoft.Extensions.VectorData` connector; no SK kernel/chat/agent runtime is pulled in.
+- `Microsoft.Extensions.VectorData.Abstractions` reached GA in May 2025.
+- As of 2026-06-06: no non-SK-named Azure AI Search VectorData connector exists on NuGet (`CommunityToolkit.VectorData.AzureAISearch` and `Microsoft.Extensions.VectorData.AzureAISearch` both not found).
+- **Recommendation: Option A — keep the SK-named connector.** Lowest effort, fully supported, zero SK runtime. Revisit when a neutral package appears or when the connector leaves `-preview`.

@@ -200,16 +200,16 @@ In order to use existing **Azure AI Search Services** and existing **Azure OpenA
 
 #### Azure OpenAI — set parameters in AppHost
 
-Run these commands from `.\src\eShopAppHost\`:
+Run these commands from the **repo root**:
 
 ```bash
-cd src/eShopAppHost
-
-dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<endpoint>.openai.azure.com/"
-dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<Azure OpenAI Service key>"
-dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
-dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
+aspire secret set Parameters:AzureOpenAIEndpoint "https://<endpoint>.openai.azure.com/" --apphost scenarios/02-AzureAISearch/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIApiKey "<Azure OpenAI Service key>" --apphost scenarios/02-AzureAISearch/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-4.1-mini" --apphost scenarios/02-AzureAISearch/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-ada-002" --apphost scenarios/02-AzureAISearch/src/eShopAppHost/eShopAppHost.csproj
 ```
+
+> **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once.
 
 #### Azure AI Search — authenticate via Azure CLI
 

@@ -164,16 +164,16 @@ This Azure OpenAI service must contain:
 - a chat model named **gpt-4.1-mini** (or your preferred chat deployment)
 - a `text-embedding-ada-002` model named **text-embedding-ada-002** (or your preferred embeddings deployment)
 
-Run these commands from the `src/eShopAppHost` directory:
+Run these commands from the **repo root**:
 
 ```bash
-cd src/eShopAppHost
-
-dotnet user-secrets set "Parameters:AzureOpenAIEndpoint" "https://<your-resource>.openai.azure.com/"
-dotnet user-secrets set "Parameters:AzureOpenAIApiKey" "<your-api-key>"
-dotnet user-secrets set "Parameters:AzureOpenAIDeploymentName" "gpt-4.1-mini"
-dotnet user-secrets set "Parameters:AzureOpenAIEmbeddingsDeploymentName" "text-embedding-ada-002"
+aspire secret set Parameters:AzureOpenAIEndpoint "https://<your-resource>.openai.azure.com/" --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIApiKey "<your-api-key>" --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-4.1-mini" --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-ada-002" --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
 ```
+
+> **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once.
 
 ### Telemetry with .NET Aspire and Azure Application Insights
 
