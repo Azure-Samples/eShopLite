@@ -1,0 +1,43 @@
+{
+  "universe_usage_history": [
+    {
+      "assignment_id": "eshoplite-20260606-init",
+      "universe": "Alien",
+      "assigned_at": "2026-06-06T11:25:06.895-04:00"
+    },
+    {
+      "assignment_id": "eshoplite-20260606-add-newt",
+      "universe": "Alien",
+      "assigned_at": "2026-06-06T11:28:43.860-04:00"
+    }
+  ],
+  "assignment_cast_snapshots": {
+    "eshoplite-20260606-init": {
+      "created_at": "2026-06-06T11:25:06.895-04:00",
+      "universe": "Alien",
+      "members": [
+        "Ripley",
+        "Hicks",
+        "Bishop",
+        "Vasquez",
+        "Apone",
+        "Scribe",
+        "Ralph"
+      ]
+    },
+    "eshoplite-20260606-add-newt": {
+      "created_at": "2026-06-06T11:28:43.860-04:00",
+      "universe": "Alien",
+      "members": [
+        "Ripley",
+        "Hicks",
+        "Bishop",
+        "Vasquez",
+        "Apone",
+        "Newt",
+        "Scribe",
+        "Ralph"
+      ]
+    }
+  }
+}
