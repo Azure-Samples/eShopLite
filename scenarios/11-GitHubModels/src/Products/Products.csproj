@@ -27,7 +27,7 @@
     <Compile Include="Memory\MemoryContext.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.0.1" />
+    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.4.2" />
     <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
     <PackageReference Include="Azure.Identity" Version="1.21.0" />
     <PackageReference Include="CommunityToolkit.VectorData.InMemory" Version="1.0.0-preview.3" />

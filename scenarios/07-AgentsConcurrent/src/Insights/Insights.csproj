@@ -8,8 +8,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.0.1-preview.1.25575.3" />
-		<PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.0.1" />
+		<PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.4.2-preview.1.26303.6" />
+		<PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.4.2" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
 		<PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-preview.251125.1" />
 		<PackageReference Include="Microsoft.Agents.AI.Abstractions" Version="1.0.0-preview.251125.1" />

@@ -27,9 +27,9 @@
     <Compile Include="Memory\MemoryContext.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.0.1-preview.1.25575.3" />
-    <PackageReference Include="Aspire.Azure.Search.Documents" Version="13.0.1" />
-    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.0.1" />
+    <PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.4.2-preview.1.26303.6" />
+    <PackageReference Include="Aspire.Azure.Search.Documents" Version="13.4.2" />
+    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.4.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.8">
       <PrivateAssets>all</PrivateAssets>

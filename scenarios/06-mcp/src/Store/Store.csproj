@@ -7,7 +7,7 @@
 		<UserSecretsId>88541b34-b9e3-4d23-b18b-67dcae1162ba</UserSecretsId>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.0.1-preview.1.25575.3" />
+		<PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.4.2-preview.1.26303.6" />
 		<PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.6.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0" />
 		<PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.1" />
