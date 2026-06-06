@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.0.2-preview.1.25603.5" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.6.0" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0" />
     <PackageReference Include="System.Text.Json" Version="10.0.0" />
     <!-- DEMO Step 4: DevUI package for agent debugging and visualization -->

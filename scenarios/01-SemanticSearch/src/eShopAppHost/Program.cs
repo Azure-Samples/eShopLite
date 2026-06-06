@@ -11,13 +11,27 @@ var productsDb = sql
     .WithDataVolume()
     .AddDatabase("productsDb");
 
-IResourceBuilder<IResourceWithConnectionString>? microsoftfoundry;
+// Three explicit Aspire parameters for Azure OpenAI (no opaque connection string in run mode).
+// User-secrets keys (set in eShopAppHost project):
+//   Parameters:AzureOpenAIEndpoint              – e.g. https://<resource>.openai.azure.com/
+//   Parameters:AzureOpenAIApiKey                – API key (stored as a secret)
+//   Parameters:AzureOpenAIDeploymentName        – chat deployment, e.g. gpt-5-mini
+//   Parameters:AzureOpenAIEmbeddingsDeploymentName – embeddings deployment, e.g. text-embedding-3-small
+var aoaiEndpoint = builder.AddParameter("AzureOpenAIEndpoint");
+var aoaiApiKey = builder.AddParameter("AzureOpenAIApiKey", secret: true);
+var aoaiChatDeployment = builder.AddParameter("AzureOpenAIDeploymentName");
+var aoaiEmbeddingsDeployment = builder.AddParameter("AzureOpenAIEmbeddingsDeploymentName");
+
 var chatDeploymentName = "gpt-5-mini";
 var embeddingsDeploymentName = "text-embedding-3-small";
 
 var products = builder.AddProject<Projects.Products>("products")
     .WithReference(productsDb)
-    .WaitFor(productsDb);
+    .WaitFor(productsDb)
+    .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+    .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+    .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
+    .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment);
 
 var store = builder.AddProject<Projects.Store>("store")
     .WithReference(products)
@@ -26,13 +40,13 @@ var store = builder.AddProject<Projects.Store>("store")
 
 if (builder.ExecutionContext.IsPublishMode)
 {
-    // production code uses Azure services, so we need to add them here
+    // Production: provision Azure OpenAI and Application Insights via Aspire/azd.
     var appInsights = builder.AddAzureApplicationInsights("appInsights");
     var aoai = builder.AddAzureOpenAI("openai");
 
     var gpt5mini = aoai.AddDeployment(name: chatDeploymentName,
             modelName: "gpt-5-mini",
-            modelVersion: "2025-08-07");    
+            modelVersion: "2025-08-07");
     gpt5mini.Resource.SkuName = "GlobalStandard";
 
     var embeddingsDeployment = aoai.AddDeployment(name: embeddingsDeploymentName,
@@ -44,16 +58,6 @@ if (builder.ExecutionContext.IsPublishMode)
 
     store.WithReference(appInsights)
         .WithExternalHttpEndpoints();
-
-    microsoftfoundry = aoai;
 }
-else
-{
-    microsoftfoundry = builder.AddConnectionString("microsoftfoundry");
-}
-
-products.WithReference(microsoftfoundry)
-    .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-    .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
 
 builder.Build().Run();

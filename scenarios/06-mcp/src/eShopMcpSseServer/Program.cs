@@ -1,8 +1,10 @@
+using Azure.AI.OpenAI;
+using Azure.Identity;
 using eShopMcpSseServer.Tools;
 using McpSample.AspNetCoreSseServer;
-using OpenAI;
-using OpenAI.Chat;
+using Microsoft.Extensions.AI;
 using Services;
+using System.ClientModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,27 +29,20 @@ builder.Services.AddSingleton<ParkInformationService>();
 builder.Services.AddHttpClient<ParkInformationService>(
     static client => client.BaseAddress = new("https+http://parkinformationagent"));
 
-var azureOpenAiClientName = "openai";
-var chatDeploymentName = "gpt-4.1-mini";
-builder.AddAzureOpenAIClient(azureOpenAiClientName);
+// Read explicit Azure OpenAI parameters wired from AppHost.
+var endpoint = builder.Configuration["AzureOpenAIEndpoint"] ?? "";
+var apiKey = builder.Configuration["AzureOpenAIApiKey"] ?? "";
+var chatDeploymentName = builder.Configuration["AzureOpenAIDeploymentName"] ?? "gpt-4.1-mini";
 
-// get azure openai client and create Chat client from aspire hosting configuration
-builder.Services.AddSingleton<ChatClient>(serviceProvider =>
+if (!string.IsNullOrEmpty(endpoint))
 {
-    var logger = serviceProvider.GetService<ILogger<Program>>()!;
-    logger.LogInformation($"Chat client configuration, modelId: {chatDeploymentName}");
-    ChatClient chatClient = null;
-    try
-    {
-        OpenAIClient client = serviceProvider.GetRequiredService<OpenAIClient>();
-        chatClient = client.GetChatClient(chatDeploymentName);
-    }
-    catch (Exception exc)
-    {
-        logger.LogError(exc, "Error creating embeddings client");
-    }
-    return chatClient;
-});
+    AzureOpenAIClient aoaiClient = string.IsNullOrEmpty(apiKey)
+        ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
+        : new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+
+    builder.Services.AddSingleton(aoaiClient);
+    builder.Services.AddChatClient(aoaiClient.GetChatClient(chatDeploymentName).AsIChatClient());
+}
 
 // add MCP server
 builder.Services.AddMcpServer()

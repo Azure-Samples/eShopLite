@@ -13,16 +13,36 @@ var productsDb = sql
     .WithDataVolume()
     .AddDatabase("productsDb");
 
-IResourceBuilder<IResourceWithConnectionString>? openai;
+// Four explicit Aspire parameters for Azure OpenAI (no opaque connection string in run mode).
+// User-secrets keys (set in eShopAppHost project):
+//   Parameters:AzureOpenAIEndpoint                      – e.g. https://<resource>.openai.azure.com/
+//   Parameters:AzureOpenAIApiKey                        – API key (stored as a secret)
+//   Parameters:AzureOpenAIDeploymentName                – chat deployment, e.g. gpt-5-mini
+//   Parameters:AzureOpenAIEmbeddingsDeploymentName      – embeddings deployment, e.g. text-embedding-3-small
+var aoaiEndpoint = builder.AddParameter("AzureOpenAIEndpoint");
+var aoaiApiKey = builder.AddParameter("AzureOpenAIApiKey", secret: true);
+var aoaiChatDeployment = builder.AddParameter("AzureOpenAIDeploymentName");
+var aoaiEmbeddingsDeployment = builder.AddParameter("AzureOpenAIEmbeddingsDeploymentName");
+
+var chatDeploymentName = "gpt-5-mini";
+var embeddingsDeploymentName = "text-embedding-3-small";
 
 var products = builder.AddProject<Projects.Products>("products")
     .WithReference(productsDb)
     .WaitFor(productsDb)
+    .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+    .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+    .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
+    .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment)
     .WithExternalHttpEndpoints();
 
 var semanticSearchFunction = builder.AddAzureFunctionsProject<Projects.SemanticSearchFunction>("semanticsearchfunction")
     .WithReference(productsDb)
     .WaitFor(productsDb)
+    .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+    .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+    .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
+    .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment)
     .WithExternalHttpEndpoints();
 
 var store = builder.AddProject<Projects.Store>("store")
@@ -32,51 +52,24 @@ var store = builder.AddProject<Projects.Store>("store")
     .WaitFor(semanticSearchFunction)
     .WithExternalHttpEndpoints();
 
-var chatDeploymentName = "gpt-5-mini";
-var embeddingsDeploymentName = "text-embedding-3-small";
-
 if (builder.ExecutionContext.IsPublishMode)
 {
-    // production code uses Azure services, so we need to add them here
     var appInsights = builder.AddAzureApplicationInsights("appInsights");
     var aoai = builder.AddAzureOpenAI("openai");
 
-    var gpt41mini = aoai.AddDeployment(name: chatDeploymentName,
-            modelName: chatDeploymentName,
-            modelVersion: "2025-04-14");
-    gpt41mini.Resource.SkuCapacity = 10;
-    gpt41mini.Resource.SkuName = "GlobalStandard";
+    var gpt5mini = aoai.AddDeployment(name: chatDeploymentName,
+            modelName: "gpt-5-mini",
+            modelVersion: "2025-08-07");
+    gpt5mini.Resource.SkuName = "GlobalStandard";
 
-    var embeddingsDeployment = aoai.AddDeployment(name: embeddingsDeploymentName,
+    var embeddingsDeploymentRes = aoai.AddDeployment(name: embeddingsDeploymentName,
         modelName: embeddingsDeploymentName,
         modelVersion: "1");
+    embeddingsDeploymentRes.Resource.SkuName = "GlobalStandard";
 
-    products.WithReference(appInsights)
-        .WithReference(aoai)
-        .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-        .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
-
-    semanticSearchFunction.WithReference(appInsights)
-        .WithReference(aoai)
-        .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-        .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
-
-    store.WithReference(appInsights)
-        .WithExternalHttpEndpoints();
-
-    openai = aoai;
+    products.WithReference(appInsights);
+    semanticSearchFunction.WithReference(appInsights);
+    store.WithReference(appInsights).WithExternalHttpEndpoints();
 }
-else
-{
-    openai = builder.AddConnectionString("openai");
-}
-
-products.WithReference(openai)
-    .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-    .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
-
-semanticSearchFunction.WithReference(openai)
-    .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-    .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
 
 builder.Build().Run();

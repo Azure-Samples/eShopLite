@@ -1,14 +1,11 @@
 ﻿using ChromaDB.Client;
 using DataEntities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.VectorData;
-using Newtonsoft.Json;
-using OpenAI.Chat;
-using OpenAI.Embeddings;
+using Microsoft.Extensions.AI;
 using Products.Models;
 using SearchEntities;
 using System.Text;
-using VectorEntities;
+using System.Text.Json;
 
 namespace Products.Memory;
 
@@ -17,17 +14,17 @@ public class MemoryContext
     private const string SystemPrompt = "You are a useful assistant. You always reply with a short and funny message. If you do not know an answer, you say 'I don't know that.' You only answer questions related to outdoor camping products. For any other type of questions, explain to the user that you only answer outdoor camping products questions. Do not store memory of the chat conversation.";
 
     private readonly ILogger _logger;
-    private readonly ChatClient? _chatClient;
-    private readonly EmbeddingClient? _embeddingClient;
+    private readonly IChatClient? _chatClient;
+    private readonly IEmbeddingGenerator<string, Embedding<float>>? _embeddingGenerator;
 
     private bool _isMemoryCollectionInitialized = false;
     private ChromaCollectionClient? _collectionClient;
 
-    public MemoryContext(ILogger logger, ChatClient? chatClient, EmbeddingClient? embeddingClient, ChromaCollectionClient? collectionClient)
+    public MemoryContext(ILogger logger, IChatClient? chatClient, IEmbeddingGenerator<string, Embedding<float>>? embeddingGenerator, ChromaCollectionClient? collectionClient)
     {
         _logger = logger;
         _chatClient = chatClient;
-        _embeddingClient = embeddingClient;
+        _embeddingGenerator = embeddingGenerator;
         _collectionClient = collectionClient;
     }
 
@@ -49,9 +46,9 @@ public class MemoryContext
             {
                 _logger.LogInformation("Adding product to memory: {Product}", product.Name);
                 var productInfo = $"[{product.Name}] is a product that costs [{product.Price}] and is described as [{product.Description}]";
-                var result = await _embeddingClient.GenerateEmbeddingAsync(productInfo);
+                var embedding = await _embeddingGenerator!.GenerateVectorAsync(productInfo);
                 productIds.Add(product.Id.ToString());
-                productDescriptionEmbeddings.Add(result.Value.ToFloats());
+                productDescriptionEmbeddings.Add(embedding);
                 _logger.LogInformation($"Product added to collections: {product.Name}");
             }
             catch (Exception exc)
@@ -61,7 +58,7 @@ public class MemoryContext
         }
 
         // add the products to the memory
-        await _collectionClient.Upsert(productIds, productDescriptionEmbeddings, productMetadata);
+        await _collectionClient!.Upsert(productIds, productDescriptionEmbeddings, productMetadata);
 
         _logger.LogInformation("DONE! Filling products in memory");
         return true;
@@ -82,16 +79,10 @@ public class MemoryContext
 
         try
         {
-            var resultGenEmbeddings = await _embeddingClient.GenerateEmbeddingAsync(search);
-            var embeddingsSearchQuery = resultGenEmbeddings.Value.ToFloats();
+            var embeddingsSearchQuery = await _embeddingGenerator!.GenerateVectorAsync(search);
 
-            var searchOptions = new VectorSearchOptions<ProductVector>
-            {
-                Top = 3
-            };
-
-            // search the vector database for the most similar product        
-            var queryResult = await _collectionClient.Query(
+            // search the vector database for the most similar product
+            var queryResult = await _collectionClient!.Query(
                 queryEmbeddings: embeddingsSearchQuery,
                 nResults: 2,
                 include: ChromaQueryInclude.Metadatas | ChromaQueryInclude.Distances);
@@ -127,14 +118,14 @@ Include products details.
 
             var messages = new List<ChatMessage>
             {
-                new SystemChatMessage(SystemPrompt),
-                new UserChatMessage(prompt)
+                new ChatMessage(ChatRole.System, SystemPrompt),
+                new ChatMessage(ChatRole.User, prompt)
             };
 
-            _logger.LogInformation("{ChatHistory}", JsonConvert.SerializeObject(messages));
+            _logger.LogInformation("{ChatHistory}", JsonSerializer.Serialize(messages));
 
-            var resultPrompt = await _chatClient.CompleteChatAsync(messages);
-            response.Response = resultPrompt.Value.Content[0].Text!;
+            var resultPrompt = await _chatClient!.GetResponseAsync(messages);
+            response.Response = resultPrompt.Text ?? "";
         }
         catch (Exception ex)
         {

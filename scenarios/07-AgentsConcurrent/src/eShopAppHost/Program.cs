@@ -8,13 +8,32 @@ var sql = builder.AddSqlServer("sql")
 var productsDb = sql.AddDatabase("productsdb");
 var sqlInsights = sql.AddDatabase("insightsdb");
 
+// Four explicit Aspire parameters for Azure OpenAI (replaces opaque connection string).
+// User-secrets keys (set in eShopAppHost project):
+//   Parameters:AzureOpenAIEndpoint                       – e.g. https://<resource>.openai.azure.com/
+//   Parameters:AzureOpenAIApiKey                         – API key (stored as a secret)
+//   Parameters:AzureOpenAIDeploymentName                 – chat deployment, e.g. gpt-4.1-mini
+//   Parameters:AzureOpenAIEmbeddingsDeploymentName       – embeddings deployment, e.g. text-embedding-ada-002
+var aoaiEndpoint = builder.AddParameter("AzureOpenAIEndpoint");
+var aoaiApiKey = builder.AddParameter("AzureOpenAIApiKey", secret: true);
+var aoaiChatDeployment = builder.AddParameter("AzureOpenAIDeploymentName");
+var aoaiEmbeddingsDeployment = builder.AddParameter("AzureOpenAIEmbeddingsDeploymentName");
+
 var products = builder.AddProject<Projects.Products>("products")
     .WithReference(productsDb)
-    .WaitFor(productsDb);
+    .WaitFor(productsDb)
+    .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+    .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+    .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
+    .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment);
 
 var insights = builder.AddProject<Projects.Insights>("insights")
     .WithReference(sqlInsights)
-    .WaitFor(sqlInsights);
+    .WaitFor(sqlInsights)
+    .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+    .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+    .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
+    .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment);
 
 var store = builder.AddProject<Projects.Store>("store")
     .WithReference(products)
@@ -22,8 +41,6 @@ var store = builder.AddProject<Projects.Store>("store")
     .WithReference(insights)
     .WaitFor(insights)
     .WithExternalHttpEndpoints();
-
-IResourceBuilder<IResourceWithConnectionString>? openai;
 
 if (builder.ExecutionContext.IsPublishMode)
 {
@@ -39,30 +56,14 @@ if (builder.ExecutionContext.IsPublishMode)
     gpt41mini.Resource.SkuCapacity = 10;
     gpt41mini.Resource.SkuName = "GlobalStandard";
 
-    var embeddingsDeployment = aoai.AddDeployment(name: embeddingsDeploymentName,
+    aoai.AddDeployment(name: embeddingsDeploymentName,
         modelName: "text-embedding-ada-002",
         modelVersion: "2");
 
-    products.WithReference(appInsights)
-        .WithReference(aoai)
-        .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-        .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
-
-    store.WithReference(appInsights)
-        .WithExternalHttpEndpoints();
-
-    openai = aoai;
+    products.WithReference(appInsights);
+    insights.WithReference(appInsights);
+    store.WithReference(appInsights).WithExternalHttpEndpoints();
 }
-else
-{
-    openai = builder.AddConnectionString("openai");
-}
-
-insights.WithReference(openai)
-    .WithEnvironment("AI_ChatDeploymentName", "gpt-4.1-mini");
-
-products.WithReference(openai)
-    .WithEnvironment("AI_embeddingsDeploymentName", "text-embedding-ada-002");
 
 builder.Build().Run();
 

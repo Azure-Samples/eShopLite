@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>false</InvariantGlobalization>
@@ -27,16 +27,21 @@
     <Compile Include="Memory\MemoryContext.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Azure.AI.OpenAI" Version="9.3.0-preview.1.25265.20" />
-    <PackageReference Include="Aspire.Azure.Search.Documents" Version="9.3.0" />
-    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
+    <PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.0.1-preview.1.25575.3" />
+    <PackageReference Include="Aspire.Azure.Search.Documents" Version="13.0.1" />
+    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureAISearch" Version="1.54.0-preview" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.6.0" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.6.0" />
+    <!-- Azure AI Search VectorData connector: only provider implementing Microsoft.Extensions.VectorData
+         abstractions for Azure AI Search. Ships under Microsoft.SemanticKernel.* namespace but has
+         no SK kernel/chat/agent dependency — it is the one unavoidable SK-named package here. -->
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureAISearch" Version="1.74.0-preview" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0" />
     <!--AI Search NuGet packages-->
   </ItemGroup>
   <ItemGroup>

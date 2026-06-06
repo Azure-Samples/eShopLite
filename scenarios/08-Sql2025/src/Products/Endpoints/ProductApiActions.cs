@@ -15,24 +15,24 @@ public class ProductApiActions
         return TypedResults.Ok(products);
     }
 
-    public static async Task<Results<Ok<Product>, NotFound>> GetProductById(int id, Context db)
+    public static async Task<IResult> GetProductById(int id, Context db)
     {
         var model = await db.Product.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id);
-        return model is not null ? TypedResults.Ok(model) : TypedResults.NotFound();
+        return model is not null ? Results.Ok(model) : Results.NotFound();
     }
 
-    public static async Task<Results<Ok, NotFound>> UpdateProduct(int id, Product product, Context db)
+    public static async Task<IResult> UpdateProduct(int id, Product product, Context db)
     {
         var existing = await db.Product.FirstOrDefaultAsync(m => m.Id == id);
         if (existing is null)
-            return TypedResults.NotFound();
+            return Results.NotFound();
 
         existing.Name = product.Name;
         existing.Description = product.Description;
         existing.Price = product.Price;
         existing.ImageUrl = product.ImageUrl;
         await db.SaveChangesAsync();
-        return TypedResults.Ok();
+        return Results.Ok();
     }
 
     public static async Task<Created<Product>> CreateProduct(Product product, Context db)
@@ -42,12 +42,12 @@ public class ProductApiActions
         return TypedResults.Created($"/api/Product/{product.Id}", product);
     }
 
-    public static async Task<Results<Ok, NotFound>> DeleteProduct(int id, Context db)
+    public static async Task<IResult> DeleteProduct(int id, Context db)
     {
         var affected = await db.Product
             .Where(m => m.Id == id)
             .ExecuteDeleteAsync();
-        return affected == 1 ? TypedResults.Ok() : TypedResults.NotFound();
+        return affected == 1 ? Results.Ok() : Results.NotFound();
     }
 
     public static async Task<Ok<SearchResponse>> SearchAllProducts(string search, Context db)
@@ -70,10 +70,10 @@ public class ProductApiActions
         string search,
         Context db,
         IEmbeddingGenerator<string, Embedding<float>> embeddingClient,
-        ILogger<ProductApiActions> logger,
+        ILogger<ProductApiActions>? logger = null,
         int dimensions = 1536)
     {
-        logger.LogInformation("Querying for similar products to {search}", search);
+        logger?.LogInformation("Querying for similar products to {search}", search);
 
         var embeddingSearch = await embeddingClient.GenerateVectorAsync(search, new() { Dimensions = dimensions });
         var vectorSearch = embeddingSearch.ToArray();
@@ -90,6 +90,6 @@ public class ProductApiActions
                 $"No products found for [{search}]"
         };
         return TypedResults.Ok(response);
-
     }
 }
+

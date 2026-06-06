@@ -1,5 +1,3 @@
-using Azure.Provisioning.CognitiveServices;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 var sql = builder.AddSqlServer("sql")
@@ -22,41 +20,48 @@ var store = builder.AddProject<Projects.Store>("store")
 
 if (builder.ExecutionContext.IsPublishMode)
 {
-    // production code uses Azure services, so we need to add them here
+    // Production: Azure OpenAI via explicit Aspire parameters (no auto-provisioning).
+    // Set these in eShopAppHost user-secrets or via azd:
+    //   Parameters:AzureOpenAIEndpoint                 – https://<resource>.openai.azure.com/
+    //   Parameters:AzureOpenAIApiKey                   – API key (stored as a secret)
+    //   Parameters:AzureOpenAIDeploymentName           – chat deployment, e.g. gpt-4.1-mini
+    //   Parameters:AzureOpenAIEmbeddingsDeploymentName – embeddings deployment, e.g. text-embedding-ada-002
     var appInsights = builder.AddAzureApplicationInsights("appInsights");
-    var chatDeploymentName = "gpt-41-mini";
-    var embeddingsDeploymentName = "text-embedding-ada-002";
-    var aoai = builder.AddAzureOpenAI("openai");
+    var aoaiEndpoint = builder.AddParameter("AzureOpenAIEndpoint");
+    var aoaiApiKey = builder.AddParameter("AzureOpenAIApiKey", secret: true);
+    var aoaiChatDeployment = builder.AddParameter("AzureOpenAIDeploymentName");
+    var aoaiEmbeddingsDeployment = builder.AddParameter("AzureOpenAIEmbeddingsDeploymentName");
 
-    var gpt41mini = aoai.AddDeployment(name: chatDeploymentName,
-            modelName: "gpt-4.1-mini",
-            modelVersion: "2025-04-14");
-    gpt41mini.Resource.SkuCapacity = 10;
-    gpt41mini.Resource.SkuName = "GlobalStandard";
-
-    var embeddingsDeployment = aoai.AddDeployment(name: embeddingsDeploymentName,
-        modelName: "text-embedding-ada-002",
-        modelVersion: "2");
-
-
-    products.WithReference(appInsights)
-        .WithReference(aoai)
-        .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-        .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName)
-        .WithEnvironment("AI_UseGitHubModels", "false");
+    products
+        .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+        .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+        .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
+        .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment)
+        .WithEnvironment("AI_UseGitHubModels", "false")
+        .WithReference(appInsights);
 
     store.WithReference(appInsights)
         .WithExternalHttpEndpoints();
 }
 else
 {
-    // local development uses GitHub models
-    var githubToken = builder.AddParameter("githubToken", secret: true)
-        .WithDescription("GitHub Personal Access Token for accessing GitHub Models API");
-    
+    // Local development: GitHub Models (https://github.com/marketplace/models).
+    // Set these in eShopAppHost user-secrets:
+    //   Parameters:GitHubModelsToken           – GitHub PAT with Models scope (required)
+    //   Parameters:GitHubModelsEndpoint        – defaults to https://models.inference.ai.azure.com
+    //   Parameters:GitHubModelsChatModel       – defaults to gpt-4.1-mini
+    //   Parameters:GitHubModelsEmbeddingsModel – defaults to text-embedding-3-small
+    var githubToken = builder.AddParameter("GitHubModelsToken", secret: true);
+    var githubEndpoint = builder.AddParameter("GitHubModelsEndpoint", "https://models.inference.ai.azure.com");
+    var githubChatModel = builder.AddParameter("GitHubModelsChatModel", "gpt-4.1-mini");
+    var githubEmbedModel = builder.AddParameter("GitHubModelsEmbeddingsModel", "text-embedding-3-small");
+
     products
         .WithEnvironment("AI_UseGitHubModels", "true")
-        .WithEnvironment("GitHubToken", githubToken);
+        .WithEnvironment("GitHubModelsToken", githubToken)
+        .WithEnvironment("GitHubModelsEndpoint", githubEndpoint)
+        .WithEnvironment("GitHubModelsChatModel", githubChatModel)
+        .WithEnvironment("GitHubModelsEmbeddingsModel", githubEmbedModel);
 }
 
 builder.Build().Run();

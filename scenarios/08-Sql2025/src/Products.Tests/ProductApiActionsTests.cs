@@ -118,7 +118,7 @@ namespace Products.Tests
                 // In real SQL Server environments, this method would work correctly
                 
                 // Test deletion of existing product throws expected exception due to in-memory DB limitation
-                var exception = await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+                var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
                 {
                     await ProductApiActions.DeleteProduct(40, context);
                 });
@@ -127,7 +127,7 @@ namespace Products.Tests
                     "Exception should be related to ExecuteDelete not being supported");
                 
                 // Test deletion of non-existent product also throws same exception
-                var notFoundException = await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+                var notFoundException = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
                 {
                     await ProductApiActions.DeleteProduct(999, context);
                 });
@@ -169,10 +169,11 @@ namespace Products.Tests
         [TestMethod]
         public async Task AISearch_WithNullEmbeddingClient_ThrowsException()
         {
-            // Arrange & Act & Assert - Test the method signature and basic error handling
+            // Arrange & Act & Assert - Test the method signature and basic error handling.
+            // MEAI extension methods validate arguments (ArgumentNullException) before dereferencing.
             using (var context = new Context(_dbOptions))
             {
-                await Assert.ThrowsExceptionAsync<NullReferenceException>(async () =>
+                await Assert.ThrowsAsync<ArgumentNullException>(async () =>
                 {
                     await ProductApiActions.AISearch("test search", context, null!);
                 });

@@ -1,11 +1,11 @@
 using Azure.AI.OpenAI;
+using Azure.Identity;
 using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
-using OpenAI;
-using OpenAI.Chat;
 using Services;
 using Store.Components;
 using Store.Services;
+using System.ClientModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,55 +17,24 @@ builder.Services.AddHttpClient("productsHttpClient", static client => client.Bas
 
 builder.Services.AddSingleton<McpServerService>();
 
-// add openai client
-var chatDeploymentName = "gpt-4.1-mini";
-var azureOpenAiClientName = "openai";
-builder.AddOpenAIClient(azureOpenAiClientName);
-builder.AddAzureOpenAIClient(azureOpenAiClientName);
+// Read explicit Azure OpenAI parameters wired from AppHost.
+var endpoint = builder.Configuration["AzureOpenAIEndpoint"] ?? "";
+var apiKey = builder.Configuration["AzureOpenAIApiKey"] ?? "";
+var chatDeploymentName = builder.Configuration["AzureOpenAIDeploymentName"] ?? "gpt-4.1-mini";
 
-// get azure openai client and create Chat client from aspire hosting configuration
-builder.Services.AddSingleton<IChatClient>(serviceProvider =>
+if (!string.IsNullOrEmpty(endpoint))
 {
-    var logger = serviceProvider.GetService<ILogger<Program>>()!;
-    logger.LogInformation($"Chat client configuration, modelId: {chatDeploymentName}");
-    IChatClient chatClient = null;
-    try
-    {
-        logger.LogInformation($"getting .GetRequiredService<OpenAIClient>");
-        OpenAIClient client = serviceProvider.GetRequiredService<AzureOpenAIClient>();
-        logger.LogInformation($"DONE getting .GetRequiredService<OpenAIClient>");
+    AzureOpenAIClient aoaiClient = string.IsNullOrEmpty(apiKey)
+        ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
+        : new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
 
-        logger.LogInformation($"getting client.AsChatClient(chatDeploymentName)");
-        chatClient = client.GetChatClient(chatDeploymentName)
-            .AsIChatClient()
+    builder.Services.AddSingleton(aoaiClient);
+    builder.Services.AddChatClient(
+        aoaiClient.GetChatClient(chatDeploymentName).AsIChatClient()
             .AsBuilder()
             .UseFunctionInvocation()
-            .Build();
-    }
-    catch (Exception exc)
-    {
-        logger.LogError(exc, "Error creating <IChatClient> client");
-    }
-    return chatClient;
-});
-
-// get OpenAI client and create Chat client from aspire hosting configuration
-builder.Services.AddSingleton<ChatClient>(serviceProvider =>
-{
-    var logger = serviceProvider.GetService<ILogger<Program>>()!;
-    logger.LogInformation($"Chat client configuration, modelId: {chatDeploymentName}");
-    ChatClient chatClient = null;
-    try
-    {
-        OpenAIClient client = serviceProvider.GetRequiredService<OpenAIClient>();
-        chatClient = client.GetChatClient(chatDeploymentName);
-    }
-    catch (Exception exc)
-    {
-        logger.LogError(exc, "Error creating <ChatClient> client");
-    }
-    return chatClient;
-});
+            .Build());
+}
 
 // create Mcp Client
 builder.Services.AddSingleton<IMcpClient>(serviceProvider =>

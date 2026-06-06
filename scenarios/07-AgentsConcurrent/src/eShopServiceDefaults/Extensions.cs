@@ -59,9 +59,9 @@ namespace Microsoft.Extensions.Hosting
                 logging.IncludeScopes = true;
             });
 
-            // enable openai telemetry
+            // enable AI telemetry
             AppContext.SetSwitch("OpenAI.Experimental.EnableOpenTelemetry", true);
-            AppContext.SetSwitch("Microsoft.SemanticKernel.Experimental.GenAI.EnableOTelDiagnosticsSensitive", true);
+            AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
 
             builder.Services.AddOpenTelemetry()
                 .WithMetrics(metrics =>
@@ -70,7 +70,7 @@ namespace Microsoft.Extensions.Hosting
                         .AddHttpClientInstrumentation()
                         .AddRuntimeInstrumentation()
                         .AddMeter("OpenAI.*")
-                        .AddMeter("Microsoft.SemanticKernel.*")
+                        .AddMeter("*Microsoft.Agents.AI")
                         .AddMeter("Experimental.Microsoft.Extensions.AI");
                 })
                 .WithTracing(tracing =>
@@ -80,8 +80,8 @@ namespace Microsoft.Extensions.Hosting
                         //.AddGrpcClientInstrumentation()
                         .AddHttpClientInstrumentation()
                         .AddSource("OpenAI.*")
-                        .AddSource("Microsoft.SemanticKernel.*")
-                        .AddSource("Experimental.Microsoft.Extensions.AI");
+                        .AddSource("*Microsoft.Extensions.AI")
+                        .AddSource("*Microsoft.Extensions.Agents*");
                 });
 
             builder.AddOpenTelemetryExporters();

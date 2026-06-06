@@ -1,12 +1,14 @@
 using AgentServices;
 using AgentServices.Checkout;
 using AgentServices.Stock.Tools;
+using Azure.AI.OpenAI;
 using Azure.Identity;
 using Microsoft.Agents.AI.DevUI;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.Extensions.AI;
 using Store.Components;
 using Store.Services;
+using System.ClientModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,21 +37,22 @@ builder.Services.AddHttpClient<StockSearchTool>(client =>
 
 
 // Configure Azure OpenAI for agentic checkout
-var microsoftFoundryConnectionName = "microsoftfoundry";
-var chatDeploymentName = builder.Configuration["AI_ChatDeploymentName"] ?? "gpt-5-mini";
+var endpoint = builder.Configuration["AzureOpenAIEndpoint"] ?? "";
+var apiKey = builder.Configuration["AzureOpenAIApiKey"] ?? "";
+var chatDeploymentName = builder.Configuration["AzureOpenAIDeploymentName"] ?? "gpt-5-mini";
 
-var openai = builder.AddAzureOpenAIClient(connectionName: microsoftFoundryConnectionName,
-    configureSettings: settings =>
-    {
-        if (string.IsNullOrEmpty(settings.Key))
-        {
-            settings.Credential = new DefaultAzureCredential();
-        }
-    });
-openai.AddChatClient(chatDeploymentName)
-    .UseFunctionInvocation()
-    .UseOpenTelemetry(configure: c =>
-    c.EnableSensitiveData = builder.Environment.IsDevelopment());
+if (!string.IsNullOrEmpty(endpoint))
+{
+    AzureOpenAIClient aoaiClient = string.IsNullOrEmpty(apiKey)
+        ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
+        : new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+
+    builder.Services.AddSingleton(aoaiClient);
+    builder.Services.AddChatClient(aoaiClient.GetChatClient(chatDeploymentName).AsIChatClient())
+        .UseFunctionInvocation()
+        .UseOpenTelemetry(configure: c =>
+            c.EnableSensitiveData = builder.Environment.IsDevelopment());
+}
 
 // Add Agent settings and agents
 builder.AddAgentSettings();
@@ -101,3 +104,4 @@ if (builder.Environment.IsDevelopment())
 
 app.Logger.LogInformation("Starting Store app...");
 app.Run();
+

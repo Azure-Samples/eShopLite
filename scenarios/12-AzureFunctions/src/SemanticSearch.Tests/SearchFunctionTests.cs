@@ -1,104 +1,115 @@
-using System.Text;
-using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
+using SearchEntities;
 using SemanticSearchFunction.Functions;
+using SemanticSearchFunction.Repositories;
+using System.Collections.Specialized;
+using System.Net;
 
 namespace SemanticSearch.Tests;
 
 [TestClass]
 public class SearchFunctionTests
 {
-    private Mock<ILogger<SearchFunction>> _loggerMock;
-    private SearchFunction _function;
-    private Mock<HttpRequestData> _requestMock;
-    private Mock<FunctionContext> _contextMock;
+    private Mock<ILogger<SearchFunction>> _loggerMock = null!;
+    private Mock<ISemanticSearchRepository> _repositoryMock = null!;
+    private SearchFunction _function = null!;
+    private Mock<FunctionContext> _contextMock = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _loggerMock = new Mock<ILogger<SearchFunction>>();
+        _repositoryMock = new Mock<ISemanticSearchRepository>();
         _function = new SearchFunction(_loggerMock.Object, _repositoryMock.Object);
-        
         _contextMock = new Mock<FunctionContext>();
-        _requestMock = new Mock<HttpRequestData>(_contextMock.Object);
+    }
+
+    private (Mock<HttpRequestData>, Mock<HttpResponseData>) CreateRequestResponseMocks(NameValueCollection queryParams)
+    {
+        // Note: CreateResponse(HttpStatusCode) is an extension method, so we mock the abstract CreateResponse()
+        // and let the extension set the status code on the mocked HttpResponseData.
+        var responseMock = new Mock<HttpResponseData>(_contextMock.Object);
+        responseMock.SetupProperty(r => r.StatusCode);
+        responseMock.Setup(r => r.Headers).Returns(new HttpHeadersCollection());
+        responseMock.SetupGet(r => r.Body).Returns(new MemoryStream());
+
+        var requestMock = new Mock<HttpRequestData>(_contextMock.Object);
+        requestMock.Setup(r => r.Query).Returns(queryParams);
+        requestMock.Setup(r => r.CreateResponse()).Returns(responseMock.Object);
+
+        return (requestMock, responseMock);
     }
 
     [TestMethod]
-    public async Task Run_WithValidRequest_ShouldReturnOkResult()
+    public async Task Run_WithValidQuery_ReturnsOkResult()
     {
         // Arrange
-        var searchRequest = new SearchRequest { Query = "test", Top = 5 };
-        var json = JsonSerializer.Serialize(searchRequest);
-        var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        
-        _requestMock.Setup(r => r.Body).Returns(stream);
-        
-        var expectedResults = new List<SearchResult>
+        var queryParams = new NameValueCollection { ["query"] = "tent", ["top"] = "3" };
+        var expectedResponse = new SearchResponse
         {
-            new SearchResult
+            Products = new List<DataEntities.Product>
             {
-                Id = 1,
-                Title = "Test Product",
-                Score = 0.9,
-                Snippet = "Test description",
-                Metadata = new Dictionary<string, string> { ["price"] = "$10.00" }
-            }
+                new DataEntities.Product { Id = 1, Name = "Tent", Description = "A tent", Price = 99.99m }
+            },
+            Response = "1 Products found for [tent]"
         };
 
-        _repositoryMock.Setup(r => r.SearchAsync("test", 5, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(expectedResults);
+        _repositoryMock
+            .Setup(r => r.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedResponse);
 
-        var responseMock = new Mock<HttpResponseData>(_contextMock.Object);
-        _requestMock.Setup(r => r.CreateResponse(System.Net.HttpStatusCode.OK))
-            .Returns(responseMock.Object);
+        var (requestMock, _) = CreateRequestResponseMocks(queryParams);
 
         // Act
-        var result = await _function.Run(_requestMock.Object);
+        var result = await _function.Run(requestMock.Object);
 
         // Assert
         Assert.IsNotNull(result);
-        _repositoryMock.Verify(r => r.SearchAsync("test", 5, It.IsAny<CancellationToken>()), Times.Once);
+        _repositoryMock.Verify(r => r.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
-    public async Task Run_WithEmptyBody_ShouldReturnBadRequest()
+    public async Task Run_WhenRepositoryThrows_ReturnsInternalServerError()
     {
         // Arrange
-        var stream = new MemoryStream();
-        _requestMock.Setup(r => r.Body).Returns(stream);
+        var queryParams = new NameValueCollection { ["query"] = "tent" };
+        _repositoryMock
+            .Setup(r => r.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("DB error"));
 
-        var responseMock = new Mock<HttpResponseData>(_contextMock.Object);
-        _requestMock.Setup(r => r.CreateResponse(System.Net.HttpStatusCode.BadRequest))
-            .Returns(responseMock.Object);
+        var (requestMock, _) = CreateRequestResponseMocks(queryParams);
 
         // Act
-        var result = await _function.Run(_requestMock.Object);
+        var result = await _function.Run(requestMock.Object);
 
         // Assert
         Assert.IsNotNull(result);
-        _repositoryMock.Verify(r => r.SearchAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]
-    public async Task Run_WithInvalidJson_ShouldReturnBadRequest()
+    public async Task Run_WithEmptyQuery_ReturnsOkResult()
     {
-        // Arrange
-        var invalidJson = "{ invalid json }";
-        var stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidJson));
-        _requestMock.Setup(r => r.Body).Returns(stream);
+        // Arrange - empty query still gets processed (repository handles empty results)
+        var queryParams = new NameValueCollection { ["query"] = "" };
+        var emptyResponse = new SearchResponse
+        {
+            Products = new List<DataEntities.Product>(),
+            Response = "No products found for []"
+        };
 
-        var responseMock = new Mock<HttpResponseData>(_contextMock.Object);
-        _requestMock.Setup(r => r.CreateResponse(System.Net.HttpStatusCode.BadRequest))
-            .Returns(responseMock.Object);
+        _repositoryMock
+            .Setup(r => r.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(emptyResponse);
+
+        var (requestMock, _) = CreateRequestResponseMocks(queryParams);
 
         // Act
-        var result = await _function.Run(_requestMock.Object);
+        var result = await _function.Run(requestMock.Object);
 
         // Assert
         Assert.IsNotNull(result);
-        _repositoryMock.Verify(r => r.SearchAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

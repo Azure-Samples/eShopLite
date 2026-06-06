@@ -1,14 +1,13 @@
-﻿using Azure.Search.Documents.Indexes;
+using Azure.Search.Documents.Indexes;
 using DataEntities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel.Connectors.AzureAISearch;
-using Newtonsoft.Json;
-using OpenAI.Chat;
-using OpenAI.Embeddings;
 using Products.Models;
 using SearchEntities;
 using System.Text;
+using System.Text.Json;
 using VectorEntities;
 
 namespace Products.Memory;
@@ -16,24 +15,24 @@ namespace Products.Memory;
 public class MemoryContext
 {
     private ILogger _logger;
-    public ChatClient? _chatClient;
-    public EmbeddingClient? _embeddingClient;
+    public IChatClient? _chatClient;
+    public IEmbeddingGenerator<string, Embedding<float>>? _embeddingGenerator;
     public SearchIndexClient? _azureSearchIndexClient;
     // Collection for storing and searching product vectors in the memory context
     public VectorStoreCollection<string, ProductVector> _productsCollection;
     private string _systemPrompt = "";
     private bool _isMemoryCollectionInitialized = false;
 
-    public MemoryContext(ILogger logger, ChatClient? chatClient, EmbeddingClient? embeddingClient, SearchIndexClient? azureSearchIndexClient)
+    public MemoryContext(ILogger logger, IChatClient? chatClient, IEmbeddingGenerator<string, Embedding<float>>? embeddingGenerator, SearchIndexClient? azureSearchIndexClient)
     {
         _logger = logger;
         _chatClient = chatClient;
-        _embeddingClient = embeddingClient;
+        _embeddingGenerator = embeddingGenerator;
         _azureSearchIndexClient = azureSearchIndexClient;
 
         _logger.LogInformation("Memory context created");
         _logger.LogInformation($"Chat Client is null: {_chatClient is null}");
-        _logger.LogInformation($"Embedding Client is null: {_embeddingClient is null}");
+        _logger.LogInformation($"Embedding Generator is null: {_embeddingGenerator is null}");
         _logger.LogInformation($"Azure Search Index Client  is null: {_azureSearchIndexClient is null}");
     }
 
@@ -62,17 +61,17 @@ public class MemoryContext
                 _logger.LogInformation("Adding product to memory: {Product}", product.Name);
                 var productInfo = $"[{product.Name}] is a product that costs [{product.Price}] and is described as [{product.Description}]";
 
-                var result = await _embeddingClient.GenerateEmbeddingAsync(productInfo);
+                var result = await _embeddingGenerator.GenerateVectorAsync(productInfo);
 
                 // new product vector
                 var productVector = new ProductVector
                 {
-                    Id = product.Id.ToString(), // Convert int to string explicitly
+                    Id = product.Id.ToString(),
                     Name = product.Name,
                     Description = product.Description,
                     Price = product.Price.ToString(),
                     ImageUrl = product.ImageUrl,
-                    Vector = result.Value.ToFloats()
+                    Vector = result
                 };
 
                 await _productsCollection.UpsertAsync(productVector);
@@ -103,8 +102,8 @@ public class MemoryContext
 
         try
         {
-            var result = await _embeddingClient.GenerateEmbeddingAsync(search);
-            var vectorSearchQuery = result.Value.ToFloats();
+            var result = await _embeddingGenerator.GenerateVectorAsync(search);
+            var vectorSearchQuery = result;
 
             // search the vector database for the most similar product        
             var sbFoundProducts = new StringBuilder();
@@ -114,7 +113,7 @@ public class MemoryContext
             {
                 if (resultItem.Score > 0.5)
                 {
-                    int prodId = int.Parse(resultItem.Record.Id);   
+                    int prodId = int.Parse(resultItem.Record.Id);
                     var product = await db.FindAsync<Product>(prodId);
                     if (product != null)
                     {
@@ -138,15 +137,15 @@ Include products details.
 {sbFoundProducts}";
 
             var messages = new List<ChatMessage>
-    {
-        new SystemChatMessage(_systemPrompt),
-        new UserChatMessage(prompt)
-    };
+            {
+                new(ChatRole.System, _systemPrompt),
+                new(ChatRole.User, prompt)
+            };
 
-            _logger.LogInformation("{ChatHistory}", JsonConvert.SerializeObject(messages));
+            _logger.LogInformation("{ChatHistory}", JsonSerializer.Serialize(messages));
 
-            var resultPrompt = await _chatClient.CompleteChatAsync(messages);
-            response.Response = resultPrompt.Value.Content[0].Text!;
+            var resultPrompt = await _chatClient.GetResponseAsync(messages);
+            response.Response = resultPrompt.Text!;
 
         }
         catch (Exception ex)
@@ -156,84 +155,4 @@ Include products details.
         }
         return response;
     }
-
-    //    public async Task<SearchResponse> Search(string search, Context db)
-    //    {
-    //        if (!_isMemoryCollectionInitialized)
-    //        {
-    //            await InitMemoryContextAsync(db);
-    //            _isMemoryCollectionInitialized = true;
-    //        }
-
-    //        var response = new SearchResponse();
-    //        response.Response = $"I don't know the answer for your question. Your question is: [{search}]";
-    //        Product? firstProduct = new Product();
-    //        var responseText = "";
-    //        try
-    //        {
-    //            var result = await _embeddingClient.GenerateEmbeddingAsync(search);
-    //            var vectorSearchQuery = result.Value.ToFloats();
-
-    //            var searchOptions = new VectorSearchOptions<ProductVectorAzureAISearch>()
-    //            {
-    //                Top = 3
-    //            };
-
-    //            // search the vector database for the most similar product        
-    //            var searchResults = await _productsCollection.VectorizedSearchAsync(vectorSearchQuery, searchOptions);
-    //            double searchScore = 0.0;
-    //            await foreach (var searchItem in searchResults.Results)
-    //            {
-    //                if (searchItem.Score > 0.5)
-    //                {
-    //                    // product found, search the db for the product details                    
-    //                    firstProduct = new Product
-    //                    {
-    //                        Id = int.Parse(searchItem.Record.Id),
-    //                        Name = searchItem.Record.Name,
-    //                        Description = searchItem.Record.Description,
-    //                        Price = decimal.Parse(searchItem.Record.Price),
-    //                        ImageUrl = searchItem.Record.ImageUrl
-    //                    };
-
-    //                    searchScore = searchItem.Score.Value;
-    //                    responseText = $"The product [{firstProduct.Name}] fits with the search criteria [{search}][{searchItem.Score.Value.ToString("0.00")}]";
-    //                    _logger.LogInformation($"Search Response: {responseText}");
-    //                }
-    //            }
-
-    //            // let's improve the response message
-    //            var prompt = @$"You are an intelligent assistant helping clients with their search about outdoor products. Generate a catchy and friendly message using the following information:
-    //    - User Question: {search}
-    //    - Found Product Name: {firstProduct.Name}
-    //    - Found Product Description: {firstProduct.Description}
-    //    - Found Product Price: {firstProduct.Price}
-    //Include the found product information in the response to the user question.";
-
-    //            var messages = new List<ChatMessage>
-    //    {
-    //        new SystemChatMessage(_systemPrompt),
-    //        new UserChatMessage(prompt)
-    //    };
-
-    //            _logger.LogInformation("{ChatHistory}", JsonConvert.SerializeObject(messages));
-
-    //            var resultPrompt = await _chatClient.CompleteChatAsync(messages);
-    //            responseText = resultPrompt.Value.Content[0].Text!;
-
-    //            // create a response object
-    //            response = new SearchResponse
-    //            {
-    //                Products = firstProduct == null ? [new Product()] : [firstProduct],
-    //                Response = responseText
-    //            };
-
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            // Handle exceptions (log them, rethrow, etc.)
-    //            response.Response = $"An error occurred: {ex.Message}";
-    //        }
-    //        return response;
-    //    }
 }

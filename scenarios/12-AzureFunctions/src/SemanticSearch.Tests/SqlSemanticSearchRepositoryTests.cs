@@ -1,6 +1,8 @@
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Moq;
+using SemanticSearchFunction.Functions;
 using SemanticSearchFunction.Repositories;
 
 namespace SemanticSearch.Tests;
@@ -8,74 +10,40 @@ namespace SemanticSearch.Tests;
 [TestClass]
 public class SqlSemanticSearchRepositoryTests
 {
-    private Mock<IConfiguration> _configurationMock;
-    private Mock<ILogger<SqlSemanticSearchRepository>> _loggerMock;
-    private IConfiguration _configuration;
+    private static DbContextOptions<Context> CreateDbOptions() =>
+        new DbContextOptionsBuilder<Context>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
 
-    [TestInitialize]
-    public void Setup()
+    [TestMethod]
+    public void Constructor_WithNullEmbeddingGenerator_ThrowsArgumentNullException()
     {
-        _configurationMock = new Mock<IConfiguration>();
-        _loggerMock = new Mock<ILogger<SqlSemanticSearchRepository>>();
-        
-        // Mock connection string
-        _configurationMock.Setup(c => c.GetConnectionString("productsDb"))
-            .Returns("Server=localhost;Database=test;Integrated Security=true;TrustServerCertificate=true;");
-        
-        // Mock default top value
-        _configurationMock.Setup(c => c["SEMANTIC_SEARCH_TOP_DEFAULT"])
-            .Returns("10");
+        using var db = new Context(CreateDbOptions());
+        var logger = new Mock<ILogger<SearchFunction>>().Object;
 
-        _configuration = _configurationMock.Object;
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            new SqlSemanticSearchRepository(null!, db, logger));
     }
 
     [TestMethod]
-    public void Constructor_WithValidConfiguration_ShouldCreateInstance()
+    public void Constructor_WithNullContext_ThrowsArgumentNullException()
     {
-        // Act
-        var repository = new SqlSemanticSearchRepository(_configuration, _loggerMock.Object);
+        var embeddingMock = new Mock<IEmbeddingGenerator<string, Embedding<float>>>();
+        var logger = new Mock<ILogger<SearchFunction>>().Object;
 
-        // Assert
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            new SqlSemanticSearchRepository(embeddingMock.Object, null!, logger));
+    }
+
+    [TestMethod]
+    public void Constructor_WithValidArguments_CreatesInstance()
+    {
+        var embeddingMock = new Mock<IEmbeddingGenerator<string, Embedding<float>>>();
+        using var db = new Context(CreateDbOptions());
+        var logger = new Mock<ILogger<SearchFunction>>().Object;
+
+        var repository = new SqlSemanticSearchRepository(embeddingMock.Object, db, logger);
+
         Assert.IsNotNull(repository);
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
-    public void Constructor_WithMissingConnectionString_ShouldThrowException()
-    {
-        // Arrange
-        _configurationMock.Setup(c => c.GetConnectionString("productsDb"))
-            .Returns((string)null!);
-
-        // Act
-        new SqlSemanticSearchRepository(_configuration, _loggerMock.Object);
-    }
-
-    [TestMethod]
-    public async Task SearchAsync_WithEmptyQuery_ShouldReturnEmptyResults()
-    {
-        // Arrange
-        var repository = new SqlSemanticSearchRepository(_configuration, _loggerMock.Object);
-
-        // Act
-        var results = await repository.SearchAsync("", 10);
-
-        // Assert
-        Assert.IsNotNull(results);
-        Assert.AreEqual(0, results.Count());
-    }
-
-    [TestMethod]
-    public async Task SearchAsync_WithWhitespaceQuery_ShouldReturnEmptyResults()
-    {
-        // Arrange
-        var repository = new SqlSemanticSearchRepository(_configuration, _loggerMock.Object);
-
-        // Act
-        var results = await repository.SearchAsync("   ", 10);
-
-        // Assert
-        Assert.IsNotNull(results);
-        Assert.AreEqual(0, results.Count());
     }
 }

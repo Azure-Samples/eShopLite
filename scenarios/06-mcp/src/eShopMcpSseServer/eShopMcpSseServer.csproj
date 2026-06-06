@@ -1,28 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>8c4ff0c9-106c-4023-90d1-3bb1776abdbc</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Aspire.Azure.AI.OpenAI" Version="9.3.1-preview.1.25305.6" />
+		<PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.0.1-preview.1.25575.3" />
+		<PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.6.0" />
 		<PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.1" />
-
 		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.1" />
-
-		<PackageReference Include="System.Text.Json" Version="9.0.6" />
-
-		<!--Perform Search Online using Azure AI Agent Service--><!--
-		<PackageReference Include="Azure.AI.Projects" Version="1.0.0-beta.5" />
-		<PackageReference Include="Azure.Identity" Version="1.14.0-beta.2" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
-		<PackageReference Include="Microsoft.SemanticKernel.Agents.Abstractions" Version="1.44.0-preview" />
-		<PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.44.0-preview" />
-		<PackageReference Include="Microsoft.SemanticKernel.Agents.OpenAI" Version="1.44.0-preview" />
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.44.0" />-->
 	</ItemGroup>
 
 	<ItemGroup>

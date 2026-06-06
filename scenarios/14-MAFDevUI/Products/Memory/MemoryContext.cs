@@ -1,9 +1,9 @@
-﻿using DataEntities;
+using DataEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
-using Microsoft.SemanticKernel.Connectors.InMemory;
-using Newtonsoft.Json;
+using CommunityToolkit.VectorData.InMemory;
+using System.Text.Json;
 using Products.Models;
 using SearchEntities;
 using System.Text;
@@ -134,7 +134,7 @@ Include products details.
                 new(ChatRole.System, prompt)
             };
 
-            _logger.LogInformation("{ChatHistory}", JsonConvert.SerializeObject(messages));
+            _logger.LogInformation("{ChatHistory}", JsonSerializer.Serialize(messages));
 
             var resultPrompt = await _chatClient.GetResponseAsync(messages);
             response.Response = resultPrompt.Text!;

@@ -4,9 +4,7 @@ using StoreRealtime.ContextManagers;
 using Azure.AI.OpenAI;
 using System.ClientModel;
 using OpenAI.RealtimeConversation;
-using Azure;
-using System.Text.RegularExpressions;
-using System.Web;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,39 +15,43 @@ builder.Services.AddSingleton<ProductService>();
 builder.Services.AddHttpClient<ProductService>(
     static client => client.BaseAddress = new("https+http://products"));
 
-var azureOpenAiClientName = "openai";
-string? aoaiCnnString = builder.Configuration.GetConnectionString("openai");
-var aoaiEndpoint = aoaiCnnString != null ?
-    Regex.Match(aoaiCnnString, @"Endpoint=(https://[^\s;]+)").Groups[1].Value : null;
+// Read explicit Azure OpenAI parameters wired from AppHost.
+// Parameters:AzureOpenAIEndpoint, Parameters:AzureOpenAIApiKey, Parameters:AzureOpenAIRealtimeDeploymentName
+// are set as user-secrets in the eShopAppHost project.
+var endpoint = builder.Configuration["AzureOpenAIEndpoint"] ?? "";
+var apiKey = builder.Configuration["AzureOpenAIApiKey"] ?? "";
+var realtimeDeploymentName = builder.Configuration["AzureOpenAIRealtimeDeploymentName"] ?? "gpt-4o-mini-realtime-preview";
 
-builder.AddAzureOpenAIClient(azureOpenAiClientName,
-    settings =>
-    {
-        settings.DisableMetrics = false;
-        settings.DisableTracing = false;
-        settings.Endpoint = new Uri(aoaiEndpoint);
-    });
+// Build client: use ApiKeyCredential when a key is present; fall back to DefaultAzureCredential
+// for managed-identity scenarios (publish/azd mode).
+AzureOpenAIClient? aoaiClient = null;
+if (!string.IsNullOrEmpty(endpoint))
+{
+    aoaiClient = string.IsNullOrEmpty(apiKey)
+        ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
+        : new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+}
 
-// get azure openai client and create Chat client from aspire hosting configuration
 builder.Services.AddSingleton(serviceProvider =>
 {
-    var chatDeploymentName = "gpt-4o-mini-realtime-preview";
     var logger = serviceProvider.GetService<ILogger<Program>>()!;
-    logger.LogInformation($"Realtime Chat client configuration, modelId: {chatDeploymentName}");
-
-    var config = serviceProvider.GetService<IConfiguration>()!;
-    RealtimeConversationClient realtimeConversationClient = null;
+    logger.LogInformation($"Realtime Chat client configuration, modelId: {realtimeDeploymentName}");
+    RealtimeConversationClient? realtimeConversationClient = null;
     try
     {
-        AzureOpenAIClient client = serviceProvider.GetRequiredService<AzureOpenAIClient>();
-        realtimeConversationClient = client.GetRealtimeConversationClient(chatDeploymentName);
-        logger.LogInformation($"Realtime Chat client created, modelId: {realtimeConversationClient.ToString()}");
+        if (aoaiClient is null)
+        {
+            logger.LogWarning("AzureOpenAIClient is not configured. RealtimeConversationClient will be null.");
+            return realtimeConversationClient!;
+        }
+        realtimeConversationClient = aoaiClient.GetRealtimeConversationClient(realtimeDeploymentName);
+        logger.LogInformation($"Realtime Chat client created, modelId: {realtimeDeploymentName}");
     }
     catch (Exception exc)
     {
         logger.LogError(exc, "Error creating realtime conversation client");
     }
-    return realtimeConversationClient;
+    return realtimeConversationClient!;
 });
 
 builder.Services.AddSingleton<IConfiguration>(sp =>
@@ -91,16 +93,8 @@ app.MapRazorComponents<App>()
 // log values for the AOAI services
 app.Logger.LogInformation($@"========================================
 Azure OpenAI information
-Azure OpenAI Connection String: {aoaiCnnString}
-Azure OpenAI Endpoint: {aoaiEndpoint}
+Azure OpenAI Endpoint: {endpoint}
+Azure OpenAI Realtime Deployment: {realtimeDeploymentName}
 ========================================");
 
 app.Run();
-
-
-static (string endpoint, string apiKey) GetEndpointAndKey(WebApplicationBuilder builder, string name)
-{
-    var connectionString = builder.Configuration.GetConnectionString(name);
-    var parameters = HttpUtility.ParseQueryString(connectionString.Replace(";", "&"));
-    return (parameters["Endpoint"], parameters["Key"]);
-}

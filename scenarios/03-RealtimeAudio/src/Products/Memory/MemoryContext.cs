@@ -1,10 +1,9 @@
 ﻿using DataEntities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
-using Microsoft.SemanticKernel.Connectors.InMemory;
-using Newtonsoft.Json;
-using OpenAI.Chat;
-using OpenAI.Embeddings;
+using CommunityToolkit.VectorData.InMemory;
+using System.Text.Json;
 using Products.Models;
 using SearchEntities;
 using System.Text;
@@ -17,20 +16,20 @@ public class MemoryContext
     private const string SystemPrompt = "You are a useful assistant. You always reply with a short and funny message. If you do not know an answer, you say 'I don't know that.' You only answer questions related to outdoor camping products. For any other type of questions, explain to the user that you only answer outdoor camping products questions. Do not store memory of the chat conversation.";
 
     private readonly ILogger _logger;
-    private readonly ChatClient? _chatClient;
-    private readonly EmbeddingClient? _embeddingClient;
-    private IVectorStoreRecordCollection<int, ProductVector>? _productsCollection;
+    public IChatClient? _chatClient;
+    public IEmbeddingGenerator<string, Embedding<float>>? _embeddingGenerator;
+    public VectorStoreCollection<int, ProductVector>? _productsCollection;
     private bool _isMemoryCollectionInitialized;
 
-    public MemoryContext(ILogger logger, ChatClient? chatClient, EmbeddingClient? embeddingClient)
+    public MemoryContext(ILogger logger, IChatClient? chatClient, IEmbeddingGenerator<string, Embedding<float>>? embeddingGenerator)
     {
         _logger = logger;
         _chatClient = chatClient;
-        _embeddingClient = embeddingClient;
+        _embeddingGenerator = embeddingGenerator;
 
         _logger.LogInformation("Memory context created");
         _logger.LogInformation($"Chat Client is null: {_chatClient is null}");
-        _logger.LogInformation($"Embedding Client is null: {_embeddingClient is null}");
+        _logger.LogInformation($"Embedding Generator is null: {_embeddingGenerator is null}");
     }
 
     public async Task<bool> InitMemoryContextAsync(Context db)
@@ -44,7 +43,7 @@ public class MemoryContext
         _logger.LogInformation("Initializing memory context");
         var vectorProductStore = new InMemoryVectorStore();
         _productsCollection = vectorProductStore.GetCollection<int, ProductVector>("products");
-        await _productsCollection.CreateCollectionIfNotExistsAsync();
+        await _productsCollection.EnsureCollectionExistsAsync();
 
         _logger.LogInformation("Get a copy of the list of products");
         var products = await db.Product.ToListAsync();
@@ -68,11 +67,11 @@ public class MemoryContext
                     Price = product.Price,
                     ImageUrl = product.ImageUrl
                 };
-                var result = await _embeddingClient!.GenerateEmbeddingAsync(productInfo);
+                var result = await _embeddingGenerator!.GenerateVectorAsync(productInfo);
 
-                productVector.Vector = result.Value.ToFloats();
-                var recordId = await _productsCollection.UpsertAsync(productVector);
-                _logger.LogInformation("Product added to memory: {Product} with recordId: {RecordId}", product.Name, recordId);
+                productVector.Vector = result.ToArray();
+                await _productsCollection.UpsertAsync(productVector);
+                _logger.LogInformation("Product added to memory: {Product}", product.Name);
             }
             catch (Exception exc)
             {
@@ -100,19 +99,14 @@ public class MemoryContext
         };
         try
         {
-            var result = await _embeddingClient!.GenerateEmbeddingAsync(search);
-            var vectorSearchQuery = result.Value.ToFloats();
+            var result = await _embeddingGenerator!.GenerateVectorAsync(search);
+            var vectorSearchQuery = result.ToArray();
 
-            var searchOptions = new VectorSearchOptions<ProductVector>
-            {
-                Top = 2
-            };
-
-            // search the vector database for the most similar product        
-            var searchResults = await _productsCollection!.VectorizedSearchAsync(vectorSearchQuery, searchOptions);
+            // search the vector database for the most similar product
             var sbFoundProducts = new StringBuilder();
             int productPosition = 1;
-            await foreach (var searchItem in searchResults.Results)
+
+            await foreach (var searchItem in _productsCollection!.SearchAsync(vectorSearchQuery, top: 2))
             {
                 if (searchItem.Score > 0.5)
                 {
@@ -140,14 +134,14 @@ Include products details.
 
             var messages = new List<ChatMessage>
             {
-                new SystemChatMessage(SystemPrompt),
-                new UserChatMessage(prompt)
+                new(ChatRole.System, SystemPrompt),
+                new(ChatRole.User, prompt)
             };
 
-            _logger.LogInformation("{ChatHistory}", JsonConvert.SerializeObject(messages));
+            _logger.LogInformation("{ChatHistory}", JsonSerializer.Serialize(messages));
 
-            var resultPrompt = await _chatClient!.CompleteChatAsync(messages);
-            response.Response = resultPrompt.Value.Content[0].Text!;
+            var resultPrompt = await _chatClient!.GetResponseAsync(messages);
+            response.Response = resultPrompt.Text!;
         }
         catch (Exception ex)
         {

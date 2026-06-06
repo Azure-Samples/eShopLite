@@ -1,7 +1,10 @@
+using Azure.AI.OpenAI;
 using Azure.Identity;
 using Insights.Agents;
 using Insights.Endpoints;
 using Insights.Models;
+using Microsoft.Extensions.AI;
+using System.ClientModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,13 +21,22 @@ Environment.SetEnvironmentVariable("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT", "fal
 // Add DbContext service
 builder.AddSqlServerDbContext<Context>("insightsdb");
 
-// in dev scenarios rename this to "openaidev", and check the documentation to reuse existing AOAI resources
-var azureOpenAiClientName = "openai";
-var chatDeploymentName = builder.Configuration["AI_ChatDeploymentName"] ?? "gpt-4.1-mini";
-builder.AddAzureOpenAIClient(azureOpenAiClientName, configureSettings: settings =>
+// Read explicit Azure OpenAI parameters wired from AppHost.
+var endpoint = builder.Configuration["AzureOpenAIEndpoint"] ?? "";
+var apiKey = builder.Configuration["AzureOpenAIApiKey"] ?? "";
+var chatDeploymentName = builder.Configuration["AzureOpenAIDeploymentName"] ?? "gpt-4.1-mini";
+
+if (!string.IsNullOrEmpty(endpoint))
 {
-    settings.Credential = new AzureCliCredential();
-}).AddChatClient(chatDeploymentName);
+    // Build client: use ApiKeyCredential when a key is present; fall back to DefaultAzureCredential
+    // for managed-identity scenarios (publish/azd mode).
+    AzureOpenAIClient aoaiClient = string.IsNullOrEmpty(apiKey)
+        ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
+        : new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+
+    builder.Services.AddSingleton(aoaiClient);
+    builder.Services.AddChatClient(aoaiClient.GetChatClient(chatDeploymentName).AsIChatClient());
+}
 
 builder.Services.AddAgents();
 
@@ -44,7 +56,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 // log Azure OpenAI resources
-app.Logger.LogInformation("Azure OpenAI resources\n >> OpenAI Client Name: {azureOpenAiClientName}", azureOpenAiClientName);
+app.Logger.LogInformation("Azure OpenAI resources\n >> Endpoint: {endpoint}\n >> Chat deployment: {chatDeploymentName}",
+    endpoint, chatDeploymentName);
+AppContext.SetSwitch("OpenAI.Experimental.EnableOpenTelemetry", true);
 
 // manage db
 var scope = app.Services.CreateScope();

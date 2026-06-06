@@ -5,9 +5,24 @@ var builder = DistributedApplication.CreateBuilder(args);
 // add support for Azure AppService 
 var appsvc = builder.AddAzureAppServiceEnvironment("appsvc");
 
+// Explicit Aspire parameters for Azure OpenAI (no opaque connection string in run mode).
+// Set via user-secrets in eShopAppHost for local dev:
+//   Parameters:AzureOpenAIEndpoint              – e.g. https://<resource>.openai.azure.com/
+//   Parameters:AzureOpenAIApiKey                – API key (stored as a secret)
+//   Parameters:AzureOpenAIDeploymentName        – chat deployment, e.g. gpt-4.1-mini
+//   Parameters:AzureOpenAIEmbeddingsDeploymentName – embeddings deployment, e.g. text-embedding-ada-002
+var aoaiEndpoint = builder.AddParameter("AzureOpenAIEndpoint");
+var aoaiApiKey = builder.AddParameter("AzureOpenAIApiKey", secret: true);
+var aoaiChatDeployment = builder.AddParameter("AzureOpenAIDeploymentName");
+var aoaiEmbeddingsDeployment = builder.AddParameter("AzureOpenAIEmbeddingsDeploymentName");
+
 var products = builder.AddProject<Projects.Products>("products")
     .WithHttpHealthCheck("/health")
-    .WithExternalHttpEndpoints();
+    .WithExternalHttpEndpoints()
+    .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+    .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+    .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
+    .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment);
 
 var store = builder.AddProject<Projects.Store>("store")
     .WithReference(products)
@@ -17,7 +32,7 @@ var store = builder.AddProject<Projects.Store>("store")
 
 if (builder.ExecutionContext.IsPublishMode)
 {
-    // production code uses Azure services, so we need to add them here
+    // Production: provision Azure OpenAI via Aspire/azd.
     var chatDeploymentName = "gpt-41-mini";
     var embeddingsDeploymentName = "text-embedding-ada-002";
     var aoai = builder.AddAzureOpenAI("openai");
@@ -28,14 +43,9 @@ if (builder.ExecutionContext.IsPublishMode)
     gpt41mini.Resource.SkuCapacity = 10;
     gpt41mini.Resource.SkuName = "GlobalStandard";
 
-    var embeddingsDeployment = aoai.AddDeployment(name: embeddingsDeploymentName,
+    aoai.AddDeployment(name: embeddingsDeploymentName,
         modelName: "text-embedding-ada-002",
         modelVersion: "2");
-
-
-    products.WithReference(aoai)
-        .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-        .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
 
     store.WithExternalHttpEndpoints();
 }

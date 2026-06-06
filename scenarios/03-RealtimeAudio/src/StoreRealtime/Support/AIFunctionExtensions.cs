@@ -14,32 +14,22 @@ public static class AIFunctionExtensions
     {
         return new ConversationFunctionTool()
         {
-            Name = aiFunction.Metadata.Name,
-            Description = aiFunction.Metadata.Description,
-            Parameters = BinaryData.FromString(
-                $$"""
-                {
-                    "type": "object",
-                    "properties": {
-                        {{string.Join(',', aiFunction.Metadata.Parameters.Select(p => $$"""
-                            "{{p.Name}}": {{p.Schema}}
-                        """))}}
-                    },
-                    "required": {{JsonSerializer.Serialize(aiFunction.Metadata.Parameters.Where(p => p.IsRequired).Select(p => p.Name))}}
-                }
-                """)
+            Name = aiFunction.Name,
+            Description = aiFunction.Description,
+            Parameters = BinaryData.FromString(aiFunction.JsonSchema.GetRawText())
         };
     }
 
     public static async Task<ConversationItem?> GetFunctionCallOutputAsync(this ConversationItemStreamingFinishedUpdate update, IReadOnlyList<AIFunction> tools)
     {
-        if (!string.IsNullOrEmpty(update.FunctionName) && tools.FirstOrDefault(t => t.Metadata.Name == update.FunctionName) is AIFunction aiFunction)
+        if (!string.IsNullOrEmpty(update.FunctionName) && tools.FirstOrDefault(t => t.Name == update.FunctionName) is AIFunction aiFunction)
         {
             Dictionary<string, object?>? jsonArgs = null;
             try
             {
                 jsonArgs = JsonSerializer.Deserialize<Dictionary<string, object?>>(update.FunctionCallArguments)!;
-                var output = await aiFunction.InvokeAsync(jsonArgs);
+                var aiArgs = new AIFunctionArguments(jsonArgs!);
+                var output = await aiFunction.InvokeAsync(aiArgs);
                 var ci = ConversationItem.CreateFunctionCallOutput(update.FunctionCallId, output?.ToString() ?? "");
                 return ci;
             }

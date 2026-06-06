@@ -11,12 +11,27 @@ var chromaDB = builder.AddContainer("chroma", "chromadb/chroma")
     .WithLifetime(ContainerLifetime.Persistent)
     .PublishAsContainer();
 
-var endpoint = chromaDB.GetEndpoint("chromaendpoint");
+var chromaEndpoint = chromaDB.GetEndpoint("chromaendpoint");
+
+// Four explicit Aspire parameters for Azure OpenAI (no opaque connection string in run mode).
+// User-secrets keys (set in eShopAppHost project):
+//   Parameters:AzureOpenAIEndpoint                    – e.g. https://<resource>.openai.azure.com/
+//   Parameters:AzureOpenAIApiKey                      – API key (stored as a secret)
+//   Parameters:AzureOpenAIDeploymentName              – chat deployment, e.g. gpt-41-mini
+//   Parameters:AzureOpenAIEmbeddingsDeploymentName    – embeddings deployment, e.g. text-embedding-ada-002
+var aoaiEndpoint = builder.AddParameter("AzureOpenAIEndpoint");
+var aoaiApiKey = builder.AddParameter("AzureOpenAIApiKey", secret: true);
+var aoaiChatDeployment = builder.AddParameter("AzureOpenAIDeploymentName");
+var aoaiEmbeddingsDeployment = builder.AddParameter("AzureOpenAIEmbeddingsDeploymentName");
 
 var products = builder.AddProject<Projects.Products>("products")
-    .WithReference(endpoint)
+    .WithReference(chromaEndpoint)
     .WithReference(sqldb)
-    .WaitFor(sqldb); 
+    .WaitFor(sqldb)
+    .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+    .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+    .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
+    .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment);
 
 var store = builder.AddProject<Projects.Store>("store")
     .WithReference(products)
@@ -40,11 +55,7 @@ if (builder.ExecutionContext.IsPublishMode)
         modelName: "text-embedding-ada-002",
         modelVersion: "2");
 
-
-    products.WithReference(appInsights)
-        .WithReference(aoai)
-        .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-        .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
+    products.WithReference(appInsights);
 
     store.WithReference(appInsights)
         .WithExternalHttpEndpoints();

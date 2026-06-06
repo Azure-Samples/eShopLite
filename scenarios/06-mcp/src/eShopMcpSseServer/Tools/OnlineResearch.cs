@@ -1,6 +1,6 @@
 ﻿using McpToolsEntities;
+using Microsoft.Extensions.AI;
 using ModelContextProtocol.Server;
-using OpenAI.Chat;
 using SearchEntities;
 using Services;
 using System.ComponentModel;
@@ -15,7 +15,7 @@ public class OnlineResearch
     public async Task<ProductsSearchToolResponse> OnlineSearch(
      ILogger<ProductService> logger,
      OnlineResearcherService researcherService,
-     ChatClient chatClient,
+     IChatClient chatClient,
      ProductService productService,
      [Description("The search query to be used in the online search")] string query)
     {
@@ -29,12 +29,12 @@ Return only the query without any other information.
 Online Research Result: 
 {researchResponse.SearchResults}";
 
-        var messages = new List<OpenAI.Chat.ChatMessage>
+        var messages = new List<ChatMessage>
         {
-            new UserChatMessage(prompt)
+            new(ChatRole.User, prompt)
         };
-        var resultPrompt = await chatClient.CompleteChatAsync(messages);
-        var queryFromChatClient = resultPrompt.Value.Content[0].Text!;
+        var resultPrompt = await chatClient.GetResponseAsync(messages);
+        var queryFromChatClient = resultPrompt.Text ?? "";
 
 
         // 3. Search the products vector database using the query generated from the online search

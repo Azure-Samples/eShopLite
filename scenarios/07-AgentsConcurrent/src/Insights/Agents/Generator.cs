@@ -1,39 +1,53 @@
-﻿using DataEntities;
+using DataEntities;
 using Insights.Models;
-using Microsoft.SemanticKernel.Agents;
-using Microsoft.SemanticKernel.Agents.Orchestration;
-using Microsoft.SemanticKernel.Agents.Orchestration.Concurrent;
-using Microsoft.SemanticKernel.Agents.Runtime.InProcess;
-
-#pragma warning disable SKEXP0001, SKEXP0110 
+using Microsoft.Agents.AI;
+using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Insights.Agents;
 
+/// <summary>
+/// Runs SentimentAgent and LanguageAgent concurrently using Microsoft Agent Framework (MAF)
+/// workflows, replacing the previous Semantic Kernel ConcurrentOrchestration.
+/// Each agent gets its own single-agent BuildSequential workflow; both run via Task.WhenAll
+/// to preserve the concurrent execution semantics of the original design.
+/// </summary>
 public class Generator(
     ILogger<Generator> logger,
-    [FromKeyedServices(nameof(SentimentAgent))] Agent sentimentAgent,
-    [FromKeyedServices(nameof(LanguageAgent))] Agent languageAgent)
+    [FromKeyedServices(SentimentAgent.AgentName)] AIAgent sentimentAgent,
+    [FromKeyedServices(LanguageAgent.AgentName)] AIAgent languageAgent)
 {
     public async Task<string> GenerateInsightAsync(string search, Context db)
     {
-        ConcurrentOrchestration orchestration = new(sentimentAgent, languageAgent);
+        // Build individual single-agent MAF workflows for concurrent execution
+        var sentimentWorkflow = AgentWorkflowBuilder.BuildSequential("SentimentWorkflow", [sentimentAgent]);
+        var languageWorkflow = AgentWorkflowBuilder.BuildSequential("LanguageWorkflow", [languageAgent]);
 
-        // Start the runtime
-        InProcessRuntime runtime = new();
-        await runtime.StartAsync();
-        OrchestrationResult<string[]> output = await orchestration.InvokeAsync(search, runtime);
+        var sentimentMessages = new List<ChatMessage> { new(ChatRole.User, search) };
+        var languageMessages = new List<ChatMessage> { new(ChatRole.User, search) };
 
-        // analyze the result of the concurrent agents run
-        string[] analysisResults = await output.GetValueAsync(TimeSpan.FromSeconds(60));
-        var analysisResult = TransformToAnalysis(analysisResults);
-        await runtime.RunUntilIdleAsync();
+        // Run both agents concurrently using MAF InProcessExecution (returns ValueTask, so .AsTask())
+        var sentimentRunTask = InProcessExecution.RunAsync(sentimentWorkflow, sentimentMessages).AsTask();
+        var languageRunTask = InProcessExecution.RunAsync(languageWorkflow, languageMessages).AsTask();
+
+        await Task.WhenAll(sentimentRunTask, languageRunTask);
+
+        var sentimentResult = sentimentRunTask.Result.OutgoingEvents
+            .OfType<AgentRunResponseEvent>()
+            .LastOrDefault()?.Response.Text ?? "";
+        var languageResult = languageRunTask.Result.OutgoingEvents
+            .OfType<AgentRunResponseEvent>()
+            .LastOrDefault()?.Response.Text ?? "";
+
+        var analysisResult = TransformToAnalysis([sentimentResult, languageResult]);
 
         // add insight to the database
         var insight = new UserQuestionInsight
         {
             CreatedAt = DateTime.UtcNow,
             Question = search,
-            Sentiment = analysisResult.Sentiment, 
+            Sentiment = analysisResult.Sentiment,
             Language = analysisResult.Language
         };
         db.UserQuestionInsight.Add(insight);
@@ -46,21 +60,25 @@ public class Generator(
     public Analysis TransformToAnalysis(string[] messages)
     {
         Analysis analysisResult = new();
-        
+
         foreach (var message in messages)
         {
-            // analyze the message to see if it is a sentiment or language, and set the result into the analysisResult object
             if (message.Contains("sentiment", StringComparison.OrdinalIgnoreCase))
             {
-                // Extract sentiment from the message
-                var sentiment = message.Split(':')[1].Trim();
-                analysisResult.Sentiment = Enum.TryParse<Sentiment>(sentiment, true, out var parsedSentiment) ? parsedSentiment : Sentiment.NotDefined;
+                var parts = message.Split(':');
+                if (parts.Length >= 2)
+                {
+                    var sentiment = parts[1].Trim();
+                    analysisResult.Sentiment = Enum.TryParse<Sentiment>(sentiment, true, out var parsedSentiment) ? parsedSentiment : Sentiment.NotDefined;
+                }
             }
             else if (message.Contains("language", StringComparison.OrdinalIgnoreCase))
             {
-                // Extract language from the message
-                var language = message.Split(':')[1].Trim();
-                analysisResult.Language = language;
+                var parts = message.Split(':');
+                if (parts.Length >= 2)
+                {
+                    analysisResult.Language = parts[1].Trim();
+                }
             }
         }
 

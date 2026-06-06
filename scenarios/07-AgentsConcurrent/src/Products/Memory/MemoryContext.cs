@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
-using Microsoft.SemanticKernel.Connectors.InMemory;
-using Newtonsoft.Json;
+using CommunityToolkit.VectorData.InMemory;
+using System.Text.Json;
 using Products.Models;
 using SearchEntities;
 using System.Text;
@@ -57,9 +57,9 @@ public class MemoryContext(ILogger<MemoryContext> logger, IChatClient chatClient
                     Price = product.Price,
                     ImageUrl = product.ImageUrl
                 };
-                var result = await embeddingClient.GenerateAsync(productInfo);
+                var result = await embeddingClient.GenerateVectorAsync(productInfo);
 
-                productVector.Vector = result.Vector;
+                productVector.Vector = result.ToArray();
                 await _productsCollection.UpsertAsync(productVector);
                 logger.LogInformation("Product added to memory: {Product}", product.Name);
             }
@@ -88,8 +88,8 @@ public class MemoryContext(ILogger<MemoryContext> logger, IChatClient chatClient
 
         try
         {
-            var result = await embeddingClient.GenerateAsync(search);
-            var vectorSearchQuery = result.Vector;
+            var result = await embeddingClient.GenerateVectorAsync(search);
+            var vectorSearchQuery = result.ToArray();
 
             // search the vector database for the most similar product        
             var sbFoundProducts = new StringBuilder();
@@ -129,10 +129,10 @@ public class MemoryContext(ILogger<MemoryContext> logger, IChatClient chatClient
                 new(ChatRole.User, prompt)
             };
 
-            logger.LogInformation("{ChatHistory}", JsonConvert.SerializeObject(messages));
+            logger.LogInformation("{ChatHistory}", JsonSerializer.Serialize(messages));
 
             var resultPrompt = await chatClient.GetResponseAsync(messages);
-            response.Response = resultPrompt.Messages[0].Text;
+            response.Response = resultPrompt.Text ?? resultPrompt.Messages[0].Text ?? "";
 
         }
         catch (Exception ex)

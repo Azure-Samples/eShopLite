@@ -5,9 +5,24 @@ var sqldb = builder.AddSqlServer("sql")
     .WithLifetime(ContainerLifetime.Persistent)
     .AddDatabase("sqldb");
 
+// Four explicit Aspire parameters for Azure OpenAI (no opaque connection string in run mode).
+// User-secrets keys (set in eShopAppHost project):
+//   Parameters:AzureOpenAIEndpoint                     – e.g. https://<resource>.openai.azure.com/
+//   Parameters:AzureOpenAIApiKey                       – API key (stored as a secret)
+//   Parameters:AzureOpenAIDeploymentName               – chat deployment, e.g. gpt-4.1-mini
+//   Parameters:AzureOpenAIEmbeddingsDeploymentName     – embeddings deployment, e.g. text-embedding-ada-002
+var aoaiEndpoint = builder.AddParameter("AzureOpenAIEndpoint");
+var aoaiApiKey = builder.AddParameter("AzureOpenAIApiKey", secret: true);
+var aoaiChatDeployment = builder.AddParameter("AzureOpenAIDeploymentName");
+var aoaiEmbeddingsDeployment = builder.AddParameter("AzureOpenAIEmbeddingsDeploymentName");
+
 var products = builder.AddProject<Projects.Products>("products")
     .WithReference(sqldb)
-    .WaitFor(sqldb);
+    .WaitFor(sqldb)
+    .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+    .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+    .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
+    .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment);
 
 var onlineresearcher = builder.AddProject<Projects.OnlineResearcher>("onlineresearcher")
     .WithExternalHttpEndpoints();
@@ -27,12 +42,18 @@ var eshopmcpserver = builder.AddProject<Projects.eShopMcpSseServer>("eshopmcpser
     .WaitFor(weatheragent)
     .WithReference(parkinformationagent)
     .WaitFor(parkinformationagent)
+    .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+    .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+    .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
     .WithExternalHttpEndpoints();
 
 
 var store = builder.AddProject<Projects.Store>("store")
     .WithReference(eshopmcpserver)
     .WaitFor(eshopmcpserver)
+    .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+    .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+    .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
     .WithExternalHttpEndpoints();
 
 if (builder.ExecutionContext.IsPublishMode)
@@ -52,18 +73,11 @@ if (builder.ExecutionContext.IsPublishMode)
         modelName: "text-embedding-ada-002",
         modelVersion: "2");
 
-    products.WithReference(appInsights)
-        .WithReference(aoai)
-        .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-        .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
+    products.WithReference(appInsights);
 
-    eshopmcpserver.WithReference(appInsights)
-        .WithReference(aoai)
-        .WithEnvironment("AI_ChatDeploymentName", chatDeploymentName)
-        .WithEnvironment("AI_embeddingsDeploymentName", embeddingsDeploymentName);
+    eshopmcpserver.WithReference(appInsights);
 
     store.WithReference(appInsights)
-        .WithReference(aoai)
         .WithExternalHttpEndpoints();
 }
 

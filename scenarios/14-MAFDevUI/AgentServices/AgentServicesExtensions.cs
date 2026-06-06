@@ -29,10 +29,10 @@ public static class AgentServicesExtensions
         var settings = new AgentSettings();
         builder.Configuration.GetSection(AgentSettings.SectionName).Bind(settings);
 
-        // Also check for connection string directly if not in AgentSettings section
-        if (string.IsNullOrEmpty(settings.MicrosoftFoundryConnectionString))
+        // Also check for endpoint directly via explicit env var if not in AgentSettings section
+        if (string.IsNullOrEmpty(settings.AzureOpenAIEndpoint))
         {
-            settings.MicrosoftFoundryConnectionString = builder.Configuration.GetConnectionString("microsoftfoundry");
+            settings.AzureOpenAIEndpoint = builder.Configuration["AzureOpenAIEndpoint"];
         }
 
         if (string.IsNullOrEmpty(settings.MicrosoftFoundryProjectEndpoint))

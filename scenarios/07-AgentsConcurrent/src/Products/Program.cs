@@ -1,7 +1,10 @@
+using Azure.AI.OpenAI;
 using Azure.Identity;
+using Microsoft.Extensions.AI;
 using Products.Endpoints;
 using Products.Memory;
 using Products.Models;
+using System.ClientModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,18 +18,27 @@ builder.Services.AddProblemDetails();
 // Add DbContext service
 builder.AddSqlServerDbContext<Context>("productsdb");
 
-var azureOpenAiClientName = "openai";
-var embeddingsDeploymentName = builder.Configuration["AI_embeddingsDeploymentName"] ?? "text-embedding-ada-002";
-builder.AddAzureOpenAIClient(azureOpenAiClientName, configureSettings: settings =>
-{
-    settings.Credential = new AzureCliCredential();
-}).AddEmbeddingGenerator(embeddingsDeploymentName);
+// Read explicit Azure OpenAI parameters wired from AppHost.
+// In run mode these come from the Aspire parameters (user-secrets in eShopAppHost).
+// In publish mode they come from the provisioned Azure OpenAI resource via azd.
+var endpoint = builder.Configuration["AzureOpenAIEndpoint"] ?? "";
+var apiKey = builder.Configuration["AzureOpenAIApiKey"] ?? "";
+var chatDeploymentName = builder.Configuration["AzureOpenAIDeploymentName"] ?? "gpt-4.1-mini";
+var embeddingsDeploymentName = builder.Configuration["AzureOpenAIEmbeddingsDeploymentName"] ?? "text-embedding-ada-002";
 
-var chatDeploymentName = builder.Configuration["AI_ChatDeploymentName"] ?? "gpt-4.1-mini";
-builder.AddAzureOpenAIClient(azureOpenAiClientName, configureSettings: settings =>
+if (!string.IsNullOrEmpty(endpoint))
 {
-    settings.Credential = new AzureCliCredential();
-}).AddChatClient(chatDeploymentName);
+    // Build client: use ApiKeyCredential when a key is present; fall back to DefaultAzureCredential
+    // for managed-identity scenarios (publish/azd mode).
+    AzureOpenAIClient aoaiClient = string.IsNullOrEmpty(apiKey)
+        ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
+        : new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+
+    builder.Services.AddSingleton(aoaiClient);
+    builder.Services.AddChatClient(aoaiClient.GetChatClient(chatDeploymentName).AsIChatClient());
+    builder.Services.AddEmbeddingGenerator(
+        aoaiClient.GetEmbeddingClient(embeddingsDeploymentName).AsIEmbeddingGenerator());
+}
 
 // add memory context
 builder.Services.AddSingleton<MemoryContext>();
@@ -45,7 +57,9 @@ app.MapProductEndpoints();
 app.UseStaticFiles();
 
 // log Azure OpenAI resources
-app.Logger.LogInformation("Azure OpenAI resources\n >> OpenAI Client Name: {azureOpenAiClientName}", azureOpenAiClientName);
+app.Logger.LogInformation("Azure OpenAI resources\n >> Endpoint: {endpoint}\n >> Chat: {chatDeploymentName}\n >> Embeddings: {embeddingsDeploymentName}",
+    endpoint, chatDeploymentName, embeddingsDeploymentName);
+AppContext.SetSwitch("OpenAI.Experimental.EnableOpenTelemetry", true);
 
 // manage db
 using (var scope = app.Services.CreateScope())

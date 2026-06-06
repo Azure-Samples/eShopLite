@@ -6,7 +6,7 @@ using SemanticSearchFunction.Functions;
 
 namespace SemanticSearchFunction.Repositories;
 
-public class SqlSemanticSearchRepository
+public class SqlSemanticSearchRepository : ISemanticSearchRepository
 {
     private readonly ILogger<SearchFunction> _logger;
     private readonly IEmbeddingGenerator<string, Embedding<float>> _embeddingGenerator;

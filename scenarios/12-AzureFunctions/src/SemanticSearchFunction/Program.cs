@@ -1,3 +1,5 @@
+using Azure.AI.OpenAI;
+using Azure.Identity;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -7,7 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SemanticSearchFunction.Functions;
 using SemanticSearchFunction.Repositories;
-using SemanticSearchFunction.Services;
+using System.ClientModel;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -21,21 +23,30 @@ var host = new HostBuilder()
         services.AddDbContext<Context>(options =>
             options.UseSqlServer(productsDbConnectionString, o => o.UseVectorSearch()));
 
-        // add embedding generator
-        var embeddingsDeploymentName = context.Configuration["AI_embeddingsDeploymentName"] ?? "text-embedding-3-small";
-        services.AddSingleton(_ =>
-            AzureOpenAiEmbeddingProvider.CreateEmbeddingClient(context.Configuration, embeddingsDeploymentName));
+        // Read 4 explicit Azure OpenAI parameters wired from AppHost via WithEnvironment.
+        var endpoint = context.Configuration["AzureOpenAIEndpoint"] ?? "";
+        var apiKey = context.Configuration["AzureOpenAIApiKey"] ?? "";
+        var embeddingsDeploymentName = context.Configuration["AzureOpenAIEmbeddingsDeploymentName"] ?? "text-embedding-3-small";
 
-        // add an instance of SqlSemanticSearchRepository so it can be injected into the function
-        services.AddScoped(sp =>
+        if (!string.IsNullOrEmpty(endpoint))
+        {
+            AzureOpenAIClient aoaiClient = string.IsNullOrEmpty(apiKey)
+                ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
+                : new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+
+            services.AddSingleton(aoaiClient);
+            services.AddEmbeddingGenerator(
+                aoaiClient.GetEmbeddingClient(embeddingsDeploymentName).AsIEmbeddingGenerator());
+        }
+
+        // Register ISemanticSearchRepository
+        services.AddScoped<ISemanticSearchRepository>(sp =>
         {
             var dbContext = sp.GetRequiredService<Context>();
             var embeddingGenerator = sp.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
-            var db = sp.GetRequiredService<Context>();
-            var logger = sp.GetRequiredService<ILogger<SearchFunction>>();            
-            return new SqlSemanticSearchRepository(embeddingGenerator, db, logger);
+            var logger = sp.GetRequiredService<ILogger<SearchFunction>>();
+            return new SqlSemanticSearchRepository(embeddingGenerator, dbContext, logger);
         });
-
     })
     .Build();
 

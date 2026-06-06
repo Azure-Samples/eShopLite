@@ -11,9 +11,9 @@ namespace SemanticSearchFunction.Functions;
 public class SearchFunction
 {
     private readonly ILogger<SearchFunction> _logger;
-    private readonly SqlSemanticSearchRepository _repository;
+    private readonly ISemanticSearchRepository _repository;
 
-    public SearchFunction(ILogger<SearchFunction> logger, SqlSemanticSearchRepository repository)
+    public SearchFunction(ILogger<SearchFunction> logger, ISemanticSearchRepository repository)
     {
         _logger = logger;
         _repository = repository;
