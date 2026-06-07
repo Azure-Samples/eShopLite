@@ -409,3 +409,6 @@ main.json
 .squad/.scratch/
 # Squad: SubSquad activation file (local to this machine)
 .squad-workstream
+
+# Ignore generated slide assets for agentic modernization docs
+/docs/26 06 16 NET Agentic Modernization/slides/
