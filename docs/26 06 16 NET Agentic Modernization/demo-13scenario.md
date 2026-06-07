@@ -5,6 +5,7 @@
 **Objective:** show that a modernized .NET app can turn raw operational telemetry into clear developer actions.
 
 **Story line:**  
+
 1. The app is already modernized and instrumented.  
 2. We generate realistic user activity and one controlled failure signal.  
 3. The assistant summarizes what happened, where it happened, and what to check next.  
@@ -41,6 +42,7 @@ aspire ps
 ```
 
 What to confirm before demo:
+
 - `products`, `store`, and `observabilityassistant` resources are `Running`.
 - Open the Dashboard URL shown by Aspire and pin it in a browser tab.
 
@@ -110,9 +112,7 @@ Show these three files to explain how local log analysis works end to end.
 | `src/ObservabilityAssistant/ObservabilityEndpoints.cs` | **Web endpoints** | The minimal-API surface: `GET /observability/windows` (selectable 5/10/15/30 windows), `GET /observability/analyze?minutes=N` (run the analysis), and `POST /observability/events` (ingest real telemetry). This is the contract the Store calls. |
 | `src/ObservabilityAssistant/ObservabilityAnalyzer.cs` | **Analysis pipeline** | The heart of the demo: pull the time window from the log store -> **cluster semantically-similar lines with local embeddings (ElBruno.LocalEmbeddings, ONNX)** to remove noise -> build a compact prompt with representative lines and occurrence counts -> summarize with the local Foundry Local model -> deterministic fallback if the model is unavailable. The response also reports how many raw entries were folded into how many clusters. |
 
-Presenter note: everything in these three files runs locally — Foundry Local for the
-LLM and ElBruno.LocalEmbeddings for the embeddings. There is no Azure or cloud
-dependency in the ObservabilityAssistant service.
+Presenter note: everything in these three files runs locally — Foundry Local for the LLM and ElBruno.LocalEmbeddings for the embeddings. There is no Azure or cloud dependency in the ObservabilityAssistant service.
 
 ## Step-by-step live demo script
 
@@ -200,7 +200,7 @@ Supporting signals: repeated /api/Product/search and /api/aisearch calls returni
 Next three checks: (1) review top failed terms, (2) add synonym mapping and test semantic ranking, (3) verify product catalog coverage for travel/winter intents.
 ```
 
-4. Continue to Demo 2 without retry loops.
+1. Continue to Demo 2 without retry loops.
 
 ## Code files to show and story mapping
 

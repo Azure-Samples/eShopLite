@@ -60,4 +60,35 @@ public class ObservabilityService(HttpClient httpClient, ILogger<ObservabilitySe
             };
         }
     }
+
+    // Forwards a single telemetry event into the assistant's in-memory log store
+    // (POST /observability/events). This is what makes "Analyze" find real data:
+    // each Store search emits events here so the selected time window is populated.
+    // Failures are swallowed so observability never breaks the user-facing flow.
+    public async Task IngestEventAsync(string service, string severity, string message)
+    {
+        try
+        {
+            var payload = new
+            {
+                timestamp = DateTimeOffset.UtcNow,
+                service,
+                severity,
+                message
+            };
+
+            using var response = await httpClient.PostAsJsonAsync("/observability/events", payload);
+            if (!response.IsSuccessStatusCode)
+            {
+                logger.LogWarning(
+                    "Observability event ingestion returned {StatusCode} for service {Service}.",
+                    response.StatusCode,
+                    service);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to ingest observability event for service {Service}.", service);
+        }
+    }
 }

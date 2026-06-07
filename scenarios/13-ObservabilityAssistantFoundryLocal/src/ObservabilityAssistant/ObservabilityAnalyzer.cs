@@ -110,10 +110,24 @@ internal sealed class ObservabilityAnalyzer(
         {
             logger.LogWarning(ex, "Foundry local summary generation failed. Returning deterministic fallback summary.");
 
-            var topCluster = clusters[0];
+            // Prefer an Error, then Warning, cluster as the headline concern so the
+            // deterministic fallback still points at the most actionable signal.
+            static int SeverityRank(string severity) => severity?.ToLowerInvariant() switch
+            {
+                "critical" or "fatal" => 0,
+                "error" => 1,
+                "warning" or "warn" => 2,
+                _ => 3
+            };
+
+            var topCluster = clusters
+                .OrderBy(c => SeverityRank(c.Representative.Severity))
+                .ThenByDescending(c => c.Count)
+                .First();
+
             var fallback = $"Analyzed {clusters.Sum(c => c.Count)} entries grouped into {clusters.Count} clusters " +
                            $"in the last {minutes} minutes. " +
-                           $"Primary concern: {topCluster.Representative.Message} (x{topCluster.Count}). " +
+                           $"Primary concern: [{topCluster.Representative.Severity}] {topCluster.Representative.Message} (x{topCluster.Count}). " +
                            "Model summary unavailable, review recent errors and retry.";
             return (fallback, "fallback");
         }
