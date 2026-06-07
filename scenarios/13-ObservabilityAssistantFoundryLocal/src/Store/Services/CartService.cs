@@ -194,5 +194,9 @@ public class CartService : ICartService
 public interface IProductService
 {
     Task<List<Product>> GetProducts();
-    Task<SearchResponse?> Search(string searchTerm, bool semanticSearch = false);
+    Task<SearchResponse?> Search(
+        string searchTerm,
+        bool semanticSearch = false,
+        bool injectFailure = false,
+        int failureProbabilityPercent = 30);
 }

@@ -49,8 +49,20 @@ public static class ProductApiActions
         return affected == 1 ? Results.Ok() : Results.NotFound();
     }
 
-    public static async Task<IResult> SearchAllProducts(string search, Products.Models.Context db)
+    public static async Task<IResult> SearchAllProducts(
+        string search,
+        Products.Models.Context db,
+        HttpContext? httpContext = null,
+        ILogger<Program>? logger = null)
     {
+        if (httpContext is not null)
+        {
+            ProductFailureInjection.ThrowIfInjectedFailure(
+                httpContext,
+                logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<Program>.Instance,
+                "api/product/search");
+        }
+
         List<Product> products = await db.Product
             .Where(p => EF.Functions.Like(p.Name, $"%{search}%"))
             .ToListAsync();

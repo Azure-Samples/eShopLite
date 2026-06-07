@@ -9,7 +9,9 @@ Local-first observability flow for Demo 1 in the modernization session.
 - Aspire services: `products`, `store`, `observabilityassistant`.
 - User triggers analysis from Store.
 - Store calls `observabilityassistant` backend.
-- Backend generates findings from telemetry signals and Store displays them.
+- Backend analyzes **real ingested observability events** (no synthetic `BuildLogs`) and Store displays findings.
+- Foundry Local model is selected by config using `FoundryLocal:SelectedModel` + `FoundryLocal:Models` catalog.
+- Search page includes a default-on toggle: **Inject Search Failure (30%)** to intentionally generate telemetry errors.
 - Presenter runs window analysis in sequence: **5 / 10 / 15 / 30 minutes**.
 
 ## Scope

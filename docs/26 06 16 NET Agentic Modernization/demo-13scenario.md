@@ -9,13 +9,16 @@
 2. We generate realistic user activity and one controlled failure signal.  
 3. The assistant summarizes what happened, where it happened, and what to check next.  
 4. This proves AI value comes from existing app signals, not from a generic chatbot.
+5. The assistant analyzes real ingested events (not synthetic `BuildLogs`).
 
 ## Prerequisites
 
 - .NET 10 SDK, Aspire CLI, and Docker Desktop running.
 - Scenario source available at:
   - `D:\azure-samples\eShopLite\scenarios\13-ObservabilityAssistantFoundryLocal`
-- Azure OpenAI parameters already set for this scenario AppHost (or local model path prepared).
+- Foundry Local model selection configured in `src\ObservabilityAssistant\appsettings*.json` using:
+  - `FoundryLocal:SelectedModel`
+  - `FoundryLocal:Models` (model catalog entries with aliases/options)
 - Presenter has one saved fallback answer (included below) ready to paste/show.
 
 Quick validation:
@@ -63,10 +66,10 @@ aspire start --non-interactive
 1. **Set context (20s):**  
    “This is the modernized eShopLite baseline; now I’ll use telemetry to explain an issue.”
 2. **Open Store UI:** from Aspire Dashboard, click `store` endpoint.
-3. **Generate activity:** go to **Search**, run 2-3 searches (normal and semantic toggle).
-4. **Create a visible low-signal issue:** search a term with no likely result (for example `winter expedition gloves pro`) to create failure/no-match telemetry.
+3. **Keep fault injection ON:** on **Search**, confirm `Inject Search Failure (30%)` stays enabled (default-on).
+4. **Generate activity + intentional errors:** run 2-3 searches (normal and semantic toggle), including one unlikely term (for example `winter expedition gloves pro`) to force no-match/error telemetry.
 5. **Show raw evidence:** in Aspire Dashboard, open `products` and `observabilityassistant` logs and highlight warnings/errors or noisy request traces.
-6. **Run analysis windows from the Store page:** 5, 10, 15, and 30 minutes.
+6. **Run analysis windows from the Store page in order:** 5, 10, 15, and 30 minutes.
 7. **Callout architecture in one line:** Store page sends the request to `observabilityassistant`; the backend summarizes telemetry and returns findings to Store for display.
 8. **Read the answer in sections:** summary, affected service, likely cause, next checks.
 9. **Close with value line (15s):**  
@@ -153,7 +156,7 @@ Next three checks: (1) review top failed terms, (2) add synonym mapping and test
 | “Store delegates analysis to backend assistant.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Store/*` | Store requests a 5/10/15/30-minute analysis window from `observabilityassistant` and renders backend findings. |
 | “Products API is AI-capable but still app-grounded.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Products/Program.cs` | `AddServiceDefaults`, AOAI client setup, `AddChatClient`, `AddEmbeddingGenerator`, memory initialization logs. |
 | “Semantic endpoint is explicit and inspectable.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Products/Endpoints/ProductEndpoints.cs` | `/api/aisearch/{search}` plus conventional `/api/Product/search/{search}` routes. |
-| “UI can toggle semantic vs regular search live.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Store/Components/Pages/Search.razor` | `Use Semantic Search` toggle and search button flow (`DoSearch`). |
+| “UI can toggle semantic vs regular search live and inject failures.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Store/Components/Pages/Search.razor` | `Use Semantic Search`, default-on `Inject Search Failure (30%)`, and search flow (`DoSearch`). |
 
 ## Optional local-only note: `ElBruno.MAF.FoundryLocal`
 

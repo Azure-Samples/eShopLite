@@ -114,8 +114,16 @@ Run local observability flow with three Aspire services (`products`, `store`, `o
 ### Required presenter callout
 
 - The Store page calls `observabilityassistant` backend.
-- The backend generates findings from telemetry and Store displays those findings.
+- The backend analyzes **real ingested events** (not synthetic `BuildLogs`) and Store displays findings.
+- Foundry Local model is selected via config: `FoundryLocal:SelectedModel` + `FoundryLocal:Models` catalog.
+- Search starts with **Inject Search Failure (30%)** enabled by default to intentionally produce telemetry errors.
 - Run the same narrative across four windows: **5 / 10 / 15 / 30 minutes**.
+
+### Practical presenter flow
+
+1. Open Store **Search** and keep `Inject Search Failure (30%)` enabled.
+2. Run several searches (normal + semantic) to generate telemetry errors/noisy traces.
+3. Run assistant analysis windows in order: **5**, **10**, **15**, **30** minutes.
 
 ---
 

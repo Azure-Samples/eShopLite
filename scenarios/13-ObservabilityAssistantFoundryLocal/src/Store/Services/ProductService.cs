@@ -43,21 +43,27 @@ public class ProductService : IProductService
 		return products ?? new List<Product>();
     }
 
-    public async Task<SearchResponse?> Search(string searchTerm, bool semanticSearch = false)
+    public async Task<SearchResponse?> Search(
+        string searchTerm,
+        bool semanticSearch = false,
+        bool injectFailure = false,
+        int failureProbabilityPercent = 30)
     {
         try
         {
             // call the desired Endpoint
             HttpResponseMessage response = null;
+            var encodedSearchTerm = Uri.EscapeDataString(searchTerm ?? string.Empty);
+            var querySuffix = $"?injectFailure={injectFailure.ToString().ToLowerInvariant()}&failureProbabilityPercent={failureProbabilityPercent}";
             if (semanticSearch)
             {
                 // AI Search
-                response = await httpClient.GetAsync($"/api/aisearch/{searchTerm}");
+                response = await httpClient.GetAsync($"/api/aisearch/{encodedSearchTerm}{querySuffix}");
             }
             else
             {
                 // standard search
-                response = await httpClient.GetAsync($"/api/product/search/{searchTerm}");
+                response = await httpClient.GetAsync($"/api/product/search/{encodedSearchTerm}{querySuffix}");
             }
 
             var responseText = await response.Content.ReadAsStringAsync();

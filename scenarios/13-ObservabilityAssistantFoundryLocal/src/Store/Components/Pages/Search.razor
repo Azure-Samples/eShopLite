@@ -23,6 +23,10 @@
         <InputCheckbox id="smartSearch2" @bind-Value="smartSearch" />
         <label class="form-check-label" for="smartSearch">Use Semantic Search</label>
     </div>
+    <div class="form-check form-switch mb-3">
+        <InputCheckbox id="injectSearchFailure" @bind-Value="injectSearchFailure" />
+        <label class="form-check-label" for="injectSearchFailure">Inject Search Failure (30%)</label>
+    </div>
     <hr />
     @if (isLoading)
     {
@@ -79,6 +83,8 @@ else
     private bool isLoading = false;
     private MarkdownPipeline markdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
     private bool smartSearch = false;
+    private bool injectSearchFailure = true;
+    private const int SearchFailureProbabilityPercent = 30;
     private string RenderMarkdown(string markdown)
     {
         return string.IsNullOrWhiteSpace(markdown) ? string.Empty : Markdig.Markdown.ToHtml(markdown, markdownPipeline);
@@ -94,7 +100,11 @@ else
         {
             isLoading = true;
             await Task.Delay(500);
-            var response = await ProductService.Search(searchTerm, smartSearch);
+            var response = await ProductService.Search(
+                searchTerm,
+                smartSearch,
+                injectSearchFailure,
+                SearchFailureProbabilityPercent);
             aiResponse = response.Response;
             products = response.Products;
         }
