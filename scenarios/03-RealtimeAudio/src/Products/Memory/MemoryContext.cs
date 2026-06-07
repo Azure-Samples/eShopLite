@@ -1,4 +1,4 @@
-﻿using DataEntities;
+using DataEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
@@ -126,6 +126,7 @@ public class MemoryContext
             // let's improve the response message
             var prompt = @$"You are an intelligent assistant helping clients with their search about outdoor products. 
 Generate a catchy and friendly message using the information below.
+Respond using Markdown with concise sections and bullet lists when helpful.
 Add a comparison between the products found and the search criteria.
 Include products details.
     - User Question: {search}

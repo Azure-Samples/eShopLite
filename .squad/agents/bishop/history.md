@@ -99,3 +99,5 @@ products
 - 2026-06-06T14:05:16.188-04:00: Started the agentic modernization implementation by cloning the closest working scenario baselines (01 for 13-15, 06 for 16, 10 for 17) so each new scenario stays runnable while the story is added.
 - 2026-06-06T14:05:16.188-04:00: The new session documentation lives under docs/26 06 16 NET Agentic Modernization/ and centers the narrative on observability, product discovery, store intelligence, MCP tools, and A2A.
 - 2026-06-06T14:05:16.188-04:00: The reusable backend pattern is to keep Aspire wiring explicit and preserve the existing 4-parameter Azure OpenAI shape while documenting any non-01 baseline choice in the scenario README.
+
+- 2026-06-07T12:07:27.924-04:00: Standardized the shared semantic-search prompt in all Products/Memory/MemoryContext.cs variants to explicitly request markdown output using concise sections and bullet lists while preserving existing outdoor-domain and comparison/detail intent.

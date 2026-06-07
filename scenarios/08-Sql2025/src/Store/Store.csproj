@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0" />
     <PackageReference Include="System.Text.Json" Version="10.0.0" />
+    <PackageReference Include="Markdig" Version="0.41.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataEntities\DataEntities.csproj" />

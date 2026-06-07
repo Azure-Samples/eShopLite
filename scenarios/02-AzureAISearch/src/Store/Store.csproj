@@ -1,10 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.41.2" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataEntities\DataEntities.csproj" />
     <ProjectReference Include="..\eShopServiceDefaults\eShopServiceDefaults.csproj" />

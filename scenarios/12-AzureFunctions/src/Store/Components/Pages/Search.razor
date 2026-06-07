@@ -1,4 +1,5 @@
 ﻿@page "/search"
+@using Markdig
 
 @inject Store.Services.ProductService ProductService
 @inject IConfiguration Configuration
@@ -15,7 +16,7 @@
     <label for="search" class="form-label">Type your question:</label>
     <div class="input-group mb-3">
         <input type="text" id="search" class="form-control" @bind="searchTerm" placeholder="Enter search term..." />
-        <button id="btnSearch" class="btn btn-primary" @onclick="DoSearch" type="submit">Search</button>
+        <button id="btnSearch" class="btn btn-primary" @onclick="DoSearch" type="submit" disabled="@isLoading">Search</button>
     </div>
     <div class="mb-3">
         <label for="mode" class="form-label">Search mode:</label>
@@ -26,7 +27,21 @@
         </select>
     </div>
     <hr />
-    <p class="quote">@aiResponse</p>
+    @if (isLoading)
+    {
+        <div class="d-flex align-items-center gap-2 mb-3" role="status" aria-live="polite">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span>Searching...</span>
+        </div>
+    }
+    @if (!string.IsNullOrWhiteSpace(aiResponse))
+    {
+        <div class="quote">
+            @((MarkupString)RenderMarkdown(aiResponse))
+        </div>
+    }
 </div>
 
 
@@ -64,14 +79,32 @@ else
     private string searchTerm = "";
     private List<DataEntities.Product>? products;
     private string aiResponse = "";
+    private bool isLoading = false;
+    private MarkdownPipeline markdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
     private int selectedMode = 0;
+    private string RenderMarkdown(string markdown)
+    {
+        return string.IsNullOrWhiteSpace(markdown) ? string.Empty : Markdig.Markdown.ToHtml(markdown, markdownPipeline);
+    }
+
+
 
     private async Task DoSearch(MouseEventArgs e)
     {
-    await Task.Delay(500);
-    var mode = (Store.Services.SearchMode)selectedMode;
-    var response = await ProductService.Search(searchTerm, mode);
-    aiResponse = response?.Response ?? "No response";
-    products = response?.Products ?? new List<DataEntities.Product>();
+        if (isLoading) return;
+
+        try
+        {
+            isLoading = true;
+            await Task.Delay(500);
+            var mode = (Store.Services.SearchMode)selectedMode;
+            var response = await ProductService.Search(searchTerm, mode);
+            aiResponse = response?.Response ?? "No response";
+            products = response?.Products ?? new List<DataEntities.Product>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 }

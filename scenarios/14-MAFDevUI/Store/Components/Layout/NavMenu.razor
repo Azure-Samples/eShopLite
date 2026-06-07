@@ -1,11 +1,6 @@
-@using Store.Components.Cart
-
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">eShopLite - InMemory</a>
-        <div class="ms-auto">
-            <CartIcon OnToggleCart="ToggleCart" />
-        </div>
     </div>
 </div>
 
@@ -70,11 +65,3 @@
     </nav>
 </div>
 
-@code {
-    [Parameter] public EventCallback OnToggleCart { get; set; }
-
-    private async Task ToggleCart()
-    {
-        await OnToggleCart.InvokeAsync();
-    }
-}
