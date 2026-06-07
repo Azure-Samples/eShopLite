@@ -30,4 +30,19 @@ public class ObservabilityAnalysisResponse
 
     [JsonPropertyName("analysisSource")]
     public string AnalysisSource { get; set; } = string.Empty;
+
+    [JsonPropertyName("clustering")]
+    public ObservabilityClusteringMetadata? Clustering { get; set; }
+}
+
+public class ObservabilityClusteringMetadata
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("originalEntryCount")]
+    public int OriginalEntryCount { get; set; }
+
+    [JsonPropertyName("clusterCount")]
+    public int ClusterCount { get; set; }
 }

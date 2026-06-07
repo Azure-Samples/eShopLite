@@ -11,25 +11,42 @@ Local-first observability flow for Demo 1 in the modernization session.
 - Store calls `observabilityassistant` backend.
 - Backend analyzes **real ingested observability events** (no synthetic `BuildLogs`) and Store displays findings.
 - Foundry Local model is selected by config using `FoundryLocal:SelectedModel` + `FoundryLocal:Models` catalog.
-- Search page includes a default-on toggle: **Inject Search Failure (30%)** to intentionally generate telemetry errors.
+- Search page includes a default-on toggle: **Inject Search Failure** to intentionally generate telemetry errors. When checked, every search forces an error in the Products service so the assistant has something to detect.
 - Presenter runs window analysis in sequence: **5 / 10 / 15 / 30 minutes**.
 
 ## Log-analysis flow (local models)
 
+The analysis pipeline runs **fully local**: Foundry Local serves the LLM and
+[`ElBruno.LocalEmbeddings`](https://www.nuget.org/packages/ElBruno.LocalEmbeddings)
+(ONNX Runtime) generates embeddings on-box. Before the model summarizes a window,
+similar log lines are grouped by embedding cosine-similarity so the prompt carries
+de-duplicated representatives with occurrence counts (`xN`) instead of raw noise.
+
 ```mermaid
 flowchart LR
-    U[Store UI Search] --> T{Inject Search Failure<br/>30% toggle ON?}
+    U[Store UI Search] --> T{Inject Search Failure<br/>toggle ON?}
     T -->|No| S[Store Search request]
-    T -->|Yes| F[Optional failure path<br/>error generated]
+    T -->|Yes| F[Forced failure path<br/>error generated]
     S --> P[Products service]
     F --> P
     P --> L[Products logs and events]
     L --> O[ObservabilityAssistant<br/>event ingestion]
     O --> W[Window filter<br/>5 / 10 / 15 / 30 min]
-    W --> M[Foundry Local<br/>selected model analysis]
-    M --> R[Analysis results]
+    W --> E[Local embeddings clustering<br/>ElBruno.LocalEmbeddings + ONNX<br/>group similar lines]
+    E --> M[Foundry Local<br/>selected model analysis]
+    M --> R[Analysis results<br/>+ cluster stats]
     R --> U
 ```
+
+Both local components are config-toggleable:
+
+- **LLM model** — `FoundryLocal:SelectedModel` (+ `FoundryLocal:Models` catalog) in
+  `src/ObservabilityAssistant/appsettings.json`. Inspect downloaded/loaded models with
+  `foundry cache list` and `foundry service ps`.
+- **Embeddings clustering** — the `Embeddings` section in the same file
+  (`Enabled`, `ModelName`, `SimilarityThreshold`). Set `Enabled: false` to send raw
+  log lines straight to the model (useful for a before/after demo). If the embedding
+  model can't initialize, the analyzer degrades gracefully to pass-through.
 
 ## Scope
 

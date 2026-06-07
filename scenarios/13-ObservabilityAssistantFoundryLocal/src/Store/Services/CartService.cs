@@ -197,6 +197,5 @@ public interface IProductService
     Task<SearchResponse?> Search(
         string searchTerm,
         bool semanticSearch = false,
-        bool injectFailure = false,
-        int failureProbabilityPercent = 30);
+        bool injectFailure = false);
 }

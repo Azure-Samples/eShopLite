@@ -59,6 +59,20 @@
             <div><strong>Endpoint:</strong> @lastEndpoint</div>
             <div><strong>Window:</strong> @analysisResponse.WindowStartUtc.ToString("u") to @analysisResponse.WindowEndUtc.ToString("u")</div>
             <div><strong>Entries analyzed:</strong> @analysisResponse.EntriesAnalyzed</div>
+            @if (analysisResponse.Clustering is { } clustering)
+            {
+                <div>
+                    <strong>Local embeddings clustering:</strong>
+                    @if (clustering.Enabled)
+                    {
+                        <span>@clustering.OriginalEntryCount entries grouped into @clustering.ClusterCount clusters (ElBruno.LocalEmbeddings, ONNX)</span>
+                    }
+                    else
+                    {
+                        <span>disabled</span>
+                    }
+                </div>
+            }
             <div><strong>Analysis source:</strong> @analysisResponse.AnalysisSource</div>
             <div><strong>Received by Store (UTC):</strong> @analysisResponse.ReceivedAtUtc.ToString("u")</div>
         </div>

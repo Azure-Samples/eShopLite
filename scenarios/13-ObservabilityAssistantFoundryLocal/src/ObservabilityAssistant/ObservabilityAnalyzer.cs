@@ -5,7 +5,9 @@ using Microsoft.Extensions.Options;
 internal sealed class ObservabilityAnalyzer(
     IChatClient chatClient,
     InMemoryLogStore logStore,
+    LogClusteringService logClusteringService,
     IOptions<FoundryLocalModelCatalogOptions> modelCatalogOptions,
+    IOptions<LogClusteringOptions> clusteringOptions,
     FoundryLocalModelLifecycleService modelLifecycleService,
     ILogger<ObservabilityAnalyzer> logger)
 {
@@ -20,12 +22,21 @@ internal sealed class ObservabilityAnalyzer(
             return null;
         }
 
-        var summary = await SummarizeAsync(logs, minutes, cancellationToken);
+        // Step 1: collapse semantically-similar log lines using local embeddings.
+        var clusters = await logClusteringService.ClusterAsync(logs, cancellationToken);
+
+        // Step 2: summarize the deduplicated representatives with the local model.
+        var summary = await SummarizeAsync(clusters, minutes, cancellationToken);
         var severityBreakdown = logs
             .GroupBy(entry => entry.Severity)
             .ToDictionary(group => group.Key, group => group.Count());
 
         var details = string.Join(", ", severityBreakdown.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
+        var clusteringMetadata = new ObservabilityClusteringMetadata(
+            Enabled: clusteringOptions.Value.Enabled,
+            OriginalEntryCount: logs.Count,
+            ClusterCount: clusters.Count);
+
         var modelCatalog = modelCatalogOptions.Value;
         modelCatalog.Models.TryGetValue(modelCatalog.SelectedModel, out var selectedModel);
         var diagnostics = modelLifecycleService.GetDiagnosticsSnapshot();
@@ -55,21 +66,32 @@ internal sealed class ObservabilityAnalyzer(
             Details: details,
             AnalysisMarkdown: summary.Text,
             AnalysisSource: summary.Source,
+            Clustering: clusteringMetadata,
             Model: modelMetadata);
     }
 
     private async Task<(string Text, string Source)> SummarizeAsync(
-        IReadOnlyList<LogEntry> logs,
+        IReadOnlyList<LogCluster> clusters,
         int minutes,
         CancellationToken cancellationToken)
     {
+        // Each representative line carries the number of similar entries it stands
+        // in for (e.g. "(x12)"), so the model sees frequency without the raw noise.
+        var clusterLines = clusters.Select(cluster =>
+        {
+            var rep = cluster.Representative;
+            var occurrences = cluster.Count > 1 ? $" (x{cluster.Count})" : string.Empty;
+            return $"{rep.Timestamp:O} [{rep.Severity}] {rep.Service} - {rep.Message}{occurrences}";
+        });
+
         var prompt = $"""
             You are an observability assistant.
             Summarize incidents and customer impact for the last {minutes} minutes in at most 6 bullet points.
+            The log lines below are grouped by similarity; "(xN)" means the line represents N similar events.
             Mention probable root cause and immediate next action.
 
             Logs:
-            {string.Join(Environment.NewLine, logs.Select(l => $"{l.Timestamp:O} [{l.Severity}] {l.Service} - {l.Message}"))}
+            {string.Join(Environment.NewLine, clusterLines)}
             """;
 
         try
@@ -88,8 +110,10 @@ internal sealed class ObservabilityAnalyzer(
         {
             logger.LogWarning(ex, "Foundry local summary generation failed. Returning deterministic fallback summary.");
 
-            var fallback = $"Analyzed {logs.Count} entries in the last {minutes} minutes. " +
-                           $"Primary concern: {logs.Last().Message}. " +
+            var topCluster = clusters[0];
+            var fallback = $"Analyzed {clusters.Sum(c => c.Count)} entries grouped into {clusters.Count} clusters " +
+                           $"in the last {minutes} minutes. " +
+                           $"Primary concern: {topCluster.Representative.Message} (x{topCluster.Count}). " +
                            "Model summary unavailable, review recent errors and retry.";
             return (fallback, "fallback");
         }

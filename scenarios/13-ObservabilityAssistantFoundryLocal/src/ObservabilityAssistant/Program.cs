@@ -60,6 +60,14 @@ builder.Services
     .ValidateOnStart();
 
 builder.Services.Configure<ChatRuntimeOptions>(builder.Configuration.GetSection("Chat"));
+
+// Local-embeddings log clustering options (ElBruno.LocalEmbeddings, ONNX, no cloud).
+// Read from the "Embeddings" section of appsettings.json:
+// - Embeddings:Enabled            toggle the embeddings step on/off (demo before/after)
+// - Embeddings:ModelName          HuggingFace embedding model (downloaded once, cached)
+// - Embeddings:SimilarityThreshold cosine threshold to fold similar log lines together
+builder.Services.Configure<LogClusteringOptions>(builder.Configuration.GetSection("Embeddings"));
+
 builder.Services.AddSingleton<FoundryLocalModelLifecycleService>();
 builder.Services.AddSingleton<IChatClient>(sp =>
 {
@@ -69,6 +77,7 @@ builder.Services.AddSingleton<IChatClient>(sp =>
 });
 
 builder.Services.AddSingleton<InMemoryLogStore>();
+builder.Services.AddSingleton<LogClusteringService>();
 builder.Services.AddSingleton<ObservabilityAnalyzer>();
 
 var app = builder.Build();

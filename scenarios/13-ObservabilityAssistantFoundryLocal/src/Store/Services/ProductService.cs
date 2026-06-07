@@ -46,15 +46,14 @@ public class ProductService : IProductService
     public async Task<SearchResponse?> Search(
         string searchTerm,
         bool semanticSearch = false,
-        bool injectFailure = false,
-        int failureProbabilityPercent = 30)
+        bool injectFailure = false)
     {
         try
         {
             // call the desired Endpoint
             HttpResponseMessage response = null;
             var encodedSearchTerm = Uri.EscapeDataString(searchTerm ?? string.Empty);
-            var querySuffix = $"?injectFailure={injectFailure.ToString().ToLowerInvariant()}&failureProbabilityPercent={failureProbabilityPercent}";
+            var querySuffix = $"?injectFailure={injectFailure.ToString().ToLowerInvariant()}";
             if (semanticSearch)
             {
                 // AI Search

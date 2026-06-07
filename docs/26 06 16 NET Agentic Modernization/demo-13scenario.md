@@ -61,19 +61,74 @@ cd .\eShopAppHost
 aspire start --non-interactive
 ```
 
+## Inspect Foundry Local models (fully local)
+
+Foundry Local runs the LLM on the presenter's machine — no cloud calls. Use the
+Foundry Local CLI to show the audience which models are downloaded, available, and
+loaded. (Reference: Microsoft Learn — Foundry Local CLI,
+`https://learn.microsoft.com/azure/foundry-local/reference/reference-cli`.)
+
+```pwsh
+# Version + service status (confirms Foundry Local is installed and running)
+foundry --version
+foundry service status
+
+# Models DOWNLOADED to the local cache on this machine  <-- show this for "what's local"
+foundry cache list
+
+# Where the local model cache lives on disk
+foundry cache location
+
+# All catalog models compatible with this hardware (not necessarily downloaded yet)
+foundry model list
+
+# Models currently LOADED in the running service (in memory, ready to serve)
+foundry service ps
+```
+
+What each command proves to the audience:
+
+| Command | Shows | Demo talking point |
+|---|---|---|
+| `foundry cache list` | Models physically downloaded to the local cache | "These models live on my disk — nothing is called in the cloud." |
+| `foundry model list` | Catalog of models available for this hardware | "I can pick any of these; the assistant just needs a model alias." |
+| `foundry service ps` | Models loaded in memory right now | "This is the exact model answering my analysis prompts." |
+| `foundry service status` | Service endpoint + health | "The local inference service is up and serving on localhost." |
+
+Tie it back to config: the model the assistant uses is selected in
+`src\ObservabilityAssistant\appsettings.json` via `FoundryLocal:SelectedModel`
+(for example `phi-4-mini`), resolved from the `FoundryLocal:Models` catalog. Switching
+models is a one-line config change — point at a different catalog key and restart.
+
+## Key ObservabilityAssistant files to talk about
+
+Show these three files to explain how local log analysis works end to end.
+
+| File | Role | What to say |
+|---|---|---|
+| `src/ObservabilityAssistant/Program.cs` | **Main app / composition root** | Where Foundry Local model catalog is bound (`FoundryLocal` section) and the selected model is chosen, the `IChatClient` is registered via the Foundry Local adapter, and the in-memory log store, local-embeddings clustering, and analyzer are wired into DI. Comments call out where config is read and how to switch models or disable embeddings. |
+| `src/ObservabilityAssistant/ObservabilityEndpoints.cs` | **Web endpoints** | The minimal-API surface: `GET /observability/windows` (selectable 5/10/15/30 windows), `GET /observability/analyze?minutes=N` (run the analysis), and `POST /observability/events` (ingest real telemetry). This is the contract the Store calls. |
+| `src/ObservabilityAssistant/ObservabilityAnalyzer.cs` | **Analysis pipeline** | The heart of the demo: pull the time window from the log store -> **cluster semantically-similar lines with local embeddings (ElBruno.LocalEmbeddings, ONNX)** to remove noise -> build a compact prompt with representative lines and occurrence counts -> summarize with the local Foundry Local model -> deterministic fallback if the model is unavailable. The response also reports how many raw entries were folded into how many clusters. |
+
+Presenter note: everything in these three files runs locally — Foundry Local for the
+LLM and ElBruno.LocalEmbeddings for the embeddings. There is no Azure or cloud
+dependency in the ObservabilityAssistant service.
+
 ## Step-by-step live demo script
 
 1. **Set context (20s):**  
    “This is the modernized eShopLite baseline; now I’ll use telemetry to explain an issue.”
 2. **Open Store UI:** from Aspire Dashboard, click `store` endpoint.
-3. **Keep fault injection ON:** on **Search**, confirm `Inject Search Failure (30%)` stays enabled (default-on).
+3. **Keep fault injection ON:** on **Search**, confirm `Inject Search Failure` stays enabled (default-on).
 4. **Generate activity + intentional errors:** run 2-3 searches (normal and semantic toggle), including one unlikely term (for example `winter expedition gloves pro`) to force no-match/error telemetry.
 5. **Show raw evidence:** in Aspire Dashboard, open `products` and `observabilityassistant` logs and highlight warnings/errors or noisy request traces.
-6. **Run analysis windows from the Store page in order:** 5, 10, 15, and 30 minutes.
-7. **Callout architecture in one line:** Store page sends the request to `observabilityassistant`; the backend summarizes telemetry and returns findings to Store for display.
-8. **Read the answer in sections:** summary, affected service, likely cause, next checks.
-9. **Close with value line (15s):**  
-   “Same app, same telemetry, better developer decision speed.”
+6. **(Optional) Show the local model:** in a terminal run `foundry cache list` and `foundry service ps` to prove the LLM is downloaded and loaded locally (see "Inspect Foundry Local models" above).
+7. **Run analysis windows from the Store page in order:** 5, 10, 15, and 30 minutes.
+8. **Callout architecture in one line:** Store page sends the request to `observabilityassistant`; the backend clusters similar log lines with local embeddings, summarizes with the local model, and returns findings to Store for display.
+9. **Point at the embeddings proof:** in the "Backend call proof" card, read the **Local embeddings clustering** line (e.g. "120 entries grouped into 14 clusters") — this is ElBruno.LocalEmbeddings de-noising the logs before the model sees them.
+10. **Read the answer in sections:** summary, affected service, likely cause, next checks.
+11. **Close with value line (15s):**  
+    “Same app, same telemetry, better developer decision speed — and it all runs locally.”
 
 ## Exact prompts to run
 
@@ -156,7 +211,9 @@ Next three checks: (1) review top failed terms, (2) add synonym mapping and test
 | “Store delegates analysis to backend assistant.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Store/*` | Store requests a 5/10/15/30-minute analysis window from `observabilityassistant` and renders backend findings. |
 | “Products API is AI-capable but still app-grounded.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Products/Program.cs` | `AddServiceDefaults`, AOAI client setup, `AddChatClient`, `AddEmbeddingGenerator`, memory initialization logs. |
 | “Semantic endpoint is explicit and inspectable.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Products/Endpoints/ProductEndpoints.cs` | `/api/aisearch/{search}` plus conventional `/api/Product/search/{search}` routes. |
-| “UI can toggle semantic vs regular search live and inject failures.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Store/Components/Pages/Search.razor` | `Use Semantic Search`, default-on `Inject Search Failure (30%)`, and search flow (`DoSearch`). |
+| “UI can toggle semantic vs regular search live and inject failures.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Store/Components/Pages/Search.razor` | `Use Semantic Search`, default-on `Inject Search Failure`, and search flow (`DoSearch`). |
+| “Local embeddings de-noise logs before the model.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/ObservabilityAssistant/LogClusteringService.cs` | `ElBruno.LocalEmbeddings` (ONNX) embeds log lines and groups near-duplicates by cosine similarity; graceful pass-through fallback if offline. |
+| “Analysis pipeline is local end to end.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/ObservabilityAssistant/ObservabilityAnalyzer.cs` | Window -> embeddings clustering -> compact prompt with `(xN)` counts -> Foundry Local summary -> fallback; surfaces cluster stats in the response. |
 
 ## Optional local-only note: `ElBruno.MAF.FoundryLocal`
 

@@ -11,6 +11,7 @@ public class ObservabilityAnalysisClientResult
     public DateTimeOffset WindowEndUtc { get; init; }
     public int EntriesAnalyzed { get; init; }
     public string AnalysisSource { get; init; } = string.Empty;
+    public ObservabilityClusteringMetadata? Clustering { get; init; }
     public int? StatusCode { get; init; }
     public string Endpoint { get; init; } = string.Empty;
     public string? ErrorMessage { get; init; }

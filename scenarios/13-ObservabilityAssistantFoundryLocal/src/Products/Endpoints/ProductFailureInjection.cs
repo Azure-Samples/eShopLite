@@ -2,8 +2,10 @@ namespace Products.Endpoints;
 
 public static class ProductFailureInjection
 {
-    private const int DefaultFailureProbabilityPercent = 30;
-
+    // Demo-friendly behavior: when the Store sends "injectFailure=true"
+    // (the "Inject Search Failure" checkbox), the endpoint ALWAYS throws.
+    // This guarantees an error shows up in the logs during the live demo
+    // so the Observability Assistant has something to detect.
     public static void ThrowIfInjectedFailure(
         HttpContext httpContext,
         ILogger logger,
@@ -17,29 +19,17 @@ public static class ProductFailureInjection
             _ = bool.TryParse(injectFailureParam.ToString(), out injectFailure);
         }
 
-        var failureProbabilityPercent = DefaultFailureProbabilityPercent;
-        if (query.TryGetValue("failureProbabilityPercent", out var probabilityParam) &&
-            int.TryParse(probabilityParam.ToString(), out var parsedProbability) &&
-            parsedProbability is >= 0 and <= 100)
-        {
-            failureProbabilityPercent = parsedProbability;
-        }
-
         if (!injectFailure)
         {
             return;
         }
 
-        if (Random.Shared.Next(100) < failureProbabilityPercent)
-        {
-            logger.LogError(
-                "Demo-injected failure triggered. Context: {Context}. Route: {Route}. ProbabilityPercent: {ProbabilityPercent}",
-                context,
-                httpContext.Request.Path.Value,
-                failureProbabilityPercent);
+        logger.LogError(
+            "Demo-injected failure triggered. Context: {Context}. Route: {Route}",
+            context,
+            httpContext.Request.Path.Value);
 
-            throw new InvalidOperationException(
-                $"Demo-injected failure in {context} with probability {failureProbabilityPercent}%.");
-        }
+        throw new InvalidOperationException(
+            $"Demo-injected failure in {context}.");
     }
 }

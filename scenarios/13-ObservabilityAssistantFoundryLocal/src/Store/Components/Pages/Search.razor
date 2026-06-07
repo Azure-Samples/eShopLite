@@ -25,7 +25,7 @@
     </div>
     <div class="form-check form-switch mb-3">
         <InputCheckbox id="injectSearchFailure" @bind-Value="injectSearchFailure" />
-        <label class="form-check-label" for="injectSearchFailure">Inject Search Failure (30%)</label>
+        <label class="form-check-label" for="injectSearchFailure">Inject Search Failure</label>
     </div>
     <hr />
     @if (isLoading)
@@ -84,7 +84,6 @@ else
     private MarkdownPipeline markdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
     private bool smartSearch = false;
     private bool injectSearchFailure = true;
-    private const int SearchFailureProbabilityPercent = 30;
     private string RenderMarkdown(string markdown)
     {
         return string.IsNullOrWhiteSpace(markdown) ? string.Empty : Markdig.Markdown.ToHtml(markdown, markdownPipeline);
@@ -103,8 +102,7 @@ else
             var response = await ProductService.Search(
                 searchTerm,
                 smartSearch,
-                injectSearchFailure,
-                SearchFailureProbabilityPercent);
+                injectSearchFailure);
             aiResponse = response.Response;
             products = response.Products;
         }
