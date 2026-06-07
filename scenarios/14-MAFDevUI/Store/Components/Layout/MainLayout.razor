@@ -3,7 +3,7 @@
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu OnToggleCart="ToggleCart" />
+        <NavMenu />
     </div>
 
     <main>
@@ -29,13 +29,6 @@
 @code {
     private bool isCartVisible = false;
 
-    private Task ToggleCart()
-    {
-        isCartVisible = !isCartVisible;
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
-
     private Task OnCartVisibilityChanged(bool visible)
     {
         isCartVisible = visible;
@@ -50,3 +43,4 @@
         return Task.CompletedTask;
     }
 }
+

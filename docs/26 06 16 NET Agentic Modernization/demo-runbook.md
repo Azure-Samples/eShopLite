@@ -101,60 +101,15 @@ If the app does not start:
 /scenarios/13-ObservabilityAssistantFoundryLocal
 ```
 
+### Detailed playbook
+
+Use the full presenter script, prompts, expected outputs, fallback, and code walkthrough from:
+
+`docs/26 06 16 NET Agentic Modernization/demo-13scenario.md`
+
 ### Goal
 
 Summarize recent logs/traces and produce developer next actions.
-
-### Setup
-
-- Start from Scenario 01.
-- Add or reuse app activity logging.
-- Prepare sample failures or a deterministic log fixture.
-- Configure Foundry Local or a compatible local model.
-
-### Commands
-
-Add the exact commands in the scenario README.
-
-Suggested placeholders:
-
-```bash
-cd scenarios/13-ObservabilityAssistantFoundryLocal
-dotnet run --project src/eShopLite.AppHost
-```
-
-### Demo steps
-
-1. Open the app.
-2. Generate catalog/search activity.
-3. Trigger or load sample operational issue.
-4. Show raw logs/traces.
-5. Ask Observability Assistant for a summary.
-6. Show grouped issues and next actions.
-
-### Prompt
-
-```text
-Summarize the last 10 minutes of application activity. Group issues by service, identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
-```
-
-### Expected result
-
-```text
-- Summary of what happened.
-- Services involved.
-- Root cause candidates.
-- Supporting signals.
-- Next actions.
-```
-
-### Fallback
-
-Use a saved response in:
-
-```text
-/scenarios/13-ObservabilityAssistantFoundryLocal/demo-assets/observability-summary-sample.md
-```
 
 ---
 
