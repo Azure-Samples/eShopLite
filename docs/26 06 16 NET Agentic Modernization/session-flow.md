@@ -69,6 +69,10 @@ Set the premise quickly.
 
 > Most modernization talks stop when the app runs on the new stack. Today I want to start there. The app is already modernized. Now what?
 
+### Bridge line for slide 3
+
+> We already saw how to modernize an app and use Aspire. Now that foundation is done, let's make the app smarter.
+
 ### Message
 
 Modernization gives us:
@@ -443,7 +447,7 @@ Explain that the same app model has a deployment path.
 
 ### Message
 
-> Deployment is not the demo today, but it matters.
+> Path to production: the same app model we used locally can move forward cleanly.
 
 ### Talk track
 

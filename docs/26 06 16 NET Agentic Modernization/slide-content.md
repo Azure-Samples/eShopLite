@@ -10,29 +10,29 @@ The deck should not feel like an AI hype talk. It should feel like:
 
 > We upgraded the app. Here are practical ways to make it smarter.
 
-## Slide 1 - Title
+## Design and readability constraints for v02
 
-### Title
+- Keep the opening structure locked:
+  - Slide 1 = template slide 1 (unchanged).
+  - Slide 2 = speaker intro (Bruno headshot + session title).
+  - Slide 3 = template slide 3 style + modernization-to-smarter bridge pitch.
+- Prefer visual storytelling layouts over two equal text boxes.
+- Avoid dense paragraph blocks on slides; move detail to speaker notes.
+- Target larger room-friendly typography:
+  - Title: 40-48 pt
+  - Section headings: 24-30 pt
+  - Body: 20-24 pt minimum where possible
+- Every demo slide should show either a process flow, evidence-to-outcome sequence, or one strong visual anchor.
 
-**App Modernization Done. Now Let's Make It Smarter**
+## Slide 1 - Template opener (locked)
 
-### Subtitle
+### Instruction
 
-Adding targeted AI to modern .NET applications with eShopLite, Aspire, Microsoft Foundry, MCP, A2A, and Microsoft Agent Framework.
+Use slide 1 from:
 
-### Visual idea
+`slides/NET Day June 16.pptx`
 
-Simple layered diagram:
-
-```text
-Modernized .NET app
-    ↓
-Telemetry + data + APIs
-    ↓
-Targeted AI capabilities
-    ↓
-Smarter app
-```
+Do not redesign this slide. Keep branding and layout from template.
 
 ### Speaker notes
 
@@ -48,30 +48,24 @@ Let's start with what the upgraded app gives us.
 
 ---
 
-## Slide 2 - The app is upgraded. Now what?
+## Slide 2 - Speaker intro (Bruno + session)
+
+### Layout
+
+- Bruno headshot (from `slides/Bruno Capuano - Headshopt.jpg`)
+- Session title:
+  - **App Modernization Done. Now Let's Make It Smarter**
+- Short subline:
+  - “From modernization foundations to practical app intelligence with eShopLite”
 
 ### Main message
 
-Modernization gives us the foundation for practical AI.
-
-### Bullets
-
-- The app runs on modern .NET.
-- Services are orchestrated with Aspire.
-- Logs, traces, and metrics are available.
-- Deployment options are clearer.
-- The app has cleaner boundaries.
-- The app has real data and real user workflows.
-
-### Punchline
-
-**Now AI has something useful to work with.**
+Set context quickly: this session starts where modernization talks usually end.
 
 ### Speaker notes
 
-A modernized app is easier to observe, easier to deploy, easier to reason about, and easier to extend.
-
-That is exactly what AI needs. AI is not magic dust that fixes a messy app. It works best when the app has structure, signals, and clear capabilities.
+We already saw modernization patterns, Aspire usage, and platform setup.
+Now we are going to use that foundation to make the app smarter in concrete, scoped ways.
 
 ### Transition
 
@@ -79,32 +73,23 @@ So the question is not "how do we add a chatbot?" The question is "where can AI 
 
 ---
 
-## Slide 3 - The modernization foundation
+## Slide 3 - Modernization bridge statement (template style)
+
+### Instruction
+
+Use slide 3 style from:
+
+`slides/NET Day June 16.pptx`
 
 ### Main message
 
-The upgraded app gives AI useful inputs and safe boundaries.
+We already saw how to modernize an app and use Aspire.  
+Now that foundation is done, let's make our app smarter.
 
-### Visual
+### Supporting line
 
-```text
-Modern .NET
-+ Aspire
-+ OpenTelemetry
-+ Clean APIs
-+ App data
-+ Search layer
-+ Deployment model
-= AI-ready application foundation
-```
-
-### Bullets
-
-- Telemetry gives AI operational context.
-- Data gives AI grounding.
-- APIs give AI safe capabilities.
-- AppHost gives AI and developers a clear app topology.
-- Deployment flows give us a path forward.
+Modernization gave us structure, telemetry, data, and boundaries.  
+Now we use those assets for targeted intelligence.
 
 ### Speaker notes
 
@@ -151,20 +136,19 @@ Here is the demo app we will use.
 
 eShopLite is the playground for incremental app intelligence.
 
-### Bullets
+### Visual-first content
 
-- Modern .NET eCommerce sample.
-- Aspire-based local development.
-- Product catalog and search.
-- Existing AI scenarios.
-- Good base for app modernization demos.
-- Good base for extending the same app with smarter features.
+- Use this GIF as the hero visual:
+  - `images/06eShopLite-SearchSemantic.gif`
+- Keep on-slide text minimal:
+  - “One app, one flow, progressively smarter outcomes.”
+  - “We’ll use this exact experience throughout the demos.”
 
 ### Speaker notes
 
-We are going to keep coming back to the same app.
+I will focus on this semantic search experience only, so the audience can follow one continuous story.
 
-That is important. This is not a collection of disconnected demos. It is one modernized application that gets smarter step by step.
+This is not a set of disconnected mini-demos. It is one modernized app becoming smarter step by step.
 
 ### Transition
 
@@ -182,13 +166,14 @@ First scenario: the app explains itself.
 
 Observability gives us data. AI helps us understand it.
 
-### Bullets
+### Storytelling structure (replace two-text-box layout)
 
-- Read recent application activity.
-- Group related failures.
-- Summarize root cause candidates.
-- Include relevant services and trace IDs.
-- Suggest next developer actions.
+Use a 4-step flow with icons/arrows:
+
+1. **Trigger** - “Checkout errors increased after deployment”
+2. **Evidence** - Logs + traces + failing service calls
+3. **AI explanation** - Grouped incidents + likely root cause + trace IDs
+4. **Action** - Top 3 checks for the developer
 
 ### Demo scenario
 
@@ -203,18 +188,20 @@ Summarize the last 10 minutes of application activity. Group issues by service, 
 ### Suggested visual
 
 ```text
-Logs + traces + metrics
-        ↓
+Incident signal
+    ↓
 Observability Assistant
-        ↓
-Summary + root cause hints + next actions
+    ↓
+Root cause narrative
+    ↓
+Next actions
 ```
 
 ### Speaker notes
 
-This is where modernization pays off immediately.
+Tell this like an incident story, not a feature checklist.
 
-Before modernization, the app may not have enough telemetry to make this useful. After modernization, we have logs, traces, metrics, service names, resource names, and app context.
+Before modernization, we usually do not have enough structure in signals. After modernization, telemetry and boundaries make this summary actionable.
 
 That means we can ask the app to explain what happened.
 
@@ -442,22 +429,21 @@ Once we have agents, the next question is where those agents run.
 
 ### Title
 
-**From local agent demo to cloud-ready agent model**
+**Hosted Agents decision point: what stays local, what moves to cloud**
 
 ### Main message
 
-Some agents can stay local. Some may become Hosted Agents.
+Use this slide as a decision framework, not a binary split diagram.
 
-### Bullets
+### Content style
 
-Evaluate:
+Use a decision matrix (criteria × candidate agents), not two plain text boxes.
 
-- Which agents stay local for the session?
-- Which agents could become Microsoft Foundry Hosted Agents?
-- Which agents need app data?
-- Which agents need operational data?
-- Which agents need to be deployed independently?
-- Which agents need identity, configuration, and cloud resources?
+Decision criteria:
+- Needs independent scaling
+- Needs managed identity/security boundary
+- Needs persistent cloud context/data
+- Needs independent lifecycle from app deploy
 
 ### Speaker notes
 
@@ -477,22 +463,18 @@ Now let's talk about deployment, but only at the level needed for this session.
 
 ### Title
 
-**Deployment is not the demo, but it matters**
+**Path to production**
 
 ### Main message
 
-The same app model has deployment options.
+The local app model we demoed has a clear path to production deployment options.
 
 ### Bullets
 
-- Same AppHost model.
-- Local development.
-- Publish/deploy options.
-- Azure Container Apps.
-- Azure App Service.
-- Kubernetes / AKS.
-- Docker Compose.
-- Custom pipelines.
+- Same AppHost model from local to production
+- `aspire publish` / `aspire deploy` as transition points
+- Azure Container Apps / App Service / AKS / Docker Compose
+- Keep this as architecture direction (no live deployment demo)
 
 ### Speaker notes
 
