@@ -50,6 +50,11 @@ The project includes several scenarios demonstrating different capabilities:
 | [10 - A2A Network](./scenarios/10-A2ANet/) | Demonstrates advanced agent-to-agent (A2A) communication and orchestration patterns in .NET Aspire, including multi-agent collaboration and reasoning. | .NET Aspire, Multi-Agent Systems, A2A Protocol |
 | [11 - GitHub Models](./scenarios/11-GitHubModels/) | Local-first AI development using GitHub Models during local runs, with automatic switch to Azure OpenAI when deployed. | .NET Aspire, GitHub Models, Azure OpenAI |
 | [12 - Azure Functions](./scenarios/12-AzureFunctions/) | Optional Azure Functions façade for semantic search and an alternate deployment boundary for vector search. | Azure Functions, .NET Aspire, Azure OpenAI |
+| [13 - Observability Assistant with Foundry Local](./scenarios/13-ObservabilityAssistantFoundryLocal/) | Summarizes logs, traces, and incidents with a local-first observability assistant. | Aspire, OpenTelemetry, Foundry Local, Microsoft.Extensions.AI |
+| [14 - Product Discovery Copilot](./scenarios/14-ProductDiscoveryCopilot/) | Turns search into natural-language product discovery with grounded explanations. | Semantic search, vector search, Microsoft.Extensions.AI |
+| [15 - Store Intelligence Report](./scenarios/15-StoreIntelligenceReport/) | Generates daily business and operational store intelligence reports. | App data, telemetry, AI summarization, reports |
+| [16 - MCP Store Operations Tools](./scenarios/16-MCPStoreOperationsTools/) | Exposes safe store capabilities as MCP tools for agent use. | MCP, Aspire, app APIs, tool calling |
+| [17 - A2A Store Operations Network](./scenarios/17-A2AStoreOperationsNetwork/) | Shows specialized agents collaborating around the store app through A2A. | A2A, Microsoft Agent Framework, hosted agents |
 
 ## Getting Started
 
@@ -91,7 +96,7 @@ The project includes several scenarios demonstrating different capabilities:
 
 ### Quick setup — Azure OpenAI secrets
 
-The script `scripts\Set-AzureOpenAISecrets.ps1` configures all 13 scenarios at once. Run it from the **repo root**:
+The script `scripts\Set-AzureOpenAISecrets.ps1` configures all 17 scenarios at once. Run it from the **repo root**:
 
 ```powershell
 pwsh .\scripts\Set-AzureOpenAISecrets.ps1
@@ -168,3 +173,13 @@ The Azure Resource Group with all the deployed services:
 - [.NET Aspire Documentation](https://learn.microsoft.com/dotnet/aspire/)
 
 - [Azure OpenAI Service Documentation](https://learn.microsoft.com/azure/ai-services/openai/)
+
+## Getting Help
+
+If you get stuck or have questions about building AI apps, join:
+
+[![Azure AI Foundry Discord](https://img.shields.io/badge/Discord-Azure_AI_Foundry_Community_Discord-blue?style=for-the-badge&logo=discord&color=5865f2&logoColor=fff)](https://aka.ms/foundry/discord)
+
+If you have product feedback or errors while building, visit:
+
+[![Azure AI Foundry Developer Forum](https://img.shields.io/badge/GitHub-Azure_AI_Foundry_Developer_Forum-blue?style=for-the-badge&logo=github&color=000000&logoColor=fff)](https://aka.ms/foundry/forum)
