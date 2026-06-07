@@ -31,6 +31,9 @@ public class ObservabilityAnalysisResponse
     [JsonPropertyName("analysisSource")]
     public string AnalysisSource { get; set; } = string.Empty;
 
+    [JsonPropertyName("fallbackReason")]
+    public string? FallbackReason { get; set; }
+
     [JsonPropertyName("clustering")]
     public ObservabilityClusteringMetadata? Clustering { get; set; }
 }

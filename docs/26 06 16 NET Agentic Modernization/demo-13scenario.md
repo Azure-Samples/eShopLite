@@ -18,9 +18,18 @@
 - Scenario source available at:
   - `D:\azure-samples\eShopLite\scenarios\13-ObservabilityAssistantFoundryLocal`
 - Foundry Local model selection configured in `src\ObservabilityAssistant\appsettings*.json` using:
-  - `FoundryLocal:SelectedModel`
-  - `FoundryLocal:Models` (model catalog entries with aliases/options)
-- Presenter has one saved fallback answer (included below) ready to paste/show.
+  - `FoundryLocal:SelectedModel` (default demo key: `phi3-5-mini` -> alias `phi-3.5-mini`)
+  - `FoundryLocal:Models` (catalog: `phi3-5-mini`, `phi4-mini`, `phi4`, `qwen2-5-coder`)
+- **Pre-flight the model so the first Analyze is instant:**
+
+  ```pwsh
+  foundry model run phi-3.5-mini   # load the demo model into the local service
+  foundry service ps               # confirm a model is loaded
+  ```
+
+  The service also warms the selected model on startup (see `ModelWarmupService`), but
+  pre-loading guarantees the very first click is a fast inference, not a cold load.
+- The app shows a deterministic fallback automatically if the model is unavailable (no paste needed).
 
 Quick validation:
 
@@ -99,8 +108,11 @@ What each command proves to the audience:
 
 Tie it back to config: the model the assistant uses is selected in
 `src\ObservabilityAssistant\appsettings.json` via `FoundryLocal:SelectedModel`
-(for example `phi-4-mini`), resolved from the `FoundryLocal:Models` catalog. Switching
-models is a one-line config change — point at a different catalog key and restart.
+(demo default `phi3-5-mini` -> alias `phi-3.5-mini`), resolved from the
+`FoundryLocal:Models` catalog (which also defines `phi4-mini`, `phi4`, and
+`qwen2-5-coder`). Switching models is a one-line config change — point
+`SelectedModel` at a different catalog key (and make sure that model is downloaded /
+loadable) and restart.
 
 ## Key ObservabilityAssistant files to talk about
 
@@ -119,8 +131,8 @@ Presenter note: everything in these three files runs locally — Foundry Local f
 1. **Set context (20s):**  
    “This is the modernized eShopLite baseline; now I’ll use telemetry to explain an issue.”
 2. **Open Store UI:** from Aspire Dashboard, click `store` endpoint.
-3. **Keep fault injection ON:** on **Search**, confirm `Inject Search Failure` stays enabled (default-on).
-4. **Generate activity + intentional errors:** run 2-3 searches (normal and semantic toggle), including one unlikely term (for example `do you have winter expedition gloves pro`) to force no-match/error telemetry.
+3. **Keep fault injection ON:** on **Search**, confirm `Inject Search Failure` stays enabled (it is on by default). With it on, the Products call returns HTTP 500 and the Store emits an **Error** telemetry event the assistant will report. `Use Semantic Search` is off by default — toggle it on for a couple of searches to vary the signals.
+4. **Generate activity + intentional errors:** run the searches below (the failure term forces the HTTP 500 / Error telemetry):
   Searches queries
     - do you have something for cooking
     - do you have something for a rainy day
@@ -129,82 +141,100 @@ Presenter note: everything in these three files runs locally — Foundry Local f
 
 5. **Show raw evidence:** in Aspire Dashboard, open `products` and `observabilityassistant` logs and highlight warnings/errors or noisy request traces.
 6. **(Optional) Show the local model:** in a terminal run `foundry cache list` and `foundry service ps` to prove the LLM is downloaded and loaded locally (see "Inspect Foundry Local models" above).
-7. **Run analysis windows from the Store page in order:** 5, 10, 15, and 30 minutes.
+7. **Run analysis windows from the Store page in order:** select 5, then 10, 15, and 30 minutes in the **Time window** dropdown and click **Analyze** each time (there is no prompt to type).
 8. **Callout architecture in one line:** Store page sends the request to `observabilityassistant`; the backend clusters similar log lines with local embeddings, summarizes with the local model, and returns findings to Store for display.
-9. **Point at the embeddings proof:** in the "Backend call proof" card, read the **Local embeddings clustering** line (e.g. "120 entries grouped into 14 clusters") — this is ElBruno.LocalEmbeddings de-noising the logs before the model sees them.
+9. **Point at the embeddings proof:** in the "Backend call proof" card, read the **Local embeddings clustering** line (e.g. "8 entries grouped into 4 clusters") — this is ElBruno.LocalEmbeddings de-noising the logs before the model sees them. Confirm **Analysis source: foundry-local** (if it says `fallback`, the **Why fallback** line explains why).
 10. **Read the answer in sections:** summary, affected service, likely cause, next checks.
 11. **Close with value line (15s):**  
     “Same app, same telemetry, better developer decision speed — and it all runs locally.”
 
-## Exact prompts to run
+## How analysis is triggered (there is no prompt box)
 
-### Window analysis prompts (run in order)
+The Observability Assistant page has **no free-text prompt**. The presenter only:
 
-```text
-Summarize the last 5 minutes of application activity. Group issues by service, identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
-```
+1. Selects a **Time window** from the dropdown (5, 10, 15, or 30 minutes).
+2. Clicks **Analyze**.
 
-```text
-Summarize the last 10 minutes of application activity. Group issues by service, identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
-```
+The Store calls `GET /observability/analyze?minutes=N` on the `observabilityassistant`
+service. The backend pulls that window from the in-memory log store, clusters similar
+lines with local embeddings, then builds the prompt below **internally** and sends it to
+the local Foundry Local model. The presenter never types this — it is shown here so the
+audience understands exactly what the app asks the model.
 
-```text
-Summarize the last 15 minutes of application activity. Group issues by service, identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
-```
-
-```text
-Summarize the last 30 minutes of application activity. Group issues by service, identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
-```
-
-### Backup short prompt
+### The prompt the app sends to the local model (built in `ObservabilityAnalyzer.cs`)
 
 ```text
-Summarize the last 10 minutes from observabilityassistant and tell me what I should check next.
+You are an observability assistant.
+Summarize incidents and customer impact for the last {minutes} minutes in at most 6 bullet points.
+The log lines below are grouped by similarity; "(xN)" means the line represents N similar events.
+Mention probable root cause and immediate next action.
+
+Logs:
+{clustered representative log lines, each with an optional (xN) occurrence count}
 ```
+
+Run Analyze for the 5, 10, 15, and 30-minute windows in turn to show how the window
+size changes what the model reports.
 
 ## Expected output
 
-Expected shape:
+With Foundry Local serving the selected model, the page shows a **Backend call proof**
+card plus a model-written summary. Real example from a run with the inject-failure
+searches:
+
+**Backend call proof**
+
+- Status: HTTP 200
+- Endpoint: `https+http://observabilityassistant/observability/analyze?minutes=10`
+- Entries analyzed: 3
+- Local embeddings clustering: 3 entries grouped into 1 clusters (ElBruno.LocalEmbeddings, ONNX)
+- Analysis source: `foundry-local`
+- (If the model is unavailable, a **Why fallback** line shows the exact reason.)
+
+**Model summary (<=6 bullets, root cause + next action):**
 
 ```text
-## Summary
-- High request volume on search endpoints
-- No-match queries increased after semantic searches
-
-## Services involved
-- products
-- store
-- observabilityassistant
-
-## Likely root cause candidates
-1) Query terms not mapped to current catalog vocabulary
-2) Semantic result ranking weaker for niche terms
-
-## Supporting signals
-- Trace IDs for repeated no-result responses
-- Request/response patterns from products API
-
-## Next checks
-1) Review failed search terms and add synonym mapping
-2) Inspect semantic search endpoint latency/errors
-3) Validate catalog coverage for queried terms
+- Incident: Semantic search for 'do you have winter expedition gloves pro' failed, occurring 3 times in the last 10 minutes.
+- Impact: Customers cannot find the requested gloves, risking dissatisfaction and lost sales.
+- Probable Root Cause: HTTP 500 indicates a server-side issue (search service or database connectivity).
+- Immediate Next Action: Inspect the search system and server logs to resolve the HTTP 500 errors.
+- Preventive Measures: Harden search error handling to prevent recurrence.
 ```
 
-## Fallback plan (model/service failure)
+Exact wording varies per model and run; the shape (bulleted incident / impact / root
+cause / next action) stays consistent.
 
-If the model call fails, do this immediately:
+## Fallback plan (model/service unavailable)
+
+If the local model cannot answer, the app does **not** error out. It automatically shows
+a deterministic, multi-section analysis built from the same clustered telemetry, and the
+**Backend call proof** card adds a **Why fallback** line with the exact reason (for
+example, the model is not loaded). Nothing to type or paste.
 
 1. Keep the Dashboard open and show the same logs/traces.
-2. Say: “Assistant is unavailable, but the workflow is unchanged: signals in, action plan out.”
-3. Show this deterministic fallback response:
+2. Say: "The model is unavailable, but the workflow is unchanged: signals in, action plan out."
+3. The page shows (example):
 
 ```text
-Summary: In the last 10 minutes, Store called observabilityassistant, which summarized products/store telemetry with repeated no-result searches.
-Services involved: products, store, observabilityassistant.
-Most likely root cause: search vocabulary mismatch for user phrasing, not infrastructure outage.
-Supporting signals: repeated /api/Product/search and /api/aisearch calls returning no useful matches; no SQL connectivity failures.
-Next three checks: (1) review top failed terms, (2) add synonym mapping and test semantic ranking, (3) verify product catalog coverage for travel/winter intents.
+**Summary**
+- Analyzed 3 entries grouped into 1 clusters in the last 10 minutes.
+- 3 error-level and 0 warning-level events after de-duplication.
+- Primary concern: [Error] Products semantic search ... failed with HTTP 500. (x3).
+
+**Services involved**
+- products (3)
+
+**Likely root cause**
+- An error-level signal dominates the window; treat it as the primary incident.
+
+**Next checks**
+1. Inspect the top error cluster above and its originating service.
+2. Correlate timestamps across services for the same request.
+3. Re-run analysis on a wider window (15/30 min) to confirm the trend.
 ```
+
+To switch back to the model path, ensure Foundry Local is serving the selected model
+(`foundry service ps`, or `foundry model run phi-3.5-mini`) and click Analyze again.
 
 1. Continue to Demo 2 without retry loops.
 

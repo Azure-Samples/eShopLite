@@ -8,6 +8,7 @@ internal sealed record ObservabilityAnalysisResponse(
     string Details,
     string AnalysisMarkdown,
     string AnalysisSource,
+    string? FallbackReason,
     ObservabilityClusteringMetadata? Clustering,
     ObservabilityModelMetadata? Model);
 

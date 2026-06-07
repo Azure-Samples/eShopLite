@@ -80,6 +80,10 @@ builder.Services.AddSingleton<InMemoryLogStore>();
 builder.Services.AddSingleton<LogClusteringService>();
 builder.Services.AddSingleton<ObservabilityAnalyzer>();
 
+// Warm the selected Foundry Local model on startup so the first Analyze in the demo
+// is a fast inference, not a cold model load. See ModelWarmupService for details.
+builder.Services.AddHostedService<ModelWarmupService>();
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();

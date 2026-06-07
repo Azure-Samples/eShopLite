@@ -74,6 +74,12 @@
                 </div>
             }
             <div><strong>Analysis source:</strong> @analysisResponse.AnalysisSource</div>
+            @if (!string.IsNullOrWhiteSpace(analysisResponse.FallbackReason))
+            {
+                <div class="text-danger">
+                    <strong>Why fallback:</strong> @analysisResponse.FallbackReason
+                </div>
+            }
             <div><strong>Received by Store (UTC):</strong> @analysisResponse.ReceivedAtUtc.ToString("u")</div>
         </div>
     </div>

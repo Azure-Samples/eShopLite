@@ -31,6 +31,7 @@ public class ObservabilityService(HttpClient httpClient, ILogger<ObservabilitySe
                     WindowEndUtc = observabilityResponse?.WindowEndUtc ?? DateTimeOffset.UtcNow,
                     EntriesAnalyzed = observabilityResponse?.EntriesAnalyzed ?? 0,
                     AnalysisSource = observabilityResponse?.AnalysisSource ?? string.Empty,
+                    FallbackReason = observabilityResponse?.FallbackReason,
                     Clustering = observabilityResponse?.Clustering,
                     StatusCode = (int)response.StatusCode,
                     Endpoint = endpointAddress,
