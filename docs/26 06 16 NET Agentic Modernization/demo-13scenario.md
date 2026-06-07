@@ -120,7 +120,13 @@ Presenter note: everything in these three files runs locally — Foundry Local f
    “This is the modernized eShopLite baseline; now I’ll use telemetry to explain an issue.”
 2. **Open Store UI:** from Aspire Dashboard, click `store` endpoint.
 3. **Keep fault injection ON:** on **Search**, confirm `Inject Search Failure` stays enabled (default-on).
-4. **Generate activity + intentional errors:** run 2-3 searches (normal and semantic toggle), including one unlikely term (for example `winter expedition gloves pro`) to force no-match/error telemetry.
+4. **Generate activity + intentional errors:** run 2-3 searches (normal and semantic toggle), including one unlikely term (for example `do you have winter expedition gloves pro`) to force no-match/error telemetry.
+  Searches queries
+    - do you have something for cooking
+    - do you have something for a rainy day
+    - something to paint my room white (no results)
+    - do you have winter expedition gloves pro (trigger search failure)
+
 5. **Show raw evidence:** in Aspire Dashboard, open `products` and `observabilityassistant` logs and highlight warnings/errors or noisy request traces.
 6. **(Optional) Show the local model:** in a terminal run `foundry cache list` and `foundry service ps` to prove the LLM is downloaded and loaded locally (see "Inspect Foundry Local models" above).
 7. **Run analysis windows from the Store page in order:** 5, 10, 15, and 30 minutes.
