@@ -7,6 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 builder.Services.AddProblemDetails();
 
+// Bind and validate the full FoundryLocal section.
+// This catalog drives model selection using:
+// - FoundryLocal:SelectedModel (active key)
+// - FoundryLocal:Models:{key}:* (catalog entries)
 builder.Services
     .AddOptions<FoundryLocalModelCatalogOptions>()
     .Bind(builder.Configuration.GetSection("FoundryLocal"))
@@ -25,6 +29,10 @@ builder.Services
     }, "FoundryLocal:SelectedModel must match a model key with a non-empty ModelAlias.")
     .ValidateOnStart();
 
+// Bind runtime FoundryLocal options from the same section, then map the selected
+// catalog entry into executable values (ModelAlias, optional flags).
+// To switch local models for demos, set FoundryLocal:SelectedModel to another key
+// and define/update that key under FoundryLocal:Models (with ModelAlias, etc.).
 builder.Services
     .AddOptions<FoundryLocalOptions>()
     .Bind(builder.Configuration.GetSection("FoundryLocal"))

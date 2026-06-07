@@ -14,6 +14,23 @@ Local-first observability flow for Demo 1 in the modernization session.
 - Search page includes a default-on toggle: **Inject Search Failure (30%)** to intentionally generate telemetry errors.
 - Presenter runs window analysis in sequence: **5 / 10 / 15 / 30 minutes**.
 
+## Log-analysis flow (local models)
+
+```mermaid
+flowchart LR
+    U[Store UI Search] --> T{Inject Search Failure<br/>30% toggle ON?}
+    T -->|No| S[Store Search request]
+    T -->|Yes| F[Optional failure path<br/>error generated]
+    S --> P[Products service]
+    F --> P
+    P --> L[Products logs and events]
+    L --> O[ObservabilityAssistant<br/>event ingestion]
+    O --> W[Window filter<br/>5 / 10 / 15 / 30 min]
+    W --> M[Foundry Local<br/>selected model analysis]
+    M --> R[Analysis results]
+    R --> U
+```
+
 ## Scope
 
 - Local runnable sample first.

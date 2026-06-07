@@ -1,5 +1,5 @@
 {
   "appHost": {
-    "path": "scenarios/13-ObservabilityAssistantFoundryLocal/src/eShopAppHost/eShopAppHost.csproj"
+    "path": "scenarios/16-MCPStoreOperationsTools/src/eShopAppHost/eShopAppHost.csproj"
   }
 }

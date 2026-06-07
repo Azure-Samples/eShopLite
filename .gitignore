@@ -412,3 +412,6 @@ main.json
 
 # Ignore generated slide assets for agentic modernization docs
 /docs/26 06 16 NET Agentic Modernization/slides/
+
+# Playwright CLI validation output
+.playwright-cli/
