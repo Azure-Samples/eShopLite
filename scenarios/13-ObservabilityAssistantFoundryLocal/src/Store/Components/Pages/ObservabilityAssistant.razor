@@ -1,0 +1,118 @@
+@page "/observability-assistant"
+@using Markdig
+@using Store.Services
+
+@inject IObservabilityService ObservabilityService
+@attribute [StreamRendering(true)]
+@rendermode InteractiveServer
+
+<PageTitle>Observability Assistant</PageTitle>
+
+<h1>Observability Assistant</h1>
+
+<p>Analyze telemetry in a selected time window and review assistant output.</p>
+
+<div class="row g-2 align-items-end mb-3">
+    <div class="col-sm-4 col-md-3">
+        <label for="windowMinutes" class="form-label">Time window</label>
+        <select id="windowMinutes" class="form-select" @bind="selectedWindowMinutes" disabled="@isLoading">
+            @foreach (var option in availableWindows)
+            {
+                <option value="@option">@option minutes</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-auto">
+        <button class="btn btn-primary" @onclick="RunAnalysis" disabled="@isLoading">
+            Analyze
+        </button>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="d-flex align-items-center gap-2 mb-3" role="status" aria-live="polite">
+        <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <span>Running observability analysis...</span>
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @errorMessage
+    </div>
+}
+
+@if (analysisResponse is not null)
+{
+    <div class="alert alert-success" role="status">
+        Analysis retrieved from backend.
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">Backend call proof</div>
+        <div class="card-body">
+            <div><strong>Status:</strong> HTTP @lastStatusCode</div>
+            <div><strong>Endpoint:</strong> @lastEndpoint</div>
+            <div><strong>Window:</strong> @analysisResponse.WindowStartUtc.ToString("u") to @analysisResponse.WindowEndUtc.ToString("u")</div>
+            <div><strong>Entries analyzed:</strong> @analysisResponse.EntriesAnalyzed</div>
+            <div><strong>Analysis source:</strong> @analysisResponse.AnalysisSource</div>
+            <div><strong>Received by Store (UTC):</strong> @analysisResponse.ReceivedAtUtc.ToString("u")</div>
+        </div>
+    </div>
+
+    <div class="quote">
+        @((MarkupString)RenderMarkdown(analysisResponse.Summary))
+    </div>
+}
+
+@code {
+    private readonly int[] availableWindows = [5, 10, 15, 30];
+    private int selectedWindowMinutes = 10;
+    private bool isLoading;
+    private string? errorMessage;
+    private ObservabilityAnalysisClientResult? analysisResponse;
+    private int? lastStatusCode;
+    private string lastEndpoint = string.Empty;
+    private readonly MarkdownPipeline markdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+
+    private string RenderMarkdown(string markdown)
+    {
+        return string.IsNullOrWhiteSpace(markdown) ? string.Empty : Markdig.Markdown.ToHtml(markdown, markdownPipeline);
+    }
+
+    private async Task RunAnalysis()
+    {
+        if (isLoading)
+        {
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+        analysisResponse = null;
+
+        try
+        {
+            var result = await ObservabilityService.AnalyzeObservability(selectedWindowMinutes);
+            lastStatusCode = result.StatusCode;
+            lastEndpoint = result.Endpoint;
+
+            if (result.IsSuccess)
+            {
+                analysisResponse = result;
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Observability analysis failed.";
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

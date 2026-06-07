@@ -9,9 +9,12 @@ builder.AddServiceDefaults();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
+builder.Services.AddScoped<IObservabilityService, ObservabilityService>();
 
 builder.Services.AddHttpClient<IProductService, ProductService>(
     static client => client.BaseAddress = new("https+http://products"));
+builder.Services.AddHttpClient<IObservabilityService, ObservabilityService>(
+    static client => client.BaseAddress = new("https+http://observabilityassistant"));
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

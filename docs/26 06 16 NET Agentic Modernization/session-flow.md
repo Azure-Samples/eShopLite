@@ -139,6 +139,7 @@ Show that logs and traces can become an explanation.
 ### Setup
 
 - Use eShopLite baseline from Scenario 01.
+- Run local-first with three Aspire services: `products`, `store`, `observabilityassistant`.
 - Generate search/cart/catalog activity.
 - Trigger or simulate one or two known issues.
 - Show logs/traces in the local developer environment.
@@ -150,13 +151,14 @@ Show that logs and traces can become an explanation.
 2. Perform a few user actions.
 3. Trigger a failed search or catalog issue.
 4. Show raw logs/traces.
-5. Ask the Observability Assistant to summarize.
-6. Show grouped issues, root cause candidates, and next actions.
+5. From Store, call `observabilityassistant` for 5/10/15/30-minute windows.
+6. Show that backend-generated findings are rendered in Store.
+7. Show grouped issues, root cause candidates, and next actions.
 
 ### Demo prompt
 
 ```text
-Summarize the last 10 minutes of application activity. Group issues by service, identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
+Summarize the last 10 minutes of application activity. Group issues by service (products, store, observabilityassistant), identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
 ```
 
 ### Expected output shape

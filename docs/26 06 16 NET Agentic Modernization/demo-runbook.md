@@ -109,7 +109,13 @@ Use the full presenter script, prompts, expected outputs, fallback, and code wal
 
 ### Goal
 
-Summarize recent logs/traces and produce developer next actions.
+Run local observability flow with three Aspire services (`products`, `store`, `observabilityassistant`) and produce developer next actions.
+
+### Required presenter callout
+
+- The Store page calls `observabilityassistant` backend.
+- The backend generates findings from telemetry and Store displays those findings.
+- Run the same narrative across four windows: **5 / 10 / 15 / 30 minutes**.
 
 ---
 

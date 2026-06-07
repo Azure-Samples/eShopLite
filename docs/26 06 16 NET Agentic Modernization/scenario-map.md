@@ -23,7 +23,7 @@ For this session package, reliability comes first:
 | Session section | Slide | Scenario folder | Current code baseline | Current readiness | Demo type now |
 |---|---:|---|---|---|---|
 | Baseline app | 5 | Existing Scenario 01 | `01-SemanticSearch` | Runnable | Live |
-| Observability Assistant | 6 | `13-ObservabilityAssistantFoundryLocal` | `01-SemanticSearch` (copied) | Runnable baseline; feature-specific assistant not implemented | Live (baseline + scripted output) |
+| Observability Assistant | 6 | `13-ObservabilityAssistantFoundryLocal` | Local runnable, modernization-first flow | Demo narrative uses three Aspire services (`products`, `store`, `observabilityassistant`) with backend findings shown in Store | Live |
 | Product Discovery | 7 | `14-ProductDiscoveryCopilot` | `01-SemanticSearch` (copied) | Runnable baseline; Copilot UX not implemented | Live (baseline semantic search) |
 | Store Intelligence | 8 | `15-StoreIntelligenceReport` | `01-SemanticSearch` (copied) | Runnable baseline; report pipeline not implemented | Live (prepared report fallback) |
 | MCP Store Tools | 9 | `16-MCPStoreOperationsTools` | `06-mcp` | Runnable MCP sample; store-ops tool set not fully aligned to session script | Live (existing MCP tools) |
@@ -38,8 +38,8 @@ For this session package, reliability comes first:
 ## Scenario 13 - Observability Assistant with Foundry Local
 
 - **Session target:** Operational-summary assistant over logs/traces.
-- **Current:** Same app code as Scenario 01; scenario-specific docs are still mostly Semantic Search copy.
-- **Gap to target:** Add observability assistant flow (or deterministic fixture-backed endpoint) and aligned docs.
+- **Demo flow:** Store requests analysis from `observabilityassistant`; assistant summarizes telemetry and Store renders findings.
+- **Window flow:** 5 / 10 / 15 / 30-minute analysis windows in one local run.
 
 ## Scenario 14 - Product Discovery Copilot
 

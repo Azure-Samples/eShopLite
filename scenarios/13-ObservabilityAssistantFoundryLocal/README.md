@@ -1,17 +1,21 @@
 # Observability Assistant with Foundry Local
 
-**Status:** Scaffolded for the 2026-06-06T14:05:16.188-04:00 agentic modernization plan.
+## Scenario focus
 
-## Derived from
-01-Semantic Search.
+Local-first observability flow for Demo 1 in the modernization session.
 
-## What this scenario will demonstrate
-- Summarize logs, traces, and incidents locally.
-- Use Foundry Local first, with Azure OpenAI or GitHub Models as optional provider swaps.
-- Keep the demo deterministic and local-first.
+## Demo 1 narrative (presenter-facing)
+
+- Aspire services: `products`, `store`, `observabilityassistant`.
+- User triggers analysis from Store.
+- Store calls `observabilityassistant` backend.
+- Backend generates findings from telemetry signals and Store displays them.
+- Presenter runs window analysis in sequence: **5 / 10 / 15 / 30 minutes**.
+
+## Scope
+
+- Local runnable sample first.
+- Foundry Local is primary path; Azure/OpenAI provider swaps are optional.
 
 ## Session docs
 See the shared session package at [docs/26 06 16 NET Agentic Modernization](../../docs/26%2006%2016%20NET%20Agentic%20Modernization/README.md).
-
-## Next step
-Add the scenario AppHost and app projects, then wire the local demo flow.

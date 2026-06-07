@@ -33,9 +33,14 @@ var products = builder.AddProject<Projects.Products>("products")
     .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
     .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment);
 
+var observabilityAssistant = builder.AddProject<Projects.ObservabilityAssistant>("observabilityassistant")
+    .WaitFor(products);
+
 var store = builder.AddProject<Projects.Store>("store")
     .WithReference(products)
+    .WithReference(observabilityAssistant)
     .WaitFor(products)
+    .WaitFor(observabilityAssistant)
     .WithExternalHttpEndpoints();
 
 if (builder.ExecutionContext.IsPublishMode)
@@ -55,6 +60,8 @@ if (builder.ExecutionContext.IsPublishMode)
     embeddingsDeployment.Resource.SkuName = "GlobalStandard";
 
     products.WithReference(appInsights);
+
+    observabilityAssistant.WithReference(appInsights);
 
     store.WithReference(appInsights)
         .WithExternalHttpEndpoints();

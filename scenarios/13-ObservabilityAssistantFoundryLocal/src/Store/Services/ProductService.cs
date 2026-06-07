@@ -6,7 +6,7 @@ namespace Store.Services;
 
 public class ProductService : IProductService
 {
-    HttpClient httpClient;
+    private readonly HttpClient httpClient;
     private readonly ILogger<ProductService> _logger;
 
     public ProductService(HttpClient httpClient, ILogger<ProductService> logger)
@@ -76,5 +76,5 @@ public class ProductService : IProductService
         }
 
         return new SearchResponse { Response = "No response" };
-    }    
+    }
 }

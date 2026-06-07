@@ -38,7 +38,7 @@ aspire ps
 ```
 
 What to confirm before demo:
-- `store`, `products`, and `sql` resources are `Running`.
+- `products`, `store`, and `observabilityassistant` resources are `Running`.
 - Open the Dashboard URL shown by Aspire and pin it in a browser tab.
 
 ### Alternative A (if Aspire CLI behaves unexpectedly)
@@ -65,24 +65,37 @@ aspire start --non-interactive
 2. **Open Store UI:** from Aspire Dashboard, click `store` endpoint.
 3. **Generate activity:** go to **Search**, run 2-3 searches (normal and semantic toggle).
 4. **Create a visible low-signal issue:** search a term with no likely result (for example `winter expedition gloves pro`) to create failure/no-match telemetry.
-5. **Show raw evidence:** in Aspire Dashboard, open `products` logs and highlight warnings/errors or noisy request traces.
-6. **Ask the assistant prompt** (below) in your demo chat/assistant surface.
-7. **Read the answer in sections:** summary, affected service, likely cause, next checks.
-8. **Close with value line (15s):**  
+5. **Show raw evidence:** in Aspire Dashboard, open `products` and `observabilityassistant` logs and highlight warnings/errors or noisy request traces.
+6. **Run analysis windows from the Store page:** 5, 10, 15, and 30 minutes.
+7. **Callout architecture in one line:** Store page sends the request to `observabilityassistant`; the backend summarizes telemetry and returns findings to Store for display.
+8. **Read the answer in sections:** summary, affected service, likely cause, next checks.
+9. **Close with value line (15s):**  
    “Same app, same telemetry, better developer decision speed.”
 
 ## Exact prompts to run
 
-### Main prompt
+### Window analysis prompts (run in order)
+
+```text
+Summarize the last 5 minutes of application activity. Group issues by service, identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
+```
 
 ```text
 Summarize the last 10 minutes of application activity. Group issues by service, identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
 ```
 
+```text
+Summarize the last 15 minutes of application activity. Group issues by service, identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
+```
+
+```text
+Summarize the last 30 minutes of application activity. Group issues by service, identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
+```
+
 ### Backup short prompt
 
 ```text
-Summarize the last 10 minutes of activity and tell me what I should check next.
+Summarize the last 10 minutes from observabilityassistant and tell me what I should check next.
 ```
 
 ## Expected output
@@ -97,6 +110,7 @@ Expected shape:
 ## Services involved
 - products
 - store
+- observabilityassistant
 
 ## Likely root cause candidates
 1) Query terms not mapped to current catalog vocabulary
@@ -121,8 +135,8 @@ If the model call fails, do this immediately:
 3. Show this deterministic fallback response:
 
 ```text
-Summary: In the last 10 minutes, Store and Products handled normal traffic with repeated no-result searches.
-Services involved: store, products.
+Summary: In the last 10 minutes, Store called observabilityassistant, which summarized products/store telemetry with repeated no-result searches.
+Services involved: products, store, observabilityassistant.
 Most likely root cause: search vocabulary mismatch for user phrasing, not infrastructure outage.
 Supporting signals: repeated /api/Product/search and /api/aisearch calls returning no useful matches; no SQL connectivity failures.
 Next three checks: (1) review top failed terms, (2) add synonym mapping and test semantic ranking, (3) verify product catalog coverage for travel/winter intents.
@@ -134,8 +148,9 @@ Next three checks: (1) review top failed terms, (2) add synonym mapping and test
 
 | Story beat | File | What to show |
 |---|---|---|
-| “Aspire wires the demo resources.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/eShopAppHost/Program.cs` | SQL + products + store composition and AOAI parameters (`AddSqlServer`, `AddProject`, environment wiring). |
+| “Aspire wires 3 services for Demo 1.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/eShopAppHost/Program.cs` | `products`, `store`, `observabilityassistant` composition and local-first wiring. |
 | “Telemetry is enabled by default in services.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/eShopServiceDefaults/Extensions.cs` | OpenTelemetry logging/tracing setup and OpenAI activity source toggles. |
+| “Store delegates analysis to backend assistant.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Store/*` | Store requests a 5/10/15/30-minute analysis window from `observabilityassistant` and renders backend findings. |
 | “Products API is AI-capable but still app-grounded.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Products/Program.cs` | `AddServiceDefaults`, AOAI client setup, `AddChatClient`, `AddEmbeddingGenerator`, memory initialization logs. |
 | “Semantic endpoint is explicit and inspectable.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Products/Endpoints/ProductEndpoints.cs` | `/api/aisearch/{search}` plus conventional `/api/Product/search/{search}` routes. |
 | “UI can toggle semantic vs regular search live.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Store/Components/Pages/Search.razor` | `Use Semantic Search` toggle and search button flow (`DoSearch`). |

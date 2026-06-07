@@ -4,6 +4,7 @@
     <Project Path="eShopServiceDefaults/eShopServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/2 eShoplite/">
+    <Project Path="ObservabilityAssistant/ObservabilityAssistant.csproj" />
     <Project Path="Products/Products.csproj" />
     <Project Path="Store/Store.csproj" />
   </Folder>
