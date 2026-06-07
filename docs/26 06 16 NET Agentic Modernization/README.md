@@ -80,8 +80,8 @@ New scenarios must start from **Scenario 01 - Semantic Search** by default, unle
 | 13 | `13-ObservabilityAssistantFoundryLocal` | `01 - Semantic Search` | Smarter operations |
 | 14 | `14-ProductDiscoveryCopilot` | `01 - Semantic Search` | Smarter user experience |
 | 15 | `15-StoreIntelligenceReport` | `01 - Semantic Search` | Smarter business operations |
-| 16 | `16-MCPStoreOperationsTools` | Prefer `01 - Semantic Search`; reuse MCP patterns if needed | Smarter integrations |
-| 17 | `17-A2AStoreOperationsNetwork` | Prefer `01 - Semantic Search`; reuse A2A patterns if needed | Smarter workflows |
+| 16 | `16-MCPStoreOperationsTools` | `06-mcp` for current runnable reliability (target: align with session store-ops toolset) | Smarter integrations |
+| 17 | `17-A2AStoreOperationsNetwork` | `10-A2ANet` for current runnable reliability (target: align agent roles to session narrative) | Smarter workflows |
 
 ## Branch rule
 

@@ -2,193 +2,72 @@
 
 ## Purpose
 
-This file maps the session story to eShopLite scenario folders, slides, demos, and docs.
+Map the session story to real scenario folders, with a reliability-first view for local demos.
+
+## Session guardrails
+
+- Keep the session scope from `docs\26 06 16 NET Agentic Modernization\README.md`.
+- Keep out-of-scope items unchanged (no Smart Components, no eShopSupport/eShopOnWeb, no live deployment demo, no Aspire MCP server pitch).
+- Prioritize runnable local demos over speculative architecture changes.
 
 ## Source scenario rule
 
-New scenarios must start from **Scenario 01 - Semantic Search** by default.
+New scenarios should start from **01-SemanticSearch** unless a scenario explicitly needs existing infrastructure from another scenario.
 
-Use another existing scenario only when the new scenario specifically needs existing infrastructure, such as MCP, A2A, or deployment assets.
+For this session package, reliability comes first:
+- Scenario 16 currently depends on MCP infrastructure from Scenario 06.
+- Scenario 17 currently depends on A2A infrastructure from Scenario 10.
 
-Each new scenario README must state:
+## Current scenario reality (2026-06)
 
-- source scenario,
-- reason for source scenario choice,
-- scenario goal,
-- how to run,
-- demo flow,
-- expected output,
-- fallback plan.
+| Session section | Slide | Scenario folder | Current code baseline | Current readiness | Demo type now |
+|---|---:|---|---|---|---|
+| Baseline app | 5 | Existing Scenario 01 | `01-SemanticSearch` | Runnable | Live |
+| Observability Assistant | 6 | `13-ObservabilityAssistantFoundryLocal` | `01-SemanticSearch` (copied) | Runnable baseline; feature-specific assistant not implemented | Live (baseline + scripted output) |
+| Product Discovery | 7 | `14-ProductDiscoveryCopilot` | `01-SemanticSearch` (copied) | Runnable baseline; Copilot UX not implemented | Live (baseline semantic search) |
+| Store Intelligence | 8 | `15-StoreIntelligenceReport` | `01-SemanticSearch` (copied) | Runnable baseline; report pipeline not implemented | Live (prepared report fallback) |
+| MCP Store Tools | 9 | `16-MCPStoreOperationsTools` | `06-mcp` | Runnable MCP sample; store-ops tool set not fully aligned to session script | Live (existing MCP tools) |
+| A2A Store Network | 10 | `17-A2AStoreOperationsNetwork` | `10-A2ANet` | Runnable A2A sample; agent roles differ from session script | Live (existing agent network) |
+| Hosted Agents | 11 | Docs only | N/A | Design/evaluation only | Slide |
+| Deploy with Aspire | 12 | Docs only | N/A | Design only for this session | Slide |
+| Top 5 pain points | 13 | Docs only | N/A | Ready | Slide |
+| Final message | 14 | Docs only | N/A | Ready | Slide |
 
-## Scenario overview
-
-| Session section | Slide | Scenario folder | Demo type | Source baseline |
-|---|---:|---|---|---|
-| Baseline app | 5 | Existing Scenario 01 | Live | `01 - Semantic Search` |
-| Observability Assistant | 6 | `13-ObservabilityAssistantFoundryLocal` | Live | `01 - Semantic Search` |
-| Product Discovery | 7 | `14-ProductDiscoveryCopilot` | Live | `01 - Semantic Search` |
-| Store Intelligence | 8 | `15-StoreIntelligenceReport` | Live | `01 - Semantic Search` |
-| MCP Store Tools | 9 | `16-MCPStoreOperationsTools` | Live | Prefer `01 - Semantic Search`; reuse MCP patterns if needed |
-| A2A Store Network | 10 | `17-A2AStoreOperationsNetwork` | Live or architecture | Prefer `01 - Semantic Search`; reuse A2A patterns if needed |
-| Hosted Agents | 11 | Docs only | Slide | Scenario 17 extension |
-| Deploy with Aspire | 12 | Docs only | Slide | Existing deployment scenario/docs |
-| Top 5 pain points | 13 | Docs only | Slide | Session summary |
-| Final message | 14 | Docs only | Slide | Session summary |
+## Scenario targets and known gaps
 
 ## Scenario 13 - Observability Assistant with Foundry Local
 
-### Goal
-
-Make the app explain logs, traces, and recent operational activity.
-
-### Source
-
-`01 - Semantic Search`
-
-### Why
-
-The demo should feel like the same modernized app baseline, now with operational intelligence added.
-
-### Core components
-
-- Recent log reader or deterministic log fixture.
-- Trace/correlation summary.
-- Local AI summary service.
-- Foundry Local integration if available.
-- UI or endpoint to request summary.
-
-### Output
-
-Developer-friendly operational summary.
+- **Session target:** Operational-summary assistant over logs/traces.
+- **Current:** Same app code as Scenario 01; scenario-specific docs are still mostly Semantic Search copy.
+- **Gap to target:** Add observability assistant flow (or deterministic fixture-backed endpoint) and aligned docs.
 
 ## Scenario 14 - Product Discovery Copilot
 
-### Goal
-
-Improve search into user-intent product discovery.
-
-### Source
-
-`01 - Semantic Search`
-
-### Why
-
-This scenario naturally extends semantic search.
-
-### Core components
-
-- Search input.
-- Grounded product recommendation response.
-- Product explanation.
-- Optional comparison prompt.
-
-### Output
-
-Intent-based product recommendations grounded in catalog data.
+- **Session target:** Intent-first discovery and grounded explanations.
+- **Current:** Same app code as Scenario 01; no dedicated Copilot flow.
+- **Gap to target:** Add lightweight discovery/copilot interaction layer and scenario-specific docs.
 
 ## Scenario 15 - Store Intelligence Report
 
-### Goal
-
-Turn app signals into business summaries.
-
-### Source
-
-`01 - Semantic Search`
-
-### Why
-
-The same catalog/search baseline can produce meaningful business signals.
-
-### Core components
-
-- Search event fixture.
-- Failed search data.
-- Product catalog data.
-- Optional operational summary input.
-- Report generator.
-
-### Output
-
-Daily store intelligence report.
+- **Session target:** Daily store-intelligence summary from app signals.
+- **Current:** Same app code as Scenario 01; no implemented report pipeline/page.
+- **Gap to target:** Add deterministic input fixture + report generation endpoint/UI + docs.
 
 ## Scenario 16 - MCP Store Operations Tools
 
-### Goal
-
-Expose app capabilities as tools.
-
-### Source
-
-Prefer `01 - Semantic Search`.
-
-Reuse patterns from the existing MCP scenario only when required.
-
-### Core tools
-
-```text
-search_catalog
-get_product_details
-get_failed_searches
-get_store_summary
-get_recent_operational_summary
-generate_store_intelligence_report
-```
-
-### Output
-
-Tool-using agent result grounded in app capabilities.
+- **Session target toolset:** store operations and intelligence tools.
+- **Current runnable toolset:** product search + weather + park info + online research in `src\eShopMcpSseServer\Tools`.
+- **Gap to target:** add/rename tools to match store-operations narrative and demo prompts.
 
 ## Scenario 17 - A2A Store Operations Network
 
-### Goal
+- **Session target roles:** Orchestrator + Catalog + Observability + Business Insights agents.
+- **Current runnable roles:** Inventory + Promotions + Researcher agents orchestrated by Products API.
+- **Gap to target:** role remap and prompt alignment while preserving runnable A2A flow.
 
-Show specialized agents collaborating around the app.
+## Demo reliability policy for this session
 
-### Source
-
-Prefer `01 - Semantic Search`.
-
-Reuse patterns from the existing A2A scenario or https://github.com/elbruno/MAF-A2A-NVIDIA-NemoAgents when required.
-
-### Agents
-
-```text
-Orchestrator Agent
-Catalog Agent
-Observability Agent
-Business Insights Agent
-```
-
-### Output
-
-Investigation summary and action plan.
-
-## Hosted Agents evaluation
-
-### Type
-
-Docs and slide only unless already reliable.
-
-### Goal
-
-Evaluate which agents could become Microsoft Foundry Hosted Agents through Aspire.
-
-### Output
-
-Decision table and next-step implementation notes.
-
-## Deploy with Aspire
-
-### Type
-
-Slide only.
-
-### Goal
-
-Show that the same modernized app model has deployment paths.
-
-### References
-
-- https://aspire.dev/deployment/
-- https://aspire.dev/whats-new/aspire-13-4/
+1. Use runnable local paths first.
+2. Keep deterministic fallback outputs for every scenario.
+3. Do not block the session on cloud-only dependencies.
+4. Treat Hosted Agents as evaluation content unless proven stable for live demo.
