@@ -98,6 +98,7 @@ To run the project locally, you'll need to make sure the following tools are ins
 - [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Git](https://git-scm.com/downloads)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
+- [Aspire CLI](https://aspire.dev/reference/cli/commands/) — install with `dotnet tool install -g aspire.cli`
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
   - If using Visual Studio Code, install the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit)
 - .NET Aspire workload:
@@ -105,21 +106,44 @@ To run the project locally, you'll need to make sure the following tools are ins
 - An OCI compliant container runtime, such as:
   - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/).
 
+> ⚠️ **Docker/Podman must be running before you start the scenario.** This scenario uses SQL Server 2025 in a container. If Docker is not running, the `sql` and `productsDb` resources will fail to start.
+
 ### Run the solution
 
-Follow these steps to run the project, locally or in CodeSpaces:
+There are two ways to start the scenario:
 
-- Navigate to the Aspire Host folder project using the command:
+#### Option A — Aspire CLI (recommended)
 
-  ```bash
-  cd ./src/eShopAppHost/
-  ```
+From the **scenario folder** (`scenarios/01-SemanticSearch`) or the **repo root**, run:
 
-- Run the project:
+```bash
+aspire start
+```
 
-  ```bash
-  dotnet run
-  ````
+The CLI auto-discovers the AppHost. Once started it prints the Aspire Dashboard URL and a login token:
+
+```
+Dashboard:  https://localhost:17104/login?t=<token>
+```
+
+Open that URL to see all running services. The `sql` container may show **RuntimeUnhealthy** for a few seconds while SQL Server initialises — this is normal; wait ~15 seconds for it to become **Running**.
+
+To stop the background AppHost:
+
+```bash
+aspire stop
+```
+
+#### Option B — dotnet run (interactive / foreground)
+
+Navigate to the AppHost directory and run:
+
+```bash
+cd ./src/eShopAppHost/
+dotnet run
+```
+
+This runs the AppHost in the foreground (logs stream to the terminal). Press `Ctrl+C` to stop.
 
 ## .NET Aspire Azure Resources creation
 
@@ -155,22 +179,17 @@ Consider the following example for the *appsettings.json* file in the eShopAppHo
 
 Check [.NET Aspire Azure hosting integrations](https://learn.microsoft.com/dotnet/aspire/azure/local-provisioning#net-aspire-azure-hosting-integrations) for more information on how .NET Aspire create the necessary cloud resources for local development.
 
-### Local development using an existing gpt-4.1-mini and ada-002 model
+### Local development using an existing Azure OpenAI model
 
-In order to use existing models: gpt-4.1-mini and text-embedding-ada-002, set the Azure OpenAI parameters as user secrets in the `eShopAppHost` project.
-
-This Azure OpenAI service must contain:
-
-- a chat model named **gpt-4.1-mini** (or your preferred chat deployment)
-- a `text-embedding-ada-002` model named **text-embedding-ada-002** (or your preferred embeddings deployment)
+Set the Azure OpenAI parameters as Aspire secrets in the `eShopAppHost` project. The AppHost uses **gpt-5-mini** (chat) and **text-embedding-3-small** (embeddings) by default for Azure deployments, but you can point to any deployed model by setting these four secrets.
 
 Run these commands from the **repo root**:
 
 ```bash
 aspire secret set Parameters:AzureOpenAIEndpoint "https://<your-resource>.openai.azure.com/" --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
 aspire secret set Parameters:AzureOpenAIApiKey "<your-api-key>" --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
-aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-4.1-mini" --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
-aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-ada-002" --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIDeploymentName "gpt-5-mini" --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
+aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding-3-small" --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
 ```
 
 > **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once.
