@@ -30,10 +30,10 @@ Same modernized app, same signals — a third audience served.
 ## How it works (the one-paragraph version)
 
 Every keyword and semantic search records a `StoreSignal` (term, semantic flag, result count,
-timestamp) into an in-memory `StoreSignalStore` on the `products` service. The store is **seeded
-with 8 sample signals at startup** (two of them no-result), so the report is never empty even
+timestamp) into an in-memory `StoreSignalStore` on the `storeintelligence` service. The store is **seeded
+with startup sample signals** (including no-result rows), so the report is never empty even
 before you search. The **Store Intelligence** page calls `GET /api/intelligence/report`, which
-aggregates the signals (top searches, failed searches, product opportunities, operational issues),
+aggregates the signals (grouped customer intents by meaning, failed searches, product opportunities, operational issues),
 asks the chat model to write the executive summary + recommended actions, and falls back to a
 deterministic narrative when the model is unavailable. The page renders the sections and shows the
 `source` badge.
@@ -122,7 +122,7 @@ aspire start --non-interactive
    Intelligence** app and click **Refresh signals** — your new searches now appear in the table.
 5. **Click Generate report (the business ask):** this calls `GET /api/intelligence/report`. In a
    second or two the report card renders.
-6. **Walk the report top-down:** executive summary → top customer intents → searches with no
+6. **Walk the report top-down:** executive summary → top customer intents (grouped themes with expandable sub-items) → searches with no
    results → product opportunities → operational issues → recommended actions.
 7. **Point at the proof line:** the `source: ai` badge (or `source: fallback` if no Azure OpenAI).
    "Same report shape either way — the badge tells you which path ran. The fallback means the demo
@@ -149,7 +149,7 @@ The rendered report follows the scenario's report schema
 ```text
 Store Intelligence Report          (source: ai | fallback · N signals analyzed)
 - Executive summary
-- Top customer intents
+- Top customer intents (grouped by meaning)
 - Searches with no results
 - Product opportunities
 - Operational issues
@@ -211,10 +211,10 @@ The report has a **built-in deterministic fallback**, so this demo has no hard l
 
 | File | Role | What to say |
 |---|---|---|
-| `scenarios/15-StoreIntelligenceReport/src/Products/Intelligence/StoreSignalStore.cs` | **Signal capture** | Thread-safe in-memory ring of recent searches; seeded with 8 sample signals (2 no-result) so the report is never empty. |
-| `scenarios/15-StoreIntelligenceReport/src/Products/Intelligence/StoreIntelligenceReportService.cs` | **The report engine** | Aggregates signals into sections, asks `IChatClient` for the summary + actions, falls back deterministically (sets `source`). The heart of the demo. |
-| `scenarios/15-StoreIntelligenceReport/src/Products/Endpoints/IntelligenceEndpoints.cs` | **The API** | `GET /api/intelligence/signals` and `GET /api/intelligence/report` — what the page calls. |
-| `scenarios/15-StoreIntelligenceReport/src/Store/Components/Pages/StoreIntelligence.razor` | **The business UI** | The `/intelligence` page: Refresh signals, Generate report, rendered sections, `source` badge. |
+| `scenarios/15-StoreIntelligenceReport/src/StoreIntelligence/Services/StoreSignalStore.cs` | **Signal capture** | Thread-safe in-memory ring of recent searches; seeded sample signals guarantee report content at startup. |
+| `scenarios/15-StoreIntelligenceReport/src/StoreIntelligence/Services/StoreIntelligenceReportService.cs` | **The report engine** | Aggregates signals into grouped intent themes + sections, asks `IChatClient` for summary/actions, falls back deterministically (`source`). |
+| `scenarios/15-StoreIntelligenceReport/src/StoreIntelligence/Endpoints/IntelligenceEndpoints.cs` | **The API** | `GET /api/intelligence/signals` and `GET /api/intelligence/report` — what the dashboard calls. |
+| `scenarios/15-StoreIntelligenceReport/src/StoreIntelligence/Components/Pages/Home.razor` | **The business UI** | Dashboard page: Refresh signals, Generate report, grouped intent themes, `source` badge. |
 | `scenarios/15-StoreIntelligenceReport/src/Products/Endpoints/ProductApiActions.cs` | **Where signals are born** | `SearchAllProducts` records a `StoreSignal` for every keyword search (semantic search records in `ProductAiActions.cs`). |
 | `scenarios/15-StoreIntelligenceReport/docs/report-schema.md` | **Report contract** | The section list the report produces. |
 

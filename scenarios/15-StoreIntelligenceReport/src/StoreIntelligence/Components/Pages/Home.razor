@@ -56,7 +56,7 @@
             </p>
 
             @ReportSection("Executive summary",       report.ExecutiveSummary)
-            @ReportSection("Top customer intents",    report.TopSearches)
+            @IntentSection(report.TopCustomerIntents)
             @ReportSection("Searches with no results",report.FailedSearches)
             @ReportSection("Product opportunities",   report.ProductOpportunities)
             @ReportSection("Operational issues",      report.OperationalIssues)
@@ -168,5 +168,45 @@ else
             builder.CloseElement();
         }
         builder.CloseElement();
+    };
+
+    /// <summary>
+    /// Renders grouped customer intents (theme + underlying term rows) so semantically-similar
+    /// searches are explained as one business topic.
+    /// </summary>
+    private RenderFragment IntentSection(List<CustomerIntent> intents) => builder =>
+    {
+        if (intents is null || intents.Count == 0)
+        {
+            return;
+        }
+
+        builder.OpenElement(0, "h3");
+        builder.AddAttribute(1, "class", "h6 mt-3");
+        builder.AddContent(2, "Top customer intents");
+        builder.CloseElement();
+
+        var seq = 10;
+        foreach (var intent in intents)
+        {
+            builder.OpenElement(seq++, "details");
+            builder.AddAttribute(seq++, "open", true);
+            builder.AddAttribute(seq++, "class", "mb-2");
+
+            builder.OpenElement(seq++, "summary");
+            builder.AddContent(seq++, $"{intent.Theme} ({intent.TotalSearches} searches)");
+            builder.CloseElement();
+
+            builder.OpenElement(seq++, "ul");
+            foreach (var term in intent.Terms)
+            {
+                builder.OpenElement(seq++, "li");
+                builder.AddContent(seq++, $"{term.Term} (x{term.Count}, {term.Results} results)");
+                builder.CloseElement();
+            }
+            builder.CloseElement();
+
+            builder.CloseElement();
+        }
     };
 }

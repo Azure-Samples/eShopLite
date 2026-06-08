@@ -66,6 +66,8 @@ public class StoreSignalStore
         var samples = new (string Term, bool Semantic, int ResultCount, int MinutesAgo)[]
         {
             ("rainy day gear",        true,  3, 22),
+            ("do you have something for a rainy day", true, 2, 21),
+            ("something for camping while it's raining", true, 2, 20),
             ("camp cooking",          true,  4, 19),
             ("four season tent",      true,  2, 16),
             ("winter camping tent",   false, 2, 14),

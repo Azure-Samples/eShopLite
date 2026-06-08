@@ -75,4 +75,33 @@ public sealed class StoreIntelligenceTests
             report.FailedSearches.Any(f => f.Contains("hiking boots size 12", StringComparison.OrdinalIgnoreCase)),
             "Repeated failed search should appear in FailedSearches.");
     }
+
+    [TestMethod]
+    public async Task ReportService_Groups_Rain_Queries_Into_One_Intent()
+    {
+        var store = new StoreSignalStore();
+        store.Record("do you have something for a rainy day", semantic: true, resultCount: 2);
+        store.Record("rain jacket", semantic: true, resultCount: 3);
+        store.Record("something for camping while it's raining", semantic: true, resultCount: 2);
+
+        var service = new StoreIntelligenceReportService(
+            store,
+            NullLogger<StoreIntelligenceReportService>.Instance,
+            chatClient: null);
+
+        StoreIntelligenceReport report = await service.GenerateAsync();
+
+        Assert.IsTrue(report.TopCustomerIntents.Count > 0, "Report should include grouped customer intents.");
+
+        var rainIntent = report.TopCustomerIntents.FirstOrDefault(i =>
+            i.Theme.Contains("rain", StringComparison.OrdinalIgnoreCase) ||
+            i.Terms.Any(t => t.Term.Contains("rain", StringComparison.OrdinalIgnoreCase)));
+
+        Assert.IsNotNull(rainIntent, "Expected a rain-related grouped intent.");
+        Assert.IsTrue(rainIntent.TotalSearches >= 3, "Rain intent should aggregate repeated rain searches.");
+        Assert.IsTrue(
+            rainIntent.Terms.Any(t => t.Term.Contains("rain jacket", StringComparison.OrdinalIgnoreCase)) &&
+            rainIntent.Terms.Any(t => t.Term.Contains("rainy day", StringComparison.OrdinalIgnoreCase)),
+            "Rain intent should include multiple differently-worded rain searches.");
+    }
 }

@@ -48,6 +48,9 @@ public class StoreIntelligenceReport
     [JsonPropertyName("topSearches")]
     public List<string> TopSearches { get; set; } = new();
 
+    [JsonPropertyName("topCustomerIntents")]
+    public List<CustomerIntent> TopCustomerIntents { get; set; } = new();
+
     [JsonPropertyName("failedSearches")]
     public List<string> FailedSearches { get; set; } = new();
 
@@ -61,9 +64,43 @@ public class StoreIntelligenceReport
     public List<string> RecommendedActions { get; set; } = new();
 }
 
+[JsonSerializable(typeof(CustomerIntent))]
+[JsonSerializable(typeof(List<CustomerIntent>))]
+[JsonSerializable(typeof(IntentTerm))]
+[JsonSerializable(typeof(List<IntentTerm>))]
 [JsonSerializable(typeof(List<StoreSignal>))]
 [JsonSerializable(typeof(StoreSignal))]
 [JsonSerializable(typeof(StoreIntelligenceReport))]
 public sealed partial class StoreIntelligenceSerializerContext : JsonSerializerContext
 {
+}
+
+/// <summary>
+/// A grouped business intent theme in the report, with the underlying raw search terms.
+/// </summary>
+public class CustomerIntent
+{
+    [JsonPropertyName("theme")]
+    public string Theme { get; set; } = string.Empty;
+
+    [JsonPropertyName("totalSearches")]
+    public int TotalSearches { get; set; }
+
+    [JsonPropertyName("terms")]
+    public List<IntentTerm> Terms { get; set; } = new();
+}
+
+/// <summary>
+/// One raw search term that contributed to a <see cref="CustomerIntent"/>.
+/// </summary>
+public class IntentTerm
+{
+    [JsonPropertyName("term")]
+    public string Term { get; set; } = string.Empty;
+
+    [JsonPropertyName("count")]
+    public int Count { get; set; }
+
+    [JsonPropertyName("results")]
+    public int Results { get; set; }
 }
