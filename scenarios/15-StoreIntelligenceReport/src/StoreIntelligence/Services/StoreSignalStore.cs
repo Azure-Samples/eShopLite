@@ -65,16 +65,25 @@ public class StoreSignalStore
         var now = DateTime.UtcNow;
         var samples = new (string Term, bool Semantic, int ResultCount, int MinutesAgo)[]
         {
-            ("rainy day gear",        true,  3, 22),
-            ("do you have something for a rainy day", true, 2, 21),
-            ("something for camping while it's raining", true, 2, 20),
-            ("camp cooking",          true,  4, 19),
-            ("four season tent",      true,  2, 16),
-            ("winter camping tent",   false, 2, 14),
-            ("hiking boots size 12",  false, 0, 11),  // failed — no results
-            ("paint my room white",   true,  0,  9),  // failed — off-catalog
-            ("rain jacket",           true,  3,  6),
-            ("camp stove",            false, 2,  3),
+            // Rain topic (intended to collapse into one grouped intent).
+            ("rainy day gear",                           true,  3, 28),
+            ("do you have something for a rainy day",    true,  2, 27),
+            ("something for camping while it's raining", true,  2, 26),
+            ("rain jacket",                              true,  3, 25),
+            ("something for rainy days while I'm camping", true, 3, 24),
+
+            // Camping topic.
+            ("camp cooking",            true,  4, 22),
+            ("do you have something for cooking", true, 2, 21),
+            ("camp stove",              false, 2, 20),
+            ("four season tent",        true,  2, 18),
+            ("winter camping tent",     false, 2, 16),
+
+            // Deliberate no-result examples for product-gap narrative.
+            ("hiking boots size 12",                    false, 0, 14), // failed — no size match
+            ("paint my room white",                     true,  0, 12), // failed — off-catalog
+            ("something to paint my room white",        true,  0, 10), // failed — same intent wording
+            ("something to decorate my backyard with racoons", true, 0, 8), // failed — off-catalog
         };
 
         foreach (var s in samples)
