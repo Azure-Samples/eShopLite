@@ -24,6 +24,12 @@
     <button class="btn btn-outline-secondary" @onclick="RefreshSignals" disabled="@isLoading">
         <span class="bi bi-arrow-clockwise me-1"></span> Refresh signals
     </button>
+    <button class="btn btn-outline-secondary ms-2" @onclick="CollapseAllGroups" disabled="@isLoading || groupedSignals.Count == 0">
+        Collapse all
+    </button>
+    <button class="btn btn-outline-secondary ms-2" @onclick="ExpandAllGroups" disabled="@isLoading || groupedSignals.Count == 0">
+        Expand all
+    </button>
 </div>
 
 @* ── Loading indicator ───────────────────────────────────────────────────── *@
@@ -39,7 +45,7 @@
 <h2 class="h4">Raw signals</h2>
 <p class="text-muted">The search events grouped by meaning, with newest rows first inside each theme. Rows highlighted in yellow had zero results.</p>
 
-@if (signals is { Count: > 0 })
+@if (groupedSignals.Count > 0)
 {
     <table class="table table-sm table-striped">
         <thead>
@@ -51,19 +57,30 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var group in GroupSignalsByMeaning(signals))
+            @foreach (var group in groupedSignals)
             {
                 <tr class="table-primary">
-                    <td colspan="4"><strong>@group.Theme</strong> (@group.Items.Count search events)</td>
+                    <td>
+                        <button class="btn btn-sm btn-link text-decoration-none p-0"
+                                @onclick="() => ToggleGroup(group.Id)"
+                                aria-expanded="@IsGroupExpanded(group.Id)">
+                            <span class="bi @(IsGroupExpanded(group.Id) ? "bi-caret-down-fill" : "bi-caret-right-fill") me-1" aria-hidden="true"></span>
+                            <strong>@group.Theme</strong>
+                        </button>
+                    </td>
+                    <td colspan="3">@group.Items.Count search events</td>
                 </tr>
-                @foreach (var s in group.Items)
+                @if (IsGroupExpanded(group.Id))
                 {
-                    <tr class="@(s.Failed ? "table-warning" : null)">
-                        <td class="ps-4">@s.Term</td>
-                        <td>@(s.Semantic ? "semantic" : "keyword")</td>
-                        <td class="text-end">@s.ResultCount</td>
-                        <td>@s.TimestampUtc.ToLocalTime().ToString("T")</td>
-                    </tr>
+                    @foreach (var s in group.Items)
+                    {
+                        <tr class="@(s.Failed ? "table-warning" : null)">
+                            <td class="ps-4">@s.Term</td>
+                            <td>@(s.Semantic ? "semantic" : "keyword")</td>
+                            <td class="text-end">@s.ResultCount</td>
+                            <td>@s.TimestampUtc.ToLocalTime().ToString("T")</td>
+                        </tr>
+                    }
                 }
             }
         </tbody>
@@ -75,7 +92,8 @@ else
 }
 
 @code {
-    private List<StoreSignal>? signals;
+    private List<RawSignalGroup> groupedSignals = [];
+    private Dictionary<int, bool> expandedGroups = new();
     private bool isLoading;
 
     // Load seeded raw signals immediately (no report generation on first load).
@@ -94,7 +112,9 @@ else
         try
         {
             // GetRecent returns newest-first, capped at 50 for a readable table.
-            signals = SignalStore.GetRecent(50).ToList();
+            var recentSignals = SignalStore.GetRecent(50).ToList();
+            groupedSignals = GroupSignalsByMeaning(recentSignals);
+            expandedGroups = groupedSignals.ToDictionary(g => g.Id, _ => false);
         }
         finally
         {
@@ -111,7 +131,31 @@ else
 
     private static readonly Regex RawSignalNonAlphaNumericRegex = new("[^a-z0-9 ]", RegexOptions.Compiled);
 
-    private static IEnumerable<RawSignalGroup> GroupSignalsByMeaning(IEnumerable<StoreSignal> source)
+    private bool IsGroupExpanded(int groupId)
+        => expandedGroups.TryGetValue(groupId, out var expanded) && expanded;
+
+    private void ToggleGroup(int groupId)
+    {
+        expandedGroups[groupId] = !IsGroupExpanded(groupId);
+    }
+
+    private void ExpandAllGroups()
+    {
+        foreach (var group in groupedSignals)
+        {
+            expandedGroups[group.Id] = true;
+        }
+    }
+
+    private void CollapseAllGroups()
+    {
+        foreach (var group in groupedSignals)
+        {
+            expandedGroups[group.Id] = false;
+        }
+    }
+
+    private static List<RawSignalGroup> GroupSignalsByMeaning(IEnumerable<StoreSignal> source)
     {
         var groups = new List<RawSignalGroup>();
         foreach (var signal in source.OrderByDescending(s => s.TimestampUtc))
@@ -137,10 +181,17 @@ else
             group.Items = group.Items.OrderByDescending(s => s.TimestampUtc).ToList();
         }
 
-        return groups
+        var orderedGroups = groups
             .OrderByDescending(g => g.Items.Count)
             .ThenByDescending(g => g.Items.Max(s => s.TimestampUtc))
             .ToList();
+
+        for (var i = 0; i < orderedGroups.Count; i++)
+        {
+            orderedGroups[i].Id = i;
+        }
+
+        return orderedGroups;
     }
 
     private static HashSet<string> TokenizeRawSignalTerm(string term)
@@ -193,6 +244,7 @@ else
 
     private sealed class RawSignalGroup
     {
+        public int Id { get; set; }
         public string Theme { get; set; } = string.Empty;
         public List<StoreSignal> Items { get; set; } = [];
         public HashSet<string> TopicTokens { get; set; } = new(StringComparer.OrdinalIgnoreCase);
