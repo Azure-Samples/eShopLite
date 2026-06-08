@@ -181,3 +181,9 @@ Checkout orchestration
   `eShopLite-Aspire-DevUI.slnx`. Start `aspire start` from the scenario-root AppHost.
 - The Dev UI is mapped **only in Development**; ensure the Store runs in that environment.
 - This is the **bonus** demo. Previous: Demo 5 (A2A Store Operations Network).
+
+## Reference links
+
+- [.NET Aspire AI Agent Readiness](https://aspire.dev/whats-new/aspire-13-4/) — Aspire's integrated support for AI agents, observability, and deployment; the control plane for agent-driven applications.
+- [Azure Foundry Agents Overview](https://learn.microsoft.com/en-us/azure/foundry/) — Enterprise agent deployment and orchestration; the hosting platform for the Foundry-hosted agents in this scenario.
+- [Building AI Applications with .NET](https://learn.microsoft.com/en-us/dotnet/ai/) — Unified abstractions (`IChatClient`, `IEmbeddingGenerator`), agent patterns, and .NET tooling for AI-powered apps.

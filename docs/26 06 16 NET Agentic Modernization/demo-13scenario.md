@@ -238,6 +238,12 @@ To switch back to the model path, ensure Foundry Local is serving the selected m
 
 1. Continue to Demo 3 without retry loops.
 
+## Reference links
+
+- [Foundry Local CLI Reference](https://learn.microsoft.com/en-us/azure/foundry-local/reference/reference-cli) — Use `foundry cache list` and `foundry service ps` to show the local model is downloaded and loaded.
+- [Microsoft.Extensions.AI](https://learn.microsoft.com/en-us/dotnet/ai/) — Unified abstraction for `IChatClient` and `IEmbeddingGenerator`, used throughout the ObservabilityAssistant.
+- [Aspire 13.4 Release Notes](https://aspire.dev/whats-new/aspire-13-4/) — Covers OpenTelemetry integration, dashboard, and AI agent readiness in .NET Aspire.
+
 ## Code files to show and story mapping
 
 | Story beat | File | What to show |

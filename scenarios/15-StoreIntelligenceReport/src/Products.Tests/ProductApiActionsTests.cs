@@ -2,9 +2,19 @@
 using Products.Models;
 using DataEntities;
 using Products.Endpoints;
+using Products.Services;
 
 namespace Products.Tests
 {
+    /// <summary>
+    /// No-op implementation of IIntelligenceSignalClient for unit tests.
+    /// Signals are discarded so tests do not need a running StoreIntelligence service.
+    /// </summary>
+    internal sealed class NullSignalClient : IIntelligenceSignalClient
+    {
+        public Task RecordAsync(string term, bool semantic, int resultCount) => Task.CompletedTask;
+    }
+
     [TestClass]
     public sealed class ProductApiActionsTests
     {
@@ -134,15 +144,15 @@ namespace Products.Tests
             }
             using (var context = new Context(_dbOptions))
             {
-                var signals = new Products.Intelligence.StoreSignalStore();
-                var result = await ProductApiActions.SearchAllProducts("Tent", context, signals);
+                var signalClient = new NullSignalClient();
+                var result = await ProductApiActions.SearchAllProducts("Tent", context, signalClient);
                 var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<SearchEntities.SearchResponse>;
                 Assert.IsNotNull(okResult);
                 Assert.AreEqual(1, okResult.Value.Products.Count);
                 Assert.AreEqual("Tent", okResult.Value.Products[0].Name);
                 Assert.IsTrue(okResult.Value.Response.Contains("1 Products found"));
 
-                var noResult = await ProductApiActions.SearchAllProducts("Nonexistent", context, signals);
+                var noResult = await ProductApiActions.SearchAllProducts("Nonexistent", context, signalClient);
                 var okNoResult = noResult as Microsoft.AspNetCore.Http.HttpResults.Ok<SearchEntities.SearchResponse>;
                 Assert.IsNotNull(okNoResult);
                 Assert.AreEqual(0, okNoResult.Value.Products.Count);

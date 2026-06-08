@@ -81,6 +81,41 @@ public class MemoryContext
         return true;
     }
 
+    /// <summary>
+    /// Lightweight vector search that returns matching <see cref="Product"/> objects WITHOUT
+    /// generating a chat response. Used by the A2A orchestration service to discover candidate
+    /// products before enriching them with agent data.
+    /// Returns an empty list when the embedding generator or vector store is unavailable.
+    /// </summary>
+    public async Task<List<Product>> SearchProductsAsync(string searchTerm, int top = 10)
+    {
+        // Guard: semantic search requires an initialised vector store and an embedding generator
+        if (_embeddingGenerator is null || !_isMemoryCollectionInitialized || _productsCollection is null)
+            return [];
+
+        try
+        {
+            // Turn the user's text query into a float vector
+            var embedding = await _embeddingGenerator.GenerateVectorAsync(searchTerm);
+            var vectorQuery = embedding.ToArray();
+            var results = new List<Product>();
+
+            // Walk the nearest-neighbor results; only include scores above similarity threshold
+            await foreach (var item in _productsCollection.SearchAsync(vectorQuery, top: top))
+            {
+                if (item.Score > 0.5)
+                    results.Add(item.Record); // ProductVector IS-A Product (subclass)
+            }
+
+            return results;
+        }
+        catch (Exception)
+        {
+            // Swallow — caller falls back to keyword search
+            return [];
+        }
+    }
+
     public virtual async Task<SearchResponse> Search(string search, Context db)
     {
         if (!_isMemoryCollectionInitialized)

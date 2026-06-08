@@ -4,6 +4,7 @@ using Microsoft.Extensions.AI;
 using Products.Endpoints;
 using Products.Memory;
 using Products.Models;
+using Products.Services;
 using System.ClientModel;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,12 +54,10 @@ builder.Services.AddSingleton(sp =>
     return new MemoryContext(logger, sp.GetService<IChatClient>(), sp.GetService<IEmbeddingGenerator<string, Embedding<float>>>());
 });
 
-// Store Intelligence: in-memory signal store + report service (AI summary with deterministic fallback).
-builder.Services.AddSingleton<Products.Intelligence.StoreSignalStore>();
-builder.Services.AddSingleton(sp => new Products.Intelligence.StoreIntelligenceReportService(
-    sp.GetRequiredService<Products.Intelligence.StoreSignalStore>(),
-    sp.GetRequiredService<ILogger<Products.Intelligence.StoreIntelligenceReportService>>(),
-    sp.GetService<IChatClient>()));
+// Signal producer: typed HttpClient that POSTs search signals to the StoreIntelligence service.
+// BaseAddress "https+http://intelligence" is resolved by Aspire service discovery at runtime.
+builder.Services.AddHttpClient<IIntelligenceSignalClient, IntelligenceSignalClient>(
+    static client => client.BaseAddress = new Uri("https+http://intelligence"));
 
 // Add services to the container.
 var app = builder.Build();
@@ -70,7 +69,6 @@ app.MapDefaultEndpoints();
 app.UseHttpsRedirection();
 
 app.MapProductEndpoints();
-app.MapIntelligenceEndpoints();
 
 app.UseStaticFiles();
 

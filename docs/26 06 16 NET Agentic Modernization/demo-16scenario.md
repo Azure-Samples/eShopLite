@@ -100,37 +100,86 @@ aspire start --non-interactive
 
 ## Step-by-step live demo script
 
+### The ADVANTAGES you are demonstrating
+
+This demo makes three concrete points about MCP tool exposure:
+
+1. **Composability** — the store's catalog search and lookup abilities become *named, callable tools*
+   that any MCP-aware model or agent can invoke. You're not re-writing the business logic; you're
+   exposing what already works through a standard protocol.
+2. **Opt-in / read-only control** — the client (the Search page) decides which tools the model is
+   *allowed* to call for each request. Checking or unchecking a box is enough. You control the
+   blast radius.
+3. **Any MCP-aware agent can call them** — the tool contract is protocol-level, not app-level. The
+   same `SearchStoreCatalog` and `LookupProductByName` tools that power this UI are callable by
+   any agent that speaks MCP.
+
+---
+
+### Walkthrough
+
 1. **Set context (20s):**
-   "We put AI inside the app three times. Now we expose the store's abilities as MCP tools — so any
-   agent can call them, and we stay in control of which tools are allowed."
-2. **Open the Store:** from the Aspire Dashboard open the `store` endpoint. The Products grid is
-   already populated **through an MCP tool** (`LookupProductByName`) — mention that the home grid is
-   itself an MCP call.
-3. **Open Search:** click **Search** in the nav. Expand **Available MCP Server Tools** — point at the
-   list. These are the remapped store-ops tools published by the MCP server, each with a checkbox.
-4. **Select the catalog tools:** check `SearchStoreCatalog` and `LookupProductByName`.
-5. **Ask a catalog question:** type `do you have something for winter camping` and click **Search**.
-   The model picks a tool and answers.
-6. **Show the proof — Function Call Details:** expand the **Function Call Details** card. Point at
-   **Function Name** = `SearchStoreCatalog` (or `LookupProductByName`). "The page shows the exact MCP
-   tool the model called — not a guess."
-7. **Add a trip-context tool:** also check `GetTripWeather` (or `GetDestinationGuide`), then ask
-   `what gear do I need for a rainy hike this weekend`. Show that the model can now reach a
-   trip-context tool to ground its recommendation.
-8. **Demonstrate control (the key move):** **uncheck** a tool and re-run. The model can no longer call
-   it. "Tool exposure is opt-in. Read-only by default. This is how you keep an agent on rails."
-9. **Close with value line (15s):**
-   "The store is now composable. Its catalog and trip-context abilities are named, callable tools —
-   ready for any MCP-aware agent, with you deciding what's on the table."
+   > "Demos 1-3 put AI inside the app. MCP flips the model: now the store's abilities become
+   > **tools** that any agent can call — and we stay in control of which ones are on the table."
+
+2. **Open the Store home page** (from the Aspire Dashboard → `store` endpoint).
+   Point at the Products grid:
+   > "This grid is **already an MCP call** — the home page calls `LookupProductByName` on load.
+   > The store was always good at finding products; MCP makes that ability *composable*."
+
+3. **Navigate to Search** → expand **Available MCP Server Tools**.
+   Walk down the checkbox list:
+   > "These are the tools the MCP server publishes. Each one has a name and a description —
+   > that description is literally what the model reads to decide which tool to call.
+   > Right now nothing is checked: the model has no tools and will refuse to answer.
+   > I control what it can do."
+
+4. **Check only `SearchStoreCatalog` and `LookupProductByName`.**
+   Type: `do you have something for winter camping` → click **Search**.
+   A product grid appears.
+
+5. **Expand Function Call Details.**
+   Point at **Function Name** = `SearchStoreCatalog`:
+   > "Not a guess. The page shows the exact tool name the model called — `SearchStoreCatalog`.
+   > That name comes straight from the `[McpServerTool(Name = ...)]` attribute in the source code."
+
+6. **Now check ALL tools** (use the select-all checkbox).
+   Type: `what gear do I need for a rainy hike this weekend` → click **Search**.
+   Show the product grid that appears alongside the markdown answer:
+   > "With all tools available, the model called the catalog tool AND a trip-context tool.
+   > The products are accumulated from both calls — the grid isn't empty even though a
+   > weather tool also fired. The system prompt ensures the catalog is always consulted."
+
+7. **Demonstrate control (the key move):**
+   **Uncheck `SearchStoreCatalog`** (leave the trip-context tools checked) → re-run the same query.
+   The product grid shrinks or disappears:
+   > "I just removed one tool. The model can no longer call it. Tool exposure is **opt-in**.
+   > Read-only by default. This is how you keep an agent on rails — no code change needed,
+   > just don't put the tool on the table."
+
+8. **Re-check everything** and close with the value line (15s):
+   > "The store is now composable. Its catalog search, keyword lookup, weather context, and
+   > destination guide are **named, callable tools** — ready for any MCP-aware agent, with you
+   > deciding what's on the table per request."
 
 ## The ask (what the Search page sends)
 
 You type a natural-language question; the MCP client passes it to the model **with only the tools you
-checked**. Say one of these out loud as you run it:
+checked** plus a system prompt that instructs the model to always call a catalog tool for product
+queries. This system prompt is what ensures the product grid is reliably populated — the model is
+explicitly told it must call `SearchStoreCatalog` or `LookupProductByName` for any gear question,
+and may additionally use trip-context tools to enrich the answer.
+
+Recommended demo queries (say these out loud as you run them):
 
 ```text
-do you have something for winter camping        → SearchStoreCatalog / LookupProductByName
-what gear do I need for a rainy hike this weekend → + GetTripWeather / GetDestinationGuide
+do you have something for winter camping
+  → model calls: SearchStoreCatalog → product grid appears
+
+what gear do I need for a rainy hike this weekend  (all tools selected)
+  → model calls: SearchStoreCatalog + GetTripWeather (or GetDestinationGuide)
+  → products from the catalog call are shown in the grid
+  → trip context enriches the markdown answer
 ```
 
 ## Expected output
@@ -138,31 +187,33 @@ what gear do I need for a rainy hike this weekend → + GetTripWeather / GetDest
 ```text
 Search Products
 [ Available MCP Server Tools ]
-  [x] SearchStoreCatalog   Semantic catalog search over the product database
-  [x] LookupProductByName  Keyword catalog lookup by name/term
-  [ ] GetTripWeather       Destination weather to guide outdoor-gear recommendations
-  [ ] GetDestinationGuide  Destination/park guide for trip-gear recommendations
-  [ ] ResearchProductsOnline  Online research feeding a catalog recommendation
+  [x] SearchStoreCatalog      Semantic catalog search over outdoor products catalog
+  [x] LookupProductByName     Keyword catalog lookup by product name
+  [x] GetTripWeather          Destination weather to guide outdoor-gear recommendations
+  [x] GetDestinationGuide     Destination/park guide for trip-gear recommendations
+  [x] ResearchProductsOnline  Online research feeding a catalog recommendation
 
 Function Call Details
   Function Call ID:   <id>
   Function Name:      SearchStoreCatalog
 
 Response
-  <markdown answer>
+  <markdown answer — the model's synthesized reply using all available tool results>
 
 Product List
-  <matching products with image, name, description, price>
+  <product grid: image, name, description, price — populated even when trip-context tools also fired>
 ```
 
 ## How the demo maps to MCP concepts
 
-| What you see | MCP concept | Where in the code |
+| What you see on screen | MCP concept | Where in the code |
 |---|---|---|
-| The tool list with checkboxes | Tools published by an MCP server | `eShopMcpSseServer/Tools/*.cs` (`[McpServerTool(Name = ...)]`) |
-| Selecting which tools are allowed | Client-side tool gating | `Store/Components/Pages/Search.razor` (selected tools) |
-| Function Name shown after a search | The tool the model actually invoked | `McpFunctionCallName` set in the tool methods |
-| The Products grid loading | An MCP tool call on page load | `Store/Components/Pages/Products.razor` → `LookupProductByName` |
+| The tool list with checkboxes | Tools published by an MCP server — the `[Description]` text is what the model reads to pick a tool | `eShopMcpSseServer/Tools/*.cs` → `[McpServerTool(Name = ...)]` + `[Description(...)]` |
+| Checking / unchecking tools | **Client-side opt-in gating** — `ChatOptions.Tools` only contains what the user selected | `Store/Services/McpServerService.cs` → `chatOptions.Tools = [.. selectedTools]` |
+| Function Name shown after a search | The exact tool the model invoked (`McpFunctionCallName`) | Set inside each tool method; surfaced via `SearchResponse.McpFunctionCallName` |
+| Product grid populated for broad queries | System prompt steers the model to always call a catalog tool | `McpServerService.CatalogSystemPrompt` constant (prepended to every turn) |
+| Grid intact even when weather tool also fired | Products accumulated across all tool calls (no last-wins overwrite) | `accumulatedProducts.AddRange(...)` + dedup in `McpServerService.GetResponseAsync` |
+| The Products grid loading on the home page | An MCP call on page load — the app already uses its own tools | `Store/Components/Pages/Products.razor` → `LookupProductByName` |
 
 ## Fallback plan
 
@@ -203,3 +254,9 @@ Product List
   store-operations toolset end-to-end.
 - This is **Demo 4** in the session. Previous: Demo 3 (Store Intelligence). Next: Demo 5
   (A2A Store Operations Network, Scenario 17).
+
+## Reference links
+
+- [Model Context Protocol (MCP) Overview](https://github.com/modelcontextprotocol) — Open standard for tools/resources that LLMs can call; `SearchStoreCatalog` and `LookupProductByName` are MCP tools published by the server.
+- [MCP Specification](https://spec.modelcontextprotocol.io/specification/latest) — Complete reference for tool definitions, prompts, and client-server communication.
+- [Building MCP Servers with .NET](https://github.com/modelcontextprotocol) — Examples and SDKs (including community C# support) for exposing .NET capabilities as MCP tools.

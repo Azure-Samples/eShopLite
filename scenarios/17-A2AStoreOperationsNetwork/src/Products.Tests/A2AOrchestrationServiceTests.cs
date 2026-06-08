@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Products.Memory;
 using Products.Models;
 using Products.Services;
 using Products.Services.Agents;
@@ -18,6 +19,7 @@ namespace Products.Tests
         private ILogger<CatalogAgent> _inventoryLogger;
         private ILogger<PromotionsAgent> _promotionsLogger;
         private ILogger<BusinessInsightsAgent> _researchLogger;
+        private MemoryContext _memoryContext;
 
         [TestInitialize]
         public void TestInit()
@@ -31,6 +33,10 @@ namespace Products.Tests
             _inventoryLogger = loggerFactory.CreateLogger<CatalogAgent>();
             _promotionsLogger = loggerFactory.CreateLogger<PromotionsAgent>();
             _researchLogger = loggerFactory.CreateLogger<BusinessInsightsAgent>();
+
+            // MemoryContext with no embedding generator — orchestrator will fall back to keyword search
+            var memoryLogger = loggerFactory.CreateLogger<MemoryContext>();
+            _memoryContext = new MemoryContext(memoryLogger, chatClient: null, embeddingGenerator: null);
         }
 
         [TestMethod]
@@ -51,7 +57,8 @@ namespace Products.Tests
             var promotionsAgent = new PromotionsAgent(httpClientFactory, _promotionsLogger);
             var researchAgent = new BusinessInsightsAgent(httpClientFactory, _researchLogger);
             
-            var orchestrationService = new A2AOrchestrationService(context, CatalogAgent, promotionsAgent, researchAgent, _logger);
+            // MemoryContext has no embedding generator → orchestrator uses keyword fallback search
+            var orchestrationService = new A2AOrchestrationService(context, _memoryContext, CatalogAgent, promotionsAgent, researchAgent, _logger);
 
             // Act
             var result = await orchestrationService.ExecuteA2ASearchAsync("hiking");
@@ -77,7 +84,7 @@ namespace Products.Tests
             var promotionsAgent = new PromotionsAgent(httpClientFactory, _promotionsLogger);
             var researchAgent = new BusinessInsightsAgent(httpClientFactory, _researchLogger);
             
-            var orchestrationService = new A2AOrchestrationService(context, CatalogAgent, promotionsAgent, researchAgent, _logger);
+            var orchestrationService = new A2AOrchestrationService(context, _memoryContext, CatalogAgent, promotionsAgent, researchAgent, _logger);
 
             // Act
             var result = await orchestrationService.ExecuteA2ASearchAsync("nonexistent");

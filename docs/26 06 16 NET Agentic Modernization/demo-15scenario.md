@@ -237,3 +237,9 @@ The report has a **built-in deterministic fallback**, so this demo has no hard l
   changes between the AI and fallback paths.
 - This is **Demo 3** in the session. Previous: Demo 2 (Observability, local AI). Next: Demo 4
   (MCP Store Operations Tools, Scenario 16).
+
+## Reference links
+
+- [Microsoft.Extensions.AI `IChatClient`](https://learn.microsoft.com/en-us/dotnet/ai/) — Unified interface for chat requests; powers the report narrative in `StoreIntelligenceReportService`.
+- [.NET Aspire Orchestration](https://aspire.dev) — Multi-project composition (`sql` + `products` + `store`); wires services and AI clients for the business intelligence pipeline.
+- [Building with Blazor and .NET](https://learn.microsoft.com/en-us/aspnet/core/blazor/) — Blazor powers the Store UI; the Store Intelligence page renders the report and signals.

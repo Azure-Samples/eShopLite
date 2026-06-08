@@ -161,3 +161,9 @@ hits `GET /api/aisearch/{term}` → `MemoryContext.Search`: it embeds the questi
   secrets; that is out of scope for this session's Demo 1.
 - Line numbers above match `MemoryContext.cs` as of this writing; if the file changes, re-check
   the `Score > 0.3` gate and the grounding-prompt block before presenting.
+
+## Reference links
+
+- [Microsoft.Extensions.AI](https://learn.microsoft.com/en-us/dotnet/ai/) — Unified `IEmbeddingGenerator` for semantic search; the abstraction behind every catalog embedding in this scenario.
+- [Azure OpenAI Embeddings](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/embeddings) — How to generate text embeddings that power intent-based discovery and vector search.
+- [Retrieval-Augmented Generation (RAG) with Azure OpenAI](https://learn.microsoft.com/en-us/azure/foundry/) — Grounding pattern: embed catalog data, search by meaning, prompt only with found results.

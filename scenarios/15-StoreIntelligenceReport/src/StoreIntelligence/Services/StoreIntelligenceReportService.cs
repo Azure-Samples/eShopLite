@@ -3,14 +3,19 @@ using System.Text.Json;
 using DataEntities;
 using Microsoft.Extensions.AI;
 
-namespace Products.Intelligence;
+namespace StoreIntelligence.Services;
 
 /// <summary>
-/// Builds the Store Intelligence Report from captured store signals. Aggregation (top searches,
-/// failed searches, product gaps, operational signals) is deterministic and factual. A chat model
-/// is used only to write the executive summary and recommended actions; if the model is
-/// unavailable or fails, a deterministic narrative is used instead and <c>Source</c> is
-/// "fallback".
+/// Builds the Store Intelligence Report from captured store signals.
+///
+/// Two-phase generation:
+///   1. Deterministic aggregation — always runs, produces topSearches, failedSearches,
+///      productOpportunities, operationalIssues, and a rule-based narrative. This is the
+///      "fallback" that works with no AI model configured.
+///   2. AI narrative upgrade — if a <see cref="IChatClient"/> is available, the executive
+///      summary and recommended actions are replaced with model-generated bullets. If the
+///      call fails for any reason, the deterministic narrative is kept and <c>Source</c>
+///      remains "fallback".
 /// </summary>
 public class StoreIntelligenceReportService
 {
@@ -21,17 +26,19 @@ public class StoreIntelligenceReportService
     public StoreIntelligenceReportService(
         StoreSignalStore signals,
         ILogger<StoreIntelligenceReportService> logger,
-        IChatClient? chatClient = null)
+        IChatClient? chatClient = null)  // null → deterministic-only mode
     {
         _signals = signals;
         _logger = logger;
         _chatClient = chatClient;
     }
 
+    /// <summary>Generates the intelligence report from the current signal window.</summary>
     public async Task<StoreIntelligenceReport> GenerateAsync(CancellationToken cancellationToken = default)
     {
         var all = _signals.GetAll();
 
+        // ── Deterministic aggregation ────────────────────────────────────────
         var topSearches = all
             .Where(s => !s.Failed)
             .GroupBy(s => s.Term, StringComparer.OrdinalIgnoreCase)
@@ -53,17 +60,17 @@ public class StoreIntelligenceReportService
             GeneratedAtUtc = DateTime.UtcNow,
             SignalsAnalyzed = all.Count,
             Source = "fallback",
-            TopSearches = topSearches.Count > 0 ? topSearches : new List<string> { "No successful searches yet." },
-            FailedSearches = failedSearches.Count > 0 ? failedSearches : new List<string> { "No failed searches in this window." },
+            TopSearches = topSearches.Count > 0 ? topSearches : ["No successful searches yet."],
+            FailedSearches = failedSearches.Count > 0 ? failedSearches : ["No failed searches in this window."],
             ProductOpportunities = BuildOpportunities(all),
             OperationalIssues = BuildOperationalIssues(all),
         };
 
-        // Deterministic narrative (also the fallback).
+        // Deterministic narrative (doubles as the fallback if AI fails).
         report.ExecutiveSummary = BuildDeterministicSummary(all, topSearches, failedSearches);
         report.RecommendedActions = BuildDeterministicActions(report);
 
-        // Try to upgrade the narrative with the chat model.
+        // ── Optional: upgrade narrative with the chat model ──────────────────
         if (_chatClient is not null)
         {
             try
@@ -78,6 +85,7 @@ public class StoreIntelligenceReportService
             }
             catch (Exception ex)
             {
+                // AI is best-effort — log and keep the deterministic narrative.
                 _logger.LogWarning(ex, "AI narrative generation failed; using deterministic fallback.");
             }
         }
@@ -85,10 +93,12 @@ public class StoreIntelligenceReportService
         return report;
     }
 
+    // ── Private helpers ───────────────────────────────────────────────────────
+
     private static List<string> BuildOpportunities(IReadOnlyList<StoreSignal> all)
     {
-        // On-catalog-sounding failed searches are gaps worth filling (heuristic: not the
-        // obvious off-catalog term used in the demo).
+        // On-catalog-sounding failed searches are gaps worth filling.
+        // Heuristic: exclude the obvious off-catalog demo term "paint".
         var gaps = all
             .Where(s => s.Failed && !s.Term.Contains("paint", StringComparison.OrdinalIgnoreCase))
             .GroupBy(s => s.Term, StringComparer.OrdinalIgnoreCase)
@@ -97,12 +107,7 @@ public class StoreIntelligenceReportService
             .Select(g => $"Demand for \"{g.Key}\" with no matching product — review catalog/size coverage.")
             .ToList();
 
-        if (gaps.Count == 0)
-        {
-            gaps.Add("No clear product gaps detected in this window.");
-        }
-
-        return gaps;
+        return gaps.Count > 0 ? gaps : ["No clear product gaps detected in this window."];
     }
 
     private static List<string> BuildOperationalIssues(IReadOnlyList<StoreSignal> all)
@@ -118,12 +123,7 @@ public class StoreIntelligenceReportService
             }
         }
 
-        if (issues.Count == 0)
-        {
-            issues.Add("No blocking operational issues detected; monitor search latency during activity bursts.");
-        }
-
-        return issues;
+        return issues.Count > 0 ? issues : ["No blocking operational issues detected; monitor search latency during activity bursts."];
     }
 
     private static List<string> BuildDeterministicSummary(
@@ -142,14 +142,9 @@ public class StoreIntelligenceReportService
         }
 
         var failedCount = all.Count(s => s.Failed);
-        if (failedCount > 0)
-        {
-            summary.Add($"{failedCount} search(es) returned no results — real catalog gaps or off-catalog intent.");
-        }
-        else
-        {
-            summary.Add("Every search returned at least one product.");
-        }
+        summary.Add(failedCount > 0
+            ? $"{failedCount} search(es) returned no results — real catalog gaps or off-catalog intent."
+            : "Every search returned at least one product.");
 
         return summary;
     }
@@ -178,6 +173,7 @@ public class StoreIntelligenceReportService
         StoreIntelligenceReport report,
         CancellationToken cancellationToken)
     {
+        // Build a tightly scoped fact sheet — the model must NOT invent content.
         var facts = new StringBuilder();
         facts.AppendLine($"Signals analyzed: {report.SignalsAnalyzed}");
         facts.AppendLine($"Top searches: {string.Join("; ", report.TopSearches)}");
@@ -206,8 +202,7 @@ public class StoreIntelligenceReportService
             return null;
         }
 
-        // Be tolerant of a stray code fence.
-        text = StripCodeFence(text);
+        text = StripCodeFence(text); // tolerate a stray markdown code fence
 
         try
         {

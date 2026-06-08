@@ -33,6 +33,18 @@ var products = builder.AddProject<Projects.Products>("products")
     .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
     .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment);
 
+// StoreIntelligence: standalone Blazor Server app that owns the signal store,
+// report API, and the intelligence dashboard UI. Exposed externally so presenters
+// can browse directly from the Aspire dashboard.
+var intelligence = builder.AddProject<Projects.StoreIntelligence>("intelligence")
+    .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
+    .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
+    .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
+    .WithExternalHttpEndpoints();
+
+// Products needs intelligence to be up before it can post signals.
+products.WithReference(intelligence).WaitFor(intelligence);
+
 var store = builder.AddProject<Projects.Store>("store")
     .WithReference(products)
     .WaitFor(products)

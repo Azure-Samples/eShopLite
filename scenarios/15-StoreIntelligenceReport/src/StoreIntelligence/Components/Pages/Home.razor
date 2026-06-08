@@ -1,0 +1,172 @@
+@page "/"
+@using DataEntities
+@using StoreIntelligence.Services
+
+@* Inject the in-process services directly — no HTTP round-trip needed from the page
+   because this is the same process that owns the StoreSignalStore. *@
+@inject StoreSignalStore SignalStore
+@inject StoreIntelligenceReportService ReportService
+
+@attribute [StreamRendering(true)]
+@rendermode InteractiveServer
+
+<PageTitle>Store Intelligence Dashboard</PageTitle>
+
+<h1>Store Intelligence Dashboard</h1>
+
+<p class="lead">
+    Turn store search signals into a business summary a manager can act on.
+    Run searches in the Store app first, then hit <strong>Generate report</strong>.
+</p>
+
+@* ── Action buttons ──────────────────────────────────────────────────────── *@
+<div class="mb-4">
+    <button class="btn btn-primary" @onclick="GenerateReport" disabled="@isLoading">
+        <span class="bi bi-lightning-charge-fill me-1"></span> Generate report
+    </button>
+    <button class="btn btn-outline-secondary ms-2" @onclick="RefreshSignals" disabled="@isLoading">
+        <span class="bi bi-arrow-clockwise me-1"></span> Refresh signals
+    </button>
+</div>
+
+@* ── Loading indicator ───────────────────────────────────────────────────── *@
+@if (isLoading)
+{
+    <div class="d-flex align-items-center gap-2 mb-3" role="status" aria-live="polite">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+        <span>Working…</span>
+    </div>
+}
+
+@* ── Intelligence Report card ─────────────────────────────────────────────── *@
+@if (report is not null)
+{
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Store Intelligence Report</span>
+            @* Badge shows whether the narrative was written by AI or the deterministic fallback *@
+            <span class="badge @(report.Source == "ai" ? "bg-success" : "bg-secondary")">
+                source: @report.Source
+            </span>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-3">
+                Generated @report.GeneratedAtUtc.ToLocalTime().ToString("g") ·
+                @report.SignalsAnalyzed signals analyzed
+            </p>
+
+            @ReportSection("Executive summary",       report.ExecutiveSummary)
+            @ReportSection("Top customer intents",    report.TopSearches)
+            @ReportSection("Searches with no results",report.FailedSearches)
+            @ReportSection("Product opportunities",   report.ProductOpportunities)
+            @ReportSection("Operational issues",      report.OperationalIssues)
+            @ReportSection("Recommended actions",     report.RecommendedActions)
+        </div>
+    </div>
+}
+
+@* ── Raw signals table ───────────────────────────────────────────────────── *@
+<h2 class="h4">Raw signals</h2>
+<p class="text-muted">The search events the report summarizes — newest first. Rows highlighted in yellow had zero results.</p>
+
+@if (signals is { Count: > 0 })
+{
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>Term</th>
+                <th>Type</th>
+                <th class="text-end">Results</th>
+                <th>When (local)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in signals)
+            {
+                <tr class="@(s.Failed ? "table-warning" : null)">
+                    <td>@s.Term</td>
+                    <td>@(s.Semantic ? "semantic" : "keyword")</td>
+                    <td class="text-end">@s.ResultCount</td>
+                    <td>@s.TimestampUtc.ToLocalTime().ToString("T")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p><em>No signals yet — run a few searches in the Store app, then click Refresh.</em></p>
+}
+
+@code {
+    private List<StoreSignal>? signals;
+    private StoreIntelligenceReport? report;
+    private bool isLoading;
+
+    // Load the initial signal list when the page first renders.
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshSignals();
+    }
+
+    /// <summary>
+    /// Reads the latest signals directly from the in-process <see cref="StoreSignalStore"/>.
+    /// No HTTP call needed — the store lives in the same process as this page.
+    /// </summary>
+    private Task RefreshSignals()
+    {
+        isLoading = true;
+        try
+        {
+            // GetRecent returns newest-first, capped at 50 for a readable table.
+            signals = SignalStore.GetRecent(50).ToList();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Calls the report service in-process (no HTTP), then refreshes the signals table
+    /// so the row count matches SignalsAnalyzed in the report header.
+    /// </summary>
+    private async Task GenerateReport()
+    {
+        isLoading = true;
+        try
+        {
+            report = await ReportService.GenerateAsync();
+            signals = SignalStore.GetRecent(50).ToList();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    /// <summary>
+    /// Helper: renders a titled bullet list for a report section.
+    /// Returns nothing if the list is empty.
+    /// </summary>
+    private RenderFragment ReportSection(string title, List<string> items) => builder =>
+    {
+        if (items is null || items.Count == 0) return;
+
+        builder.OpenElement(0, "h3");
+        builder.AddAttribute(1, "class", "h6 mt-3");
+        builder.AddContent(2, title);
+        builder.CloseElement();
+
+        builder.OpenElement(3, "ul");
+        var seq = 4;
+        foreach (var item in items)
+        {
+            builder.OpenElement(seq++, "li");
+            builder.AddContent(seq++, item);
+            builder.CloseElement();
+        }
+        builder.CloseElement();
+    };
+}

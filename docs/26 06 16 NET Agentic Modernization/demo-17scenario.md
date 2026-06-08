@@ -188,3 +188,9 @@ Product cards (each):
   service-discovery names were changed **together** — keep them in sync if you edit further.
 - This is **Demo 5** in the session. Previous: Demo 4 (MCP Store Tools). Next: Demo 6 / bonus
   (MAF Dev UI, Scenario 18).
+
+## Reference links
+
+- [Aspire 13.4: Foundry-Hosted Agent Commands and Fixes](https://aspire.dev/whats-new/aspire-13-4/#foundry-hosted-agent-commands-and-fixes) — Services can be published as Foundry-hosted agents; the orchestrator discovers and calls them.
+- [Agent-to-Agent (A2A) Tools in Azure Foundry](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/agent-to-agent?tabs=prompt-agents&pivots=csharp) — How to expose an agent as an A2A endpoint so other agents can call it; the pattern powering `CatalogAgent`, `PromotionsAgent`, and `BusinessInsightsAgent`.
+- [Azure Foundry Agents Documentation](https://learn.microsoft.com/en-us/azure/foundry/) — Comprehensive guide to building, deploying, and orchestrating agents in a network.
