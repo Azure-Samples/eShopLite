@@ -103,20 +103,23 @@ aspire start --non-interactive
 
 1. **Set context (20s):**
    "We served users, then developers. Now the store manager: same signals, a daily business report."
-2. **Open the Store Intelligence page:** from the Aspire Dashboard open the `store` endpoint, then
-   click **Store Intelligence** in the left nav (or browse to `/intelligence`).
+2. **Open the Store Intelligence app:** Store Intelligence is now its **own Blazor app** (Aspire
+   resource `intelligence`). From the Aspire Dashboard open the `intelligence` endpoint (or click the
+   **Store Intelligence** link in the Store nav, which opens the external app). Its home page (`/`) is
+   the dashboard.
 3. **Show the raw signals first:** click **Refresh signals**. The table fills from the **seeded
    sample signals** — point at the two no-result rows (`resultCount = 0`). "These are the app's own
    signals — scattered events, not yet a story."
-4. **Generate real signals (optional but great on stage):** open **Search**, run a mix so the
-   report reflects what the room just watched:
+4. **Generate real signals (optional but great on stage):** open the **Store** app's **Search**, run a
+   mix so the report reflects what the room just watched (Products posts each search to the
+   `intelligence` app as a signal):
    - `do you have something for cooking`
    - `do you have something for a rainy day`
    - `winter camping tent four season`
    - `something to paint my room white`  → no results → a *failed search* signal
    - `do you have hiking boots size 12`  → no results → another *failed search* signal
-   Toggle **Use Semantic Search** on for a couple to vary the intent signals. Return to **Store
-   Intelligence** and click **Refresh signals** — your new searches now appear in the table.
+   Toggle **Use Semantic Search** on for a couple to vary the intent signals. Return to the **Store
+   Intelligence** app and click **Refresh signals** — your new searches now appear in the table.
 5. **Click Generate report (the business ask):** this calls `GET /api/intelligence/report`. In a
    second or two the report card renders.
 6. **Walk the report top-down:** executive summary → top customer intents → searches with no
