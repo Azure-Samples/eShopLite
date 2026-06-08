@@ -23,8 +23,8 @@ For this session package, reliability comes first:
 | Session section | Slide | Scenario folder | Current code baseline | Current readiness | Demo type now |
 |---|---:|---|---|---|---|
 | Baseline app | 5 | Existing Scenario 01 | `01-SemanticSearch` | Runnable | Live |
-| Observability Assistant | 6 | `13-ObservabilityAssistantFoundryLocal` | Local runnable, modernization-first flow | Demo narrative uses three Aspire services (`products`, `store`, `observabilityassistant`) with backend findings shown in Store | Live |
-| Product Discovery | 7 | `14-ProductDiscoveryCopilot` | `01-SemanticSearch` (copied) | Runnable baseline; presented as code walkthrough this session | Code walkthrough (no run) |
+| Product Discovery | 6 | `14-ProductDiscoveryCopilot` | `01-SemanticSearch` (copied) | Runnable baseline; presented as code walkthrough this session | Code walkthrough (no run) |
+| Observability Assistant | 7 | `13-ObservabilityAssistantFoundryLocal` | Local runnable, modernization-first flow | Demo narrative uses three Aspire services (`products`, `store`, `observabilityassistant`) with backend findings shown in Store; analysis runs locally with Foundry Local | Live (local AI) |
 | Store Intelligence | 8 | `15-StoreIntelligenceReport` | `01-SemanticSearch` (copied) | Runnable baseline; report pipeline not implemented | Live (prepared report fallback) |
 | MCP Store Tools | 9 | `16-MCPStoreOperationsTools` | `06-mcp` | Runnable MCP sample; store-ops tool set not fully aligned to session script | Live (existing MCP tools) |
 | A2A Store Network | 10 | `17-A2AStoreOperationsNetwork` | `10-A2ANet` | Runnable A2A sample; agent roles differ from session script | Live (existing agent network) |
@@ -38,12 +38,14 @@ For this session package, reliability comes first:
 ## Scenario 13 - Observability Assistant with Foundry Local
 
 - **Session target:** Operational-summary assistant over logs/traces.
+- **Demo position:** **Demo 2** (after Product Discovery) — the "local AI" beat: the analysis model runs on the machine via Foundry Local.
 - **Demo flow:** Store requests analysis from `observabilityassistant`; assistant summarizes telemetry and Store renders findings.
 - **Window flow:** 5 / 10 / 15 / 30-minute analysis windows in one local run.
 
 ## Scenario 14 - Product Discovery Copilot
 
 - **Session target:** Intent-first discovery and grounded explanations.
+- **Demo position:** **Demo 1** (opens the demo arc) — the "better answers for users with cloud AI" beat.
 - **Demo format:** **Code walkthrough — no app run.** Read
   `src/Products/Memory/MemoryContext.cs` and explain how data is grounded (startup embedding
   of the catalog, query embedding, `Score > 0.3` gate, grounded prompt built only from matched

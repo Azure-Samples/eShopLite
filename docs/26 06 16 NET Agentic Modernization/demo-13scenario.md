@@ -1,4 +1,4 @@
-# Demo 1 Playbook - Scenario 13 Observability Assistant
+# Demo 2 Playbook - Scenario 13 Observability Assistant (local AI)
 
 ## Objective and presenter story
 
@@ -236,13 +236,13 @@ example, the model is not loaded). Nothing to type or paste.
 To switch back to the model path, ensure Foundry Local is serving the selected model
 (`foundry service ps`, or `foundry model run phi-3.5-mini`) and click Analyze again.
 
-1. Continue to Demo 2 without retry loops.
+1. Continue to Demo 3 without retry loops.
 
 ## Code files to show and story mapping
 
 | Story beat | File | What to show |
 |---|---|---|
-| “Aspire wires 3 services for Demo 1.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/eShopAppHost/Program.cs` | `products`, `store`, `observabilityassistant` composition and local-first wiring. |
+| “Aspire wires 3 services for Demo 2.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/eShopAppHost/Program.cs` | `products`, `store`, `observabilityassistant` composition and local-first wiring. |
 | “Telemetry is enabled by default in services.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/eShopServiceDefaults/Extensions.cs` | OpenTelemetry logging/tracing setup and OpenAI activity source toggles. |
 | “Store delegates analysis to backend assistant.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Store/*` | Store requests a 5/10/15/30-minute analysis window from `observabilityassistant` and renders backend findings. |
 | “Products API is AI-capable but still app-grounded.” | `scenarios/13-ObservabilityAssistantFoundryLocal/src/Products/Program.cs` | `AddServiceDefaults`, AOAI client setup, `AddChatClient`, `AddEmbeddingGenerator`, memory initialization logs. |

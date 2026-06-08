@@ -93,41 +93,7 @@ If the app does not start:
 
 ---
 
-## Demo 1 - Observability Assistant
-
-### Scenario folder
-
-```text
-/scenarios/13-ObservabilityAssistantFoundryLocal
-```
-
-### Detailed playbook
-
-Use the full presenter script, prompts, expected outputs, fallback, and code walkthrough from:
-
-`docs/26 06 16 NET Agentic Modernization/demo-13scenario.md`
-
-### Goal
-
-Run local observability flow with three Aspire services (`products`, `store`, `observabilityassistant`) and produce developer next actions.
-
-### Required presenter callout
-
-- The Store page calls `observabilityassistant` backend.
-- The backend analyzes **real ingested events** (not synthetic `BuildLogs`) and Store displays findings.
-- Foundry Local model is selected via config: `FoundryLocal:SelectedModel` + `FoundryLocal:Models` catalog.
-- Search starts with **Inject Search Failure** enabled by default to intentionally produce telemetry errors.
-- Run the same narrative across four windows: **5 / 10 / 15 / 30 minutes**.
-
-### Practical presenter flow
-
-1. Open Store **Search** and keep `Inject Search Failure` enabled.
-2. Run several searches (normal + semantic) to generate telemetry errors/noisy traces.
-3. Run assistant analysis windows in order: **5**, **10**, **15**, **30** minutes.
-
----
-
-## Demo 2 - Product Discovery
+## Demo 1 - Product Discovery
 
 ### Scenario folder
 
@@ -169,10 +135,60 @@ scenarios/14-ProductDiscoveryCopilot/src/Products/Memory/MemoryContext.cs
 
 - Grounding is built from the catalog (embeddings at startup), not the model's training data.
 - The `> 0.3` gate + system prompt prevent invented products.
+- This uses a **cloud** model — it sets up the contrast for Demo 2, which runs AI locally.
 
 ### Fallback
 
 Code reading — nothing to run or recover. If time is short, show only `Search`.
+
+---
+
+## Demo 2 - Observability Assistant (local AI)
+
+### Scenario folder
+
+```text
+/scenarios/13-ObservabilityAssistantFoundryLocal
+```
+
+### Detailed playbook
+
+Use the full presenter script, prompts, expected outputs, fallback, and code walkthrough from:
+
+`docs/26 06 16 NET Agentic Modernization/demo-13scenario.md`
+
+### Goal
+
+Run local observability flow with three Aspire services (`products`, `store`, `observabilityassistant`) and produce developer next actions — with the model running **locally** via Foundry Local.
+
+### Required presenter callout
+
+- This is **local AI**: the analysis model runs on the developer's machine via Foundry Local; no telemetry leaves the box.
+- The Store page calls `observabilityassistant` backend.
+- The backend analyzes **real ingested events** (not synthetic `BuildLogs`) and Store displays findings.
+- Foundry Local model is selected via config: `FoundryLocal:SelectedModel` + `FoundryLocal:Models` catalog.
+- **Inject Search Failure** is **disabled by default** — enable it before searching to intentionally produce telemetry errors.
+- Run the same narrative across four windows: **5 / 10 / 15 / 30 minutes**.
+
+### Practical presenter flow
+
+1. Open Store **Search** and **enable** `Inject Search Failure`.
+2. Run several searches (normal + semantic) to generate telemetry errors/noisy traces.
+3. Run assistant analysis windows in order: **5**, **10**, **15**, **30** minutes.
+
+### Key takeaway
+
+- Demo 1 used a cloud model for users; here the same modernized app runs AI **locally** for operations.
+- Foundry Local is a natural fit for sensitive, high-volume logs and traces.
+
+### Fallback
+
+If the local AI service fails:
+
+- show a saved output sample,
+- explain the expected input/output,
+- show the raw logs and how the summary would help,
+- move to Store Intelligence.
 
 ---
 

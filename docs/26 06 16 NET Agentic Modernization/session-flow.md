@@ -29,8 +29,8 @@ This session should not become an Aspire tooling deep dive. The pitch is:
 |---|---|---|---|
 | 00:00 - 02:00 | Opening | Slides | Modernization is the foundation, not the finish line. |
 | 02:00 - 05:00 | Baseline app | Demo | eShopLite already has the modern app shape. |
-| 05:00 - 10:00 | Observability Assistant | Demo | Logs and traces become explanations. |
-| 10:00 - 15:00 | Product Discovery | Code walkthrough (no run) | Search becomes intent-based discovery. |
+| 05:00 - 10:00 | Product Discovery | Code walkthrough (no run) | Search becomes intent-based discovery. |
+| 10:00 - 15:00 | Observability Assistant | Demo (local AI) | Logs and traces become explanations with Foundry Local. |
 | 15:00 - 19:00 | Store Intelligence | Demo | App signals become business summaries. |
 | 19:00 - 23:00 | MCP Store Tools | Demo | App capabilities become agent tools. |
 | 23:00 - 27:00 | A2A Agent Workflow | Demo / architecture | Specialized agents collaborate around the app. |
@@ -44,9 +44,9 @@ Modernized eShopLite
     ↓
 Telemetry + logs + traces
     ↓
-Observability Assistant
-    ↓
 Product Discovery
+    ↓
+Observability Assistant
     ↓
 Store Intelligence
     ↓
@@ -124,76 +124,9 @@ Do not spend too much time explaining Aspire internals. The previous session cov
 
 ### Transition
 
-> The first place modernization helps is operations. We already have logs and traces. Can the app explain itself?
+> The first place AI helps is something every user already knows: search. Can the app understand what a shopper actually means?
 
-## 3. Demo 1 - Observability Assistant - 05:00 to 10:00
-
-### Scenario
-
-`13-ObservabilityAssistantFoundryLocal`
-
-### Goal
-
-Show that logs and traces can become an explanation.
-
-### Setup
-
-- Use eShopLite baseline from Scenario 01.
-- Run local-first with three Aspire services: `products`, `store`, `observabilityassistant`.
-- Generate search/cart/catalog activity.
-- Trigger or simulate one or two known issues.
-- Show logs/traces in the local developer environment.
-- Use a local AI service, ideally Foundry Local, to summarize recent operational signals.
-
-### Demo flow
-
-1. Open eShopLite.
-2. Perform a few user actions.
-3. Trigger a failed search or catalog issue.
-4. Show raw logs/traces.
-5. From Store, call `observabilityassistant` for 5/10/15/30-minute windows.
-6. Show that backend-generated findings are rendered in Store.
-7. Show grouped issues, root cause candidates, and next actions.
-
-### Demo prompt
-
-```text
-Summarize the last 10 minutes of application activity. Group issues by service (products, store, observabilityassistant), identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
-```
-
-### Expected output shape
-
-```text
-Summary
-- What happened
-- Services involved
-- Most likely root cause
-- Supporting log/trace signals
-- Recommended next actions
-```
-
-### Speaker line
-
-> This is where modernization pays off immediately. We already have telemetry. Now we use AI to make that telemetry easier to understand.
-
-### Audience takeaway
-
-> AI is useful here because modernization already gave us telemetry.
-
-### Fallback
-
-If the AI service fails:
-
-- show a saved output sample,
-- explain the expected input/output,
-- show the raw logs and how the summary would help,
-- move to Product Discovery.
-
-### Transition
-
-> The app can now help developers understand itself. But users also need smarter experiences.
-
-## 4. Demo 2 - Product Discovery - 10:00 to 15:00
+## 3. Demo 1 - Product Discovery - 05:00 to 10:00
 
 ### Scenario
 
@@ -248,7 +181,74 @@ This is a code reading, so there is nothing to run or recover. If time is short,
 
 ### Transition
 
-> Now we have smarter operations and smarter UX. What about the business users who need to understand what is happening in the app?
+> That discovery flow used a cloud model. But AI does not have to run in the cloud. Let's bring it local — and point it at something every team already has: logs and traces.
+
+## 4. Demo 2 - Observability Assistant (local AI) - 10:00 to 15:00
+
+### Scenario
+
+`13-ObservabilityAssistantFoundryLocal`
+
+### Goal
+
+Show that logs and traces can become an explanation — running AI **locally** with Foundry Local.
+
+### Setup
+
+- Use eShopLite baseline from Scenario 01.
+- Run local-first with three Aspire services: `products`, `store`, `observabilityassistant`.
+- Generate search/cart/catalog activity.
+- Trigger or simulate one or two known issues.
+- Show logs/traces in the local developer environment.
+- Use a local AI service, Foundry Local, to summarize recent operational signals.
+
+### Demo flow
+
+1. Open eShopLite.
+2. Perform a few user actions.
+3. Trigger a failed search or catalog issue.
+4. Show raw logs/traces.
+5. From Store, call `observabilityassistant` for 5/10/15/30-minute windows.
+6. Show that backend-generated findings are rendered in Store.
+7. Show grouped issues, root cause candidates, and next actions.
+
+### Demo prompt
+
+```text
+Summarize the last 10 minutes of application activity. Group issues by service (products, store, observabilityassistant), identify the most likely root cause, include relevant trace IDs if available, and suggest the next three things a developer should check.
+```
+
+### Expected output shape
+
+```text
+Summary
+- What happened
+- Services involved
+- Most likely root cause
+- Supporting log/trace signals
+- Recommended next actions
+```
+
+### Speaker line
+
+> This is local AI: the model runs on your machine with Foundry Local. We already have telemetry — now a local model makes it easy to understand, with no data leaving the box.
+
+### Audience takeaway
+
+> AI is useful here because modernization already gave us telemetry — and with Foundry Local it runs entirely on your machine.
+
+### Fallback
+
+If the AI service fails:
+
+- show a saved output sample,
+- explain the expected input/output,
+- show the raw logs and how the summary would help,
+- move to Store Intelligence.
+
+### Transition
+
+> Now we have smarter UX and smarter operations. What about the business users who need to understand what is happening in the app?
 
 ## 5. Demo 3 - Store Intelligence Report - 15:00 to 19:00
 

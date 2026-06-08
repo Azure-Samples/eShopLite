@@ -17,7 +17,48 @@ Use these during rehearsal and live delivery.
 
 ---
 
-## Demo 1 - Observability Assistant
+## Demo 1 - Product Discovery
+
+> **Code walkthrough — no app run.** Demo 1 is presented from the code, not by typing prompts
+> into a running app. The "prompts" below are what the **code builds internally** to ground the
+> model — show them in `MemoryContext.cs`, do not type them anywhere. Full script:
+> `demo-14scenario.md`.
+
+### System prompt (the honesty guardrail, `MemoryContext.cs` line ~42)
+
+```text
+You are a useful assistant. You always reply with a short and funny message.
+If you do not know an answer, you say 'I don't know that.'
+You only answer questions related to outdoor camping products.
+For any other type of questions, explain to the user that you only answer
+outdoor camping products questions. Do not store memory of the chat conversation.
+```
+
+### Grounding prompt the code assembles (`MemoryContext.Search`, lines ~123–130)
+
+```text
+You are an intelligent assistant helping clients with their search about outdoor products.
+Generate a catchy and friendly message using the information below.
+Respond using Markdown with concise sections and bullet lists when helpful.
+Add a comparison between the products found and the search criteria.
+Include products details.
+    - User Question: {search}
+    - Found Products:
+{the products returned by the vector search, with name / description / price}
+```
+
+### What to emphasize
+
+- The model only ever sees the products the vector search returned (top 3, `Score > 0.3`).
+- No match above the threshold → nothing to ground on → the model cannot invent products.
+- Grounding data comes from the catalog, embedded at startup — not from training data.
+- This runs on a **cloud** model — it sets up the contrast for Demo 2, which runs AI locally.
+
+---
+
+## Demo 2 - Observability Assistant (local AI)
+
+> Runs the analysis model **locally** with Foundry Local — no telemetry leaves the machine.
 
 ### Short prompt
 
@@ -64,44 +105,6 @@ Do not invent errors that are not present in the input.
 
 ## Next checks
 ```
-
----
-
-## Demo 2 - Product Discovery
-
-> **Code walkthrough — no app run.** Demo 2 is presented from the code, not by typing prompts
-> into a running app. The "prompts" below are what the **code builds internally** to ground the
-> model — show them in `MemoryContext.cs`, do not type them anywhere. Full script:
-> `demo-14scenario.md`.
-
-### System prompt (the honesty guardrail, `MemoryContext.cs` line ~42)
-
-```text
-You are a useful assistant. You always reply with a short and funny message.
-If you do not know an answer, you say 'I don't know that.'
-You only answer questions related to outdoor camping products.
-For any other type of questions, explain to the user that you only answer
-outdoor camping products questions. Do not store memory of the chat conversation.
-```
-
-### Grounding prompt the code assembles (`MemoryContext.Search`, lines ~123–130)
-
-```text
-You are an intelligent assistant helping clients with their search about outdoor products.
-Generate a catchy and friendly message using the information below.
-Respond using Markdown with concise sections and bullet lists when helpful.
-Add a comparison between the products found and the search criteria.
-Include products details.
-    - User Question: {search}
-    - Found Products:
-{the products returned by the vector search, with name / description / price}
-```
-
-### What to emphasize
-
-- The model only ever sees the products the vector search returned (top 3, `Score > 0.3`).
-- No match above the threshold → nothing to ground on → the model cannot invent products.
-- Grounding data comes from the catalog, embedded at startup — not from training data.
 
 ---
 

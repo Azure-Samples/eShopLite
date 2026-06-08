@@ -1,6 +1,6 @@
-# Demo 2 Walkthrough - Scenario 14 Product Discovery Copilot
+# Demo 1 Walkthrough - Scenario 14 Product Discovery Copilot
 
-> **Format: code walkthrough — no app run.** For this session, Demo 2 is **not** a live
+> **Format: code walkthrough — no app run.** For this session, Demo 1 is **not** a live
 > demo. We do **not** launch the scenario. We explain *how the data is grounded* and read
 > the code in
 > `scenarios/14-ProductDiscoveryCopilot/src/Products/Memory/MemoryContext.cs`
@@ -158,6 +158,6 @@ hits `GET /api/aisearch/{term}` → `MemoryContext.Search`: it embeds the questi
 - This walkthrough intentionally has **no prerequisites, no secrets setup, and no run/launch
   steps** — it is a code reading. If you ever do want to run it live, the scenario is a normal
   Aspire app (`sql` + `products` + `store`) that needs the four `Parameters:AzureOpenAI*`
-  secrets; that is out of scope for this session's Demo 2.
+  secrets; that is out of scope for this session's Demo 1.
 - Line numbers above match `MemoryContext.cs` as of this writing; if the file changes, re-check
   the `Score > 0.3` gate and the grounding-prompt block before presenting.
