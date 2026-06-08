@@ -49,11 +49,14 @@ public static class ProductApiActions
         return affected == 1 ? Results.Ok() : Results.NotFound();
     }
 
-    public static async Task<IResult> SearchAllProducts(string search, Products.Models.Context db)
+    public static async Task<IResult> SearchAllProducts(string search, Products.Models.Context db, Products.Intelligence.StoreSignalStore signals)
     {
         List<Product> products = await db.Product
             .Where(p => EF.Functions.Like(p.Name, $"%{search}%"))
             .ToListAsync();
+
+        // Capture a store signal (keyword search) for the Store Intelligence Report.
+        signals.Record(search, semantic: false, products.Count);
 
         var response = new SearchResponse();
         response.Products = products;

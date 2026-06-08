@@ -25,7 +25,7 @@ For this session package, reliability comes first:
 | Baseline app | 5 | Existing Scenario 01 | `01-SemanticSearch` | Runnable | Live |
 | Product Discovery | 6 | `14-ProductDiscoveryCopilot` | `01-SemanticSearch` (copied) | Runnable baseline; presented as code walkthrough this session | Code walkthrough (no run) |
 | Observability Assistant | 7 | `13-ObservabilityAssistantFoundryLocal` | Local runnable, modernization-first flow | Demo narrative uses three Aspire services (`products`, `store`, `observabilityassistant`) with backend findings shown in Store; analysis runs locally with Foundry Local | Live (local AI) |
-| Store Intelligence | 8 | `15-StoreIntelligenceReport` | `01-SemanticSearch` (copied) | Runnable baseline; report pipeline not implemented | Live (prepared report fallback) |
+| Store Intelligence | 8 | `15-StoreIntelligenceReport` | `01-SemanticSearch` (copied) | Implemented: signal capture + report endpoint + `/intelligence` page (deterministic fallback) | Live (Generate report; `source: ai\|fallback`) |
 | MCP Store Tools | 9 | `16-MCPStoreOperationsTools` | `06-mcp` | Runnable MCP sample; store-ops tool set not fully aligned to session script | Live (existing MCP tools) |
 | A2A Store Network | 10 | `17-A2AStoreOperationsNetwork` | `10-A2ANet` | Runnable A2A sample; agent roles differ from session script | Live (existing agent network) |
 | Hosted Agents | 11 | Docs only | N/A | Design/evaluation only | Slide |
@@ -58,8 +58,13 @@ For this session package, reliability comes first:
 ## Scenario 15 - Store Intelligence Report
 
 - **Session target:** Daily store-intelligence summary from app signals.
-- **Current:** Same app code as Scenario 01; no implemented report pipeline/page.
-- **Gap to target:** Add deterministic input fixture + report generation endpoint/UI + docs.
+- **Current:** Implemented end-to-end. Search endpoints record `StoreSignal`s into a seeded
+  `StoreSignalStore` on `products`; `StoreIntelligenceReportService` aggregates them and writes the
+  summary via `IChatClient` with a deterministic fallback; `/api/intelligence/{signals,report}`
+  expose them; the `store` **Store Intelligence** page (`/intelligence`) renders the report with a
+  `source: ai|fallback` badge. Verified live (`source: ai`, 8 signals, failed searches surfaced).
+- **Gap to target:** None for the demo. Optional later: persist signals to SQL; add cart/checkout
+  event signals.
 
 ## Scenario 16 - MCP Store Operations Tools
 

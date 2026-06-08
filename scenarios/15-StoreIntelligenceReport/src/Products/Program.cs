@@ -53,6 +53,13 @@ builder.Services.AddSingleton(sp =>
     return new MemoryContext(logger, sp.GetService<IChatClient>(), sp.GetService<IEmbeddingGenerator<string, Embedding<float>>>());
 });
 
+// Store Intelligence: in-memory signal store + report service (AI summary with deterministic fallback).
+builder.Services.AddSingleton<Products.Intelligence.StoreSignalStore>();
+builder.Services.AddSingleton(sp => new Products.Intelligence.StoreIntelligenceReportService(
+    sp.GetRequiredService<Products.Intelligence.StoreSignalStore>(),
+    sp.GetRequiredService<ILogger<Products.Intelligence.StoreIntelligenceReportService>>(),
+    sp.GetService<IChatClient>()));
+
 // Add services to the container.
 var app = builder.Build();
 
@@ -63,6 +70,7 @@ app.MapDefaultEndpoints();
 app.UseHttpsRedirection();
 
 app.MapProductEndpoints();
+app.MapIntelligenceEndpoints();
 
 app.UseStaticFiles();
 

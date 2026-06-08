@@ -13,6 +13,9 @@ builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddHttpClient<IProductService, ProductService>(
     static client => client.BaseAddress = new("https+http://products"));
 
+builder.Services.AddHttpClient<IIntelligenceService, IntelligenceService>(
+    static client => client.BaseAddress = new("https+http://products"));
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

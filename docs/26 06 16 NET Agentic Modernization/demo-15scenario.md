@@ -1,26 +1,23 @@
 # Demo 3 Playbook - Scenario 15 Store Intelligence Report
 
-> **Format: live baseline + prepared report.** The report pipeline is **not implemented**
-> yet in this scenario (it is the Scenario 01 baseline). For the session we run the real app
-> to generate **real signals** (searches, failed searches), then present a **deterministic
-> Store Intelligence Report** and map every section back to those app signals. This keeps the
-> demo reliable while telling the "signals become business decisions" story.
+> **Format: fully live.** The report pipeline **is implemented** in this scenario. The app
+> captures real search signals (including failed/no-result searches), and a **Store Intelligence**
+> page generates a business summary from those signals on demand. It uses the same Azure OpenAI
+> `IChatClient` as Demo 1 for the narrative, with a **deterministic fallback** so the demo never
+> blocks — the report is identical in shape whether the model is reachable or not, and a small
+> `source: ai | fallback` badge proves which path ran.
 
 ## Objective and presenter story
 
-**Objective:** show that the same modernized app that serves users (Demo 1) and explains its
-operations (Demo 2) can also roll its raw signals up into a **business summary** that a
-non-developer — a store manager — can act on.
+**Objective:** show that the same modernized app that serves users (Demo 1) and explains its operations (Demo 2) can also roll its raw signals up into a **business summary** that a non-developer — a store manager — can act on.
 
 **Story line:**
 
-1. The app already produces signals: catalog data, searches, failed searches, cart/checkout events.
+1. The app already produces signals: searches and failed (no-result) searches.
 2. Developers and ops see logs and traces; **business users** need patterns and next actions.
-3. We ask for a daily **Store Intelligence Report**.
-4. The report turns scattered signals into: top intents, gaps (no-result searches), operational
-   issues, and recommended actions.
-5. This proves AI value is not only UX and ops — it is **decision support** built from the app's
-   own data.
+3. We click **Generate report** on the Store Intelligence page.
+4. The report turns scattered signals into: top intents, gaps (no-result searches), product opportunities, operational issues, and recommended actions.
+5. This proves AI value is not only UX and ops — it is **decision support** built from the app's own data.
 
 ## Where this sits in the arc
 
@@ -30,26 +27,40 @@ non-developer — a store manager — can act on.
 
 Same modernized app, same signals — a third audience served.
 
-## Current state (be transparent on stage)
+## How it works (the one-paragraph version)
 
-- Scenario 15 is the **Scenario 01 Semantic Search baseline**: `sql` + `products` + `store`,
-  with keyword and semantic search endpoints.
-- There is **no report generation endpoint or report page yet** — see
-  `scenario-map.md` ("report pipeline not implemented").
-- So Demo 3 is presented as **prepared report fallback**: run the app to create genuine
-  activity, then show the deterministic report below and tie each section to the signals the
-  audience just generated.
+Every keyword and semantic search records a `StoreSignal` (term, semantic flag, result count,
+timestamp) into an in-memory `StoreSignalStore` on the `products` service. The store is **seeded
+with 8 sample signals at startup** (two of them no-result), so the report is never empty even
+before you search. The **Store Intelligence** page calls `GET /api/intelligence/report`, which
+aggregates the signals (top searches, failed searches, product opportunities, operational issues),
+asks the chat model to write the executive summary + recommended actions, and falls back to a
+deterministic narrative when the model is unavailable. The page renders the sections and shows the
+`source` badge.
+
+## Current state
+
+- Scenario 15 builds on the **Scenario 01 Semantic Search baseline** (`sql` + `products` + `store`)
+  and **adds** the Store Intelligence Report end-to-end:
+  - signal capture in the search endpoints,
+  - a `StoreSignalStore` + `StoreIntelligenceReportService` on `products`,
+  - two endpoints (`/api/intelligence/signals`, `/api/intelligence/report`),
+  - a **Store Intelligence** page (`/intelligence`) + nav link in `store`.
+- Verified end-to-end: page renders, **Generate report** returns a full report with
+  `source: ai`, failed searches (e.g., "hiking boots size 12", "paint my room white") surface as
+  product opportunities and an elevated no-result-rate operational issue.
 
 ## Prerequisites
 
 - .NET 10 SDK, Aspire CLI, and Docker Desktop running.
 - Scenario source available at:
   - `D:\azure-samples\eShopLite\scenarios\15-StoreIntelligenceReport`
-- If you run **semantic** search live, the Products service needs the four Azure OpenAI
+- For the **AI** narrative (`source: ai`), the Products service needs the four Azure OpenAI
   parameters (same as Scenario 01/14):
   - `Parameters:AzureOpenAIEndpoint`, `Parameters:AzureOpenAIApiKey`,
     `Parameters:AzureOpenAIDeploymentName`, `Parameters:AzureOpenAIEmbeddingsDeploymentName`
-  - Keyword search needs no secrets, so the demo works even without Azure OpenAI configured.
+  - Without them the report still generates with `source: fallback` — same sections, deterministic
+    text. The demo works either way.
 
 Quick validation:
 
@@ -92,74 +103,83 @@ aspire start --non-interactive
 
 1. **Set context (20s):**
    "We served users, then developers. Now the store manager: same signals, a daily business report."
-2. **Open Store UI:** from the Aspire Dashboard, click the `store` endpoint.
-3. **Generate real signals on the Search page** — run a mix so the report has something to summarize:
-   Searches queries
-     - do you have something for cooking
-     - do you have something for a rainy day
-     - winter camping tent four season
-     - something to paint my room white (no results → a *failed search* signal)
-     - do you have hiking boots size 12 (no results → another *failed search* signal)
-   Toggle `Use Semantic Search` on for a couple of these to vary intent signals.
-4. **Show the raw signals:** in the Aspire Dashboard, open `products` / `store` logs and point at
-   the search requests and the no-result responses. "This is the raw material — scattered events."
-5. **Ask for the report (the business ask):** state the prompt the report answers (below). Then
-   show the **deterministic Store Intelligence Report** (prepared output below) as the result.
-6. **Walk the report top-down:** executive summary → top searches → failed searches → product
-   gaps → operational issues → recommended actions.
-7. **Map each section to what they just did (the key move):** use the mapping table below to point
-   from a report line back to a real search the audience watched you run.
-8. **Close with value line (15s):**
+2. **Open the Store Intelligence page:** from the Aspire Dashboard open the `store` endpoint, then
+   click **Store Intelligence** in the left nav (or browse to `/intelligence`).
+3. **Show the raw signals first:** click **Refresh signals**. The table fills from the **seeded
+   sample signals** — point at the two no-result rows (`resultCount = 0`). "These are the app's own
+   signals — scattered events, not yet a story."
+4. **Generate real signals (optional but great on stage):** open **Search**, run a mix so the
+   report reflects what the room just watched:
+   - `do you have something for cooking`
+   - `do you have something for a rainy day`
+   - `winter camping tent four season`
+   - `something to paint my room white`  → no results → a *failed search* signal
+   - `do you have hiking boots size 12`  → no results → another *failed search* signal
+   Toggle **Use Semantic Search** on for a couple to vary the intent signals. Return to **Store
+   Intelligence** and click **Refresh signals** — your new searches now appear in the table.
+5. **Click Generate report (the business ask):** this calls `GET /api/intelligence/report`. In a
+   second or two the report card renders.
+6. **Walk the report top-down:** executive summary → top customer intents → searches with no
+   results → product opportunities → operational issues → recommended actions.
+7. **Point at the proof line:** the `source: ai` badge (or `source: fallback` if no Azure OpenAI).
+   "Same report shape either way — the badge tells you which path ran. The fallback means the demo
+   never blocks."
+8. **Map a section to what they just did (the key move):** tie a report line (e.g., "hiking boots
+   size 12 — no matching product") back to the exact search the audience watched you run.
+9. **Close with value line (15s):**
    "The app already had this data. The report just turns it into decisions a non-developer can act on."
 
-## The business ask (the report prompt)
+## The business ask (what Generate report answers)
 
-This is the question the report answers. Say it out loud; you do not type it anywhere in the
-baseline app (the generation pipeline is the gap this scenario will fill).
+The **Generate report** button answers this question. Say it out loud as you click:
 
 ```text
 Create today's store intelligence report. Include top searches, failed searches, product
 opportunities, operational issues that may affect customers, and recommended next actions.
 ```
 
-## Prepared Store Intelligence Report (deterministic)
+## Expected report shape
 
-Show this as the report output. It follows the scenario's report schema
-(`scenarios/15-StoreIntelligenceReport/docs/report-schema.md`).
+The rendered report follows the scenario's report schema
+(`scenarios/15-StoreIntelligenceReport/docs/report-schema.md`):
 
 ```text
-Store Intelligence Report — {today}
-
-Executive summary
-- Customers searched mostly for outdoor and seasonal camping gear today.
-- Two searches returned no results, pointing at real catalog gaps and lost intent.
-- No blocking operational issues; one latency signal worth a quick check.
-
-Top customer intents (top searches)
-- Rainy-day / weather-ready gear
-- Four-season / winter camping (tents)
-- Cooking / camp kitchen
-
-Searches with no results (failed searches)
-- "something to paint my room white"  → off-catalog intent (out of scope, expected)
-- "hiking boots size 12"               → on-catalog intent, no SKU → product/size gap
-
-Product opportunities
-- Add or surface winter / four-season tents prominently.
-- Review footwear size coverage (size 12 demand with no result).
-
-Operational issues
-- Search latency slightly elevated during the activity burst — verify products API + DB.
-
-Recommended actions
-1. Fill the footwear size-12 gap (catalog or supplier).
-2. Promote seasonal (winter/rainy) gear on the storefront.
-3. Run a quick latency check on the products search path.
+Store Intelligence Report          (source: ai | fallback · N signals analyzed)
+- Executive summary
+- Top customer intents
+- Searches with no results
+- Product opportunities
+- Operational issues
+- Recommended actions
 ```
 
-> Exact wording is illustrative; the **shape** (executive summary → intents → failed searches →
-> gaps → operational issues → actions) is what to land. The sections are deterministic so the
-> demo never depends on a live model call.
+Example (real output captured from a live run, `source: ai`, 8 signals):
+
+```text
+Executive summary
+- 8 search signals analyzed.
+- Top searches (each x1): rainy day gear; camp cooking; four season tent; winter camping tent; rain jacket.
+- 2 searches returned no results: hiking boots size 12; paint my room white.
+- Product opportunity: demand for hiking boots size 12 with no matching product; operational
+  issue: elevated no-result rate (2/8) — verify catalog coverage and search path.
+
+Searches with no results
+- hiking boots size 12
+- paint my room white
+
+Product opportunities
+- Demand for "hiking boots size 12" with no matching product — review catalog/size coverage.
+
+Operational issues
+- Elevated no-result rate (2/8 searches) — verify catalog coverage and the search path.
+
+Recommended actions
+1. Review catalog and size coverage for hiking boots size 12.
+2. Verify catalog coverage and investigate the search path for the elevated no-result rate.
+```
+
+> Exact wording varies (the AI writes the summary); the **shape** (executive summary → intents →
+> failed searches → opportunities → operational issues → actions) is what to land.
 
 ## How the report maps to app signals
 
@@ -167,66 +187,45 @@ This is the slide-worthy point: every report line traces to a signal the app alr
 
 | Report section | App signal it comes from | Where in the app |
 |---|---|---|
-| Top searches | Search terms hitting the Products API | `GET /api/Product/search/{term}` and `GET /api/aisearch/{term}` |
-| Failed searches | Searches that returned zero products | Empty result sets from the same search endpoints |
+| Top customer intents | Search terms hitting the Products API | `GET /api/Product/search/{term}` and `GET /api/aisearch/{term}`, recorded as `StoreSignal` |
+| Searches with no results | Searches that returned zero products | `StoreSignal.Failed` (`resultCount == 0`) from the same endpoints |
 | Product opportunities | On-catalog intents with no matching SKU | Failed-but-relevant searches (e.g., "size 12") |
-| Operational issues | Latency / errors on the search path | OpenTelemetry traces/logs on `products` / `store` |
-| Recommended actions | Derived from the gaps + ops signals above | Business interpretation layer (the report) |
-
-## Expected output shape
-
-```text
-Store Intelligence Report
-- Executive summary
-- Top customer intents
-- Searches with no results
-- Product gaps
-- Operational issues
-- Recommended actions
-```
+| Operational issues | Elevated no-result rate on the search path | Aggregated from the signal set in `StoreIntelligenceReportService` |
+| Recommended actions | Derived from the gaps + ops signals above | AI narrative (or deterministic fallback) in the report service |
 
 ## Fallback plan
 
-Because the report itself is prepared/deterministic, this demo has **no live-AI failure mode**.
-If anything goes wrong:
+The report has a **built-in deterministic fallback**, so this demo has no hard live-AI failure mode:
 
-- If the **app** will not start: skip the live activity and present the prepared report directly,
-  describing what searches would have produced each section.
-- If **semantic** search is unavailable (no Azure OpenAI secrets): use **keyword** search only —
-  the signals (top searches, failed searches) are identical for the report story.
-- Then continue to **Demo 4 (MCP Store Tools)** without retry loops.
+- If **Azure OpenAI is unavailable**: the report still generates with `source: fallback` — identical
+  sections, deterministic text. Just narrate the badge.
+- If **semantic** search is unavailable (no secrets): use **keyword** search only — the signals
+  (top searches, failed searches) are identical for the report story.
+- If the **app** will not start: present the example report above and describe which searches
+  produce each section, then continue to **Demo 4 (MCP Store Tools)** without retry loops.
 
 ## Key files to talk about
 
-The report feature is the gap to build; for now, point at the baseline that produces the signals.
-
 | File | Role | What to say |
 |---|---|---|
-| `scenarios/15-StoreIntelligenceReport/src/eShopAppHost/Program.cs` | **Orchestration** | Aspire composes `sql`, `products`, `store`; this is the signal-producing app the report summarizes. |
-| `scenarios/15-StoreIntelligenceReport/src/Products/Endpoints/ProductEndpoints.cs` | **Signal source** | `GET /api/Product/search/{term}` (keyword) and `GET /api/aisearch/{term}` (semantic) — every search here is a row in tomorrow's report. |
-| `scenarios/15-StoreIntelligenceReport/src/Products/Memory/MemoryContext.cs` | **Intent capture** | Same grounding pipeline from Demo 1 — it is what turns a raw query into an *intent* the report can group on. |
-| `scenarios/15-StoreIntelligenceReport/src/Store/Components/Pages/Search.razor` | **Where signals are born** | The search box + semantic toggle the presenter drives to generate today's activity. |
-| `scenarios/15-StoreIntelligenceReport/docs/report-schema.md` | **Report contract** | The section list the report will produce; the prepared report above follows it. |
-
-## Gap to implement (post-session, optional)
-
-To make this a fully live demo later (tracked in `scenario-map.md`):
-
-1. Add a deterministic input fixture (recent searches, failed searches, cart events).
-2. Add a report-generation endpoint on `products` (or a small service) that aggregates signals
-   and asks a model for the summary, following `report-schema.md`.
-3. Add a **Store Intelligence** page in `store` that calls the endpoint and renders the report.
-4. Keep a deterministic fallback (the prepared report above) so the demo never blocks.
+| `scenarios/15-StoreIntelligenceReport/src/Products/Intelligence/StoreSignalStore.cs` | **Signal capture** | Thread-safe in-memory ring of recent searches; seeded with 8 sample signals (2 no-result) so the report is never empty. |
+| `scenarios/15-StoreIntelligenceReport/src/Products/Intelligence/StoreIntelligenceReportService.cs` | **The report engine** | Aggregates signals into sections, asks `IChatClient` for the summary + actions, falls back deterministically (sets `source`). The heart of the demo. |
+| `scenarios/15-StoreIntelligenceReport/src/Products/Endpoints/IntelligenceEndpoints.cs` | **The API** | `GET /api/intelligence/signals` and `GET /api/intelligence/report` — what the page calls. |
+| `scenarios/15-StoreIntelligenceReport/src/Store/Components/Pages/StoreIntelligence.razor` | **The business UI** | The `/intelligence` page: Refresh signals, Generate report, rendered sections, `source` badge. |
+| `scenarios/15-StoreIntelligenceReport/src/Products/Endpoints/ProductApiActions.cs` | **Where signals are born** | `SearchAllProducts` records a `StoreSignal` for every keyword search (semantic search records in `ProductAiActions.cs`). |
+| `scenarios/15-StoreIntelligenceReport/docs/report-schema.md` | **Report contract** | The section list the report produces. |
 
 ## Talking points / FAQ
 
-- **"Is this report generated live?"** Not yet — the pipeline is the gap this scenario will fill.
-  Today we run the real app for real signals and present a deterministic report so the story is
-  reliable. The *technique* (aggregate signals → summarize → recommend) is what matters.
-- **"Where would the data come from?"** The app's own signals: search terms, no-result searches,
-  cart/checkout events, and OpenTelemetry traces — not an external dataset.
-- **"Cloud or local?"** Report generation could run either way. Demo 1 showed cloud, Demo 2 showed
-  local (Foundry Local) — the same report could be produced by either host.
+- **"Is this report generated live?"** Yes. The page calls a real endpoint that aggregates the
+  app's signals and asks the model for the summary. The `source` badge shows whether AI or the
+  deterministic fallback produced it.
+- **"Where does the data come from?"** The app's own signals: search terms and no-result searches,
+  captured as `StoreSignal` on the `products` service — not an external dataset.
+- **"What if there are no searches yet?"** The store seeds 8 sample signals at startup, so the
+  report always has material. Live searches simply add to it.
+- **"Cloud or local?"** This demo uses the same cloud `IChatClient` as Demo 1. Demo 2 showed the
+  local (Foundry Local) path — the same report could be produced by either host.
 - **"Why does this matter after Observability?"** Observability serves developers; this serves
   business users. Same signals, a different audience and a different decision.
 
@@ -234,7 +233,7 @@ To make this a fully live demo later (tracked in `scenario-map.md`):
 
 - Always start from `scenarios/15-StoreIntelligenceReport/src/eShopAppHost` so `aspire start`
   attaches to **this** scenario, not another one.
-- The prepared report is intentionally deterministic; treat it as the demo's source of truth until
-  the generation pipeline is implemented.
+- The report is deterministic in **shape**; only the executive-summary/recommended-actions wording
+  changes between the AI and fallback paths.
 - This is **Demo 3** in the session. Previous: Demo 2 (Observability, local AI). Next: Demo 4
   (MCP Store Operations Tools, Scenario 16).
