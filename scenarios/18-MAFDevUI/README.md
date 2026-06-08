@@ -1,6 +1,6 @@
 # MAF Dev UI
 
-**Status:** Bonus demo. Hosts Microsoft Agent Framework (MAF) agents inside the Store and exposes the Agent Framework Dev UI at `/devui` (Development only). Builds clean (`eShopLite-Aspire-DevUI.slnx`). Demo script: `docs/26 06 16 NET Agentic Modernization/demo-18scenario.md`. Plan-B walkthrough assets: `docs/26 06 16 NET Agentic Modernization/screenshots/scenario18-*`.
+**Status:** Bonus demo. Hosts Microsoft Agent Framework (MAF) agents inside the Store and exposes the Agent Framework Dev UI at `/devui` (Development only). Builds clean (`eShopLite-18-MAFDevUI.slnx`). Demo script: `docs/26 06 16 NET Agentic Modernization/demo-18scenario.md`. Plan-B walkthrough assets: `docs/26 06 16 NET Agentic Modernization/screenshots/scenario18-*`.
 
 > ⚠️ This scenario's AppHost is at the **scenario root** (`18-MAFDevUI/eShopAppHost`), not under a `src/` folder. Start from there with `aspire start`.
 

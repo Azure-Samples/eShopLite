@@ -38,7 +38,7 @@ run MAF agents, and a workflow that orchestrates several agents to complete a re
 ## Current state
 
 - Scenario 18 is the **MAF Dev UI** scenario (formerly numbered 14). Its AppHost lives at the
-  **scenario root** (no `src/` subfolder); the solution is `eShopLite-Aspire-DevUI.slnx`.
+  **scenario root** (no `src/` subfolder); the solution is `eShopLite-18-MAFDevUI.slnx`.
 - Resources: `sql` + `products` + `store` (the Store hosts the MAF agents and the Dev UI).
 - The Store nav has a **DevUI** link that opens `/devui` in a new tab (Development environment only).
 - The agents are **Foundry-hosted** via `AddeShopLiteFoundryAgents()`, so this scenario also needs an
@@ -86,7 +86,7 @@ What to confirm before demo:
 ```pwsh
 cd D:\azure-samples\eShopLite\scenarios\18-MAFDevUI
 dotnet restore
-dotnet build eShopLite-Aspire-DevUI.slnx
+dotnet build eShopLite-18-MAFDevUI.slnx
 cd .\eShopAppHost
 aspire start --non-interactive
 ```
@@ -178,7 +178,7 @@ Checkout orchestration
 ## Notes
 
 - The AppHost is at the **scenario root** (`18-MAFDevUI\eShopAppHost`); the solution is
-  `eShopLite-Aspire-DevUI.slnx`. Start `aspire start` from the scenario-root AppHost.
+  `eShopLite-18-MAFDevUI.slnx`. Start `aspire start` from the scenario-root AppHost.
 - The Dev UI is mapped **only in Development**; ensure the Store runs in that environment.
 - This is the **bonus** demo. Previous: Demo 5 (A2A Store Operations Network).
 

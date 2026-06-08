@@ -186,7 +186,7 @@ dotnet format --verify-no-changes
 
 # Format specific solution
 cd scenarios/01-SemanticSearch/src
-dotnet format eShopLite-Aspire.slnx
+dotnet format eShopLite-01-SemanticSearch.slnx
 ```
 
 ### Coding Conventions

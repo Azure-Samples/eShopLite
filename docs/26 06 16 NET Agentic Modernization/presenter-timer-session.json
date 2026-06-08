@@ -1,0 +1,69 @@
+{
+  "title": "App Modernization - Now Make It Smarter",
+  "description": "Microsoft Reactor session (30 min). Modernization is the foundation; this session adds targeted AI to an already-modernized .NET 10 / Aspire eShopLite app. Recording/timeline plan for ElBruno.PresenterTimer.",
+  "sections": [
+    {
+      "title": "Opening",
+      "duration": "00:02:00",
+      "notes": "Slides. Premise: modernization is the foundation, not the finish line. 'The app is already modernized - now what?' Bridge from the previous Aspire/modernization session.",
+      "color": "#1565C0",
+      "warningAt": "00:00:30"
+    },
+    {
+      "title": "Baseline app",
+      "duration": "00:03:00",
+      "notes": "Demo. eShopLite running locally: Aspire dashboard, resources, logs/traces, catalog, existing search. Not a rewrite - an incremental improvement story. Avoid Aspire internals deep dive.",
+      "color": "#00897B",
+      "warningAt": "00:00:45"
+    },
+    {
+      "title": "Demo 1 - Product Discovery",
+      "duration": "00:05:00",
+      "notes": "Scenario 14 (ProductDiscoveryCopilot). CODE WALKTHROUGH - no app run. Read MemoryContext.cs: embed catalog -> vector search top 3 -> Score > 0.3 gate -> grounding prompt. Point: the model only sees catalog products the search returned.",
+      "color": "#9C27B0",
+      "warningAt": "00:01:00"
+    },
+    {
+      "title": "Demo 2 - Observability Assistant (local AI)",
+      "duration": "00:05:00",
+      "notes": "Scenario 13 (ObservabilityAssistantFoundryLocal). LIVE local AI with Foundry Local. Run searches, trigger a failed search, call observabilityassistant for a 10-min window. Findings: root cause + next actions, no data leaves the box. Fallback: saved sample output.",
+      "color": "#4CAF50",
+      "warningAt": "00:01:00"
+    },
+    {
+      "title": "Demo 3 - Store Intelligence Report",
+      "duration": "00:04:00",
+      "notes": "Scenario 15 (StoreIntelligenceReport). Standalone Blazor 'intelligence' app. Refresh live signals -> Generate report (source: ai badge). App signals become a business summary: top intents, failed searches, product gaps, next actions. Fallback: saved report.",
+      "color": "#FB8C00",
+      "warningAt": "00:01:00"
+    },
+    {
+      "title": "Demo 4 - MCP Store Tools",
+      "duration": "00:04:00",
+      "notes": "Scenario 16 (MCPStoreOperationsTools). App capabilities exposed as MCP tools. Select tools, ask 'what gear do I need for a rainy hike this weekend' -> grounded answer WITH product grid. Show Aspire traces (chat + eshopmcpserver /message). Not a generic chatbot.",
+      "color": "#3F51B5",
+      "warningAt": "00:01:00"
+    },
+    {
+      "title": "Demo 5 - A2A Store Operations Network",
+      "duration": "00:04:00",
+      "notes": "Scenario 17 (A2AStoreOperationsNetwork). Specialized agents collaborate: Catalog + Promotions + Business Insights. A2A search 'winter camping' -> enriched cards (Stock/Promotions/Reviews). Show an agent card at /.well-known/agent-card.json. Fallback: architecture diagram.",
+      "color": "#E91E63",
+      "warningAt": "00:01:00"
+    },
+    {
+      "title": "Deploy with Aspire",
+      "duration": "00:02:00",
+      "notes": "Slides only. Same app model has a deployment path: aspire publish / aspire deploy -> Azure Container Apps, App Service, Kubernetes, Docker Compose. Aspire keeps the modernization foundation portable.",
+      "color": "#546E7A",
+      "warningAt": "00:00:30"
+    },
+    {
+      "title": "Closing",
+      "duration": "00:01:00",
+      "notes": "Slides. 'Modernization is not the finish line - it is the foundation that lets us make apps smarter.' Recap the top 5 pain points and the closing line.",
+      "color": "#1565C0",
+      "warningAt": "00:00:20"
+    }
+  ]
+}

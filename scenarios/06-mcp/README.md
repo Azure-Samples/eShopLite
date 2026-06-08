@@ -74,7 +74,7 @@ architecture-beta
 
 ## Getting Started
 
-The solution is in the `./src` folder, the main solution is **[eShopLite-Mcp.slnx](./src/eShopLite-Aspire-mcp.slnx)**.
+The solution is in the `./src` folder, the main solution is **[eShopLite-06-mcp.slnx](./src/eShopLite-06-mcp.slnx)**.
 
 ## Deploying
 

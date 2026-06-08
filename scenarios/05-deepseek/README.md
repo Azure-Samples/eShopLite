@@ -45,7 +45,7 @@ WIP - Coming soon!
 
 ## Getting Started
 
-The solution is in the `./src` folder, the main solution is **[eShopLite-Aspire-DeepSeekR1.slnx](./src/eShopLite-Aspire-DeepSeekR1.slnx)**.
+The solution is in the `./src` folder, the main solution is **[eShopLite-05-DeepSeekR1.slnx](./src/eShopLite-05-DeepSeekR1.slnx)**.
 
 ## Deploying
 

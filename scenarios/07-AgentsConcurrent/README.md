@@ -41,7 +41,7 @@ While the standard application continues to answer the user's question as usual,
 
 ## Getting Started
 
-The solution is in the `./src` folder, the main solution is **[eShopLite-Agents-Concurrent.slnx](./src/eShopLite-Agents-Concurrent.slnx)**.
+The solution is in the `./src` folder, the main solution is **[eShopLite-07-AgentsConcurrent.slnx](./src/eShopLite-07-AgentsConcurrent.slnx)**.
 
 ## Deploying
 

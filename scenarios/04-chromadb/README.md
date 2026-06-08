@@ -10,7 +10,7 @@ eShopLite is a reference .NET application that implements an eCommerce site with
 
 ## Getting Started
 
-The solution is in the `./src` folder, the main solution is **[eShopLite-ChromaDB.slnx](./src/eShopLite-ChromaDB.slnx)**.
+The solution is in the `./src` folder, the main solution is **[eShopLite-04-chromadb.slnx](./src/eShopLite-04-chromadb.slnx)**.
 
 
 ## Deploying

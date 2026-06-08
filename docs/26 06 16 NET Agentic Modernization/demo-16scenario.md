@@ -50,7 +50,7 @@ underlying implementations are unchanged and runnable):
 - Resources: `sql` + `products` + `eShopMcpSseServer` (MCP SSE server) + the trip-context backend
   services + `store` (MCP client UI).
 - The Store Products page is itself an MCP client: it calls `LookupProductByName` to load the grid.
-- Verified: `eShopLite-Aspire-mcp.slnx` builds clean; the Search page lists the remapped tools and
+- Verified: `eShopLite-16-MCPStoreOperationsTools.slnx` builds clean; the Search page lists the remapped tools and
   reports the invoked tool name per answer.
 
 ## Prerequisites

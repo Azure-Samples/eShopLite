@@ -47,7 +47,7 @@ The Azure Resource Group with all the deployed services:
 
 ## Getting Started
 
-The solution is in the `./src` folder, the main solution is **[eShopLite-Aspire.slnx](./src/eShopLite-Aspire.slnx)**.
+The solution is in the `./src` folder, the main solution is **[eShopLite-01-SemanticSearch.slnx](./src/eShopLite-01-SemanticSearch.slnx)**.
 
 ## Deploying
 

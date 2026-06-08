@@ -56,7 +56,7 @@ Updated architecture diagram showing all the components:
 
 ## Getting Started
 
-The solution is located in the `./src` folder. The main solution is **[eShopLite-Realtime-SemanticSearch](./src/eShopLite-Realtime-SemanticSearch)**.
+The solution is located in the `./src` folder. The main solution is **[eShopLite-03-RealtimeAudio.slnx](./src/eShopLite-03-RealtimeAudio.slnx)**.
 
 ## Deploying
 

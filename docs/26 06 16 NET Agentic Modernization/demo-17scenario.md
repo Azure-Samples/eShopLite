@@ -36,7 +36,7 @@ enriched answer.
 > Names/roles were remapped to a store-ops vocabulary (Inventory→Catalog, Researcher→Business
 > Insights; Promotions kept). Service-discovery labels were updated to match (`catalog-agent`,
 > `businessinsights-agent`). The A2A behavior and the standalone agent projects are unchanged and
-> runnable; both `eShopLite-A2A.slnx` and its tests build clean.
+> runnable; both `eShopLite-17-A2AStoreOperationsNetwork.slnx` and its tests build clean.
 
 ## Current state
 
@@ -45,7 +45,7 @@ enriched answer.
   `businessinsights-agent`) + `products` (orchestrator) + `store`.
 - The Store Search page has a **Search Type** dropdown including **A2A Search (Agent-to-Agent)**;
   in that mode product cards show **Stock / Promotions / Reviews** aggregated by the orchestrator.
-- Verified: `eShopLite-A2A.slnx` builds clean after the remap; tests updated to the new class names.
+- Verified: `eShopLite-17-A2AStoreOperationsNetwork.slnx` builds clean after the remap; tests updated to the new class names.
 
 ## Prerequisites
 
