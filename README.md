@@ -55,6 +55,7 @@ The project includes several scenarios demonstrating different capabilities:
 | [15 - Store Intelligence Report](./scenarios/15-StoreIntelligenceReport/) | Generates daily business and operational store intelligence reports. | App data, telemetry, AI summarization, reports |
 | [16 - MCP Store Operations Tools](./scenarios/16-MCPStoreOperationsTools/) | Exposes safe store capabilities as MCP tools for agent use. | MCP, Aspire, app APIs, tool calling |
 | [17 - A2A Store Operations Network](./scenarios/17-A2AStoreOperationsNetwork/) | Shows specialized agents collaborating around the store app through A2A. | A2A, Microsoft Agent Framework, hosted agents |
+| [18 - MAF Development UI](./scenarios/18-MAFDevUI/) | Optional developer aid that visualizes and debugs Microsoft Agent Framework agents and workflows with DevUI. | Microsoft Agent Framework, DevUI, Aspire |
 
 ## Getting Started
 

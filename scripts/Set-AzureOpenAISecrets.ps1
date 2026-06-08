@@ -16,7 +16,7 @@
 
     All eShopAppHost.csproj files are discovered automatically under $ScenariosRoot, so the script
     handles both the standard layout (scenarios\NN-Name\src\eShopAppHost) and any scenario without
-    a src sub-folder (e.g. 14-MAFDevUI).
+    a src sub-folder (e.g. 18-MAFDevUI).
 
     Requires the .NET Aspire CLI.  Install with:
         dotnet tool install -g aspire.cli

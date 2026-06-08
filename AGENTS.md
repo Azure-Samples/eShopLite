@@ -310,7 +310,12 @@ scenarios/
 ├── 10-A2ANet/                  # Agent-to-Agent (A2A) protocol
 ├── 11-GitHubModels/            # GitHub Models integration
 ├── 12-AzureFunctions/          # Azure Functions façade
-└── 14-MAFDevUI/                # MAF Development UI
+├── 13-ObservabilityAssistantFoundryLocal/  # Local-first observability assistant
+├── 14-ProductDiscoveryCopilot/ # Natural-language product discovery
+├── 15-StoreIntelligenceReport/ # Store intelligence reports
+├── 16-MCPStoreOperationsTools/ # Store capabilities as MCP tools
+├── 17-A2AStoreOperationsNetwork/  # A2A store operations network
+└── 18-MAFDevUI/                # MAF Development UI
 ```
 
 ### Working with Multiple Scenarios
