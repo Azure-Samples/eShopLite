@@ -94,6 +94,14 @@ aspire start --non-interactive
 > Note: this scenario's AppHost is at the **scenario root** (`18-MAFDevUI\eShopAppHost`), not under
 > a `src/` folder. Always start from there.
 
+> ⚠️ **DevUI reachability caveat (validated 2026-06):** under `aspire start` the Store runs in the
+> Development environment, but `/devui` may return **404** because Blazor interactive routing
+> (`MapRazorComponents`) can intercept the path before the DevUI middleware. If `/devui` 404s, run the
+> Store standalone with `dotnet run` (Development) from `scenarios\18-MAFDevUI\Store`, or use the
+> **DevUI** nav link, and confirm Foundry-hosted agents are configured. This is the **bonus** demo —
+> if DevUI doesn't come up live, fall back to the plan-B screenshots/GIF (`screenshots\scenario18-*`)
+> and the code walkthrough of `AgentServices` + `Store/Program.cs` (`AddDevUI()` / `MapDevUI()`).
+
 ## Step-by-step live demo script
 
 1. **Set context (20s):**

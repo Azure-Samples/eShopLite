@@ -1,6 +1,6 @@
 # MCP Store Operations Tools
 
-**Status:** Scaffolded for the 2026-06-06T14:05:16.188-04:00 agentic modernization plan.
+**Status:** Remapped to the store-operations toolset (`SearchStoreCatalog`, `LookupProductByName`, `GetTripWeather`, `GetDestinationGuide`, `ResearchProductsOnline`) and validated live. Demo script: `docs/26 06 16 NET Agentic Modernization/demo-16scenario.md`. Plan-B walkthrough assets: `docs/26 06 16 NET Agentic Modernization/screenshots/scenario16-*`.
 
 ## Derived from
 06 - Model Context Protocol (MCP).

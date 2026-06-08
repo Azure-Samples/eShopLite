@@ -26,8 +26,8 @@ For this session package, reliability comes first:
 | Product Discovery | 6 | `14-ProductDiscoveryCopilot` | `01-SemanticSearch` (copied) | Runnable baseline; presented as code walkthrough this session | Code walkthrough (no run) |
 | Observability Assistant | 7 | `13-ObservabilityAssistantFoundryLocal` | Local runnable, modernization-first flow | Demo narrative uses three Aspire services (`products`, `store`, `observabilityassistant`) with backend findings shown in Store; analysis runs locally with Foundry Local | Live (local AI) |
 | Store Intelligence | 8 | `15-StoreIntelligenceReport` | `01-SemanticSearch` (copied) | Implemented: signal capture + report endpoint + `/intelligence` page (deterministic fallback) | Live (Generate report; `source: ai\|fallback`) |
-| MCP Store Tools | 9 | `16-MCPStoreOperationsTools` | `06-mcp` | Runnable MCP sample; store-ops tool set not fully aligned to session script | Live (existing MCP tools) |
-| A2A Store Network | 10 | `17-A2AStoreOperationsNetwork` | `10-A2ANet` | Runnable A2A sample; agent roles differ from session script | Live (existing agent network) |
+| MCP Store Tools | 9 | `16-MCPStoreOperationsTools` | `06-mcp` | Remapped to store-ops toolset (`SearchStoreCatalog`, `LookupProductByName`, `GetTripWeather`, `GetDestinationGuide`, `ResearchProductsOnline`); validated live; plan-B screenshots + GIF captured | Live (MCP tools) |
+| A2A Store Network | 10 | `17-A2AStoreOperationsNetwork` | `10-A2ANet` | Remapped to store-ops roles (Catalog / Promotions / BusinessInsights); fixed agents crashing on .NET 10 (Swashbuckle); enriched cards validated live; plan-B screenshots + GIF captured | Live (agent network) |
 | Hosted Agents | 11 | Docs only | N/A | Design/evaluation only | Slide |
 | Deploy with Aspire | 12 | Docs only | N/A | Design only for this session | Slide |
 | Top 5 pain points | 13 | Docs only | N/A | Ready | Slide |

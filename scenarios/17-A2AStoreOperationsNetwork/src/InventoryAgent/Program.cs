@@ -4,19 +4,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 // Add services to the container.
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.MapDefaultEndpoints();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
 app.UseHttpsRedirection();
 
@@ -33,8 +25,7 @@ app.MapPost("/api/inventory/check", (InventoryCheckRequest request) =>
         Stock = stock 
     });
 })
-.WithName("CheckInventory")
-.WithOpenApi();
+.WithName("CheckInventory");
 
 app.Run();
 

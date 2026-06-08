@@ -1,6 +1,6 @@
 # A2A Store Operations Network
 
-**Status:** Scaffolded for the 2026-06-06T14:05:16.188-04:00 agentic modernization plan.
+**Status:** Remapped to store-operations agent roles (Catalog / Promotions / BusinessInsights) and validated live. Fixed the agents crashing on .NET 10 (`System.TypeLoadException` from Swashbuckle) — Swagger removed from the agent services since it is dev-only and unused by the demo. A2A search now returns enriched product cards (Stock / Promotions / Reviews). Demo script: `docs/26 06 16 NET Agentic Modernization/demo-17scenario.md`. Plan-B walkthrough assets: `docs/26 06 16 NET Agentic Modernization/screenshots/scenario17-*`.
 
 ## Derived from
 10 - A2A Network.
