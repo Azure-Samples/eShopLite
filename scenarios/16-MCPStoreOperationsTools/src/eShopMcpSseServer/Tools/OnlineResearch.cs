@@ -10,9 +10,9 @@ namespace eShopMcpSseServer.Tools;
 [McpServerToolType]
 public class OnlineResearch
 {
-    [McpServerTool(Name = "OnlineSearch"), 
-        Description("Performs a search online using Bing Search APIs. Returns a text with the found content online and a list of urls related to the search results.")]
-    public async Task<ProductsSearchToolResponse> OnlineSearch(
+    [McpServerTool(Name = "ResearchProductsOnline"), 
+        Description("Store operations: researches a topic online and then recommends matching catalog products. Performs an online search, derives a product query from the findings, and runs a semantic catalog search. Returns the online research summary plus matching store products.")]
+    public async Task<ProductsSearchToolResponse> ResearchProductsOnline(
      ILogger<ProductService> logger,
      OnlineResearcherService researcherService,
      IChatClient chatClient,
@@ -44,7 +44,7 @@ Online Research Result:
             // get products
             response = await productService.Search(queryFromChatClient, true);
             // define tool name
-            response.McpFunctionCallName = "OnlineSearchWithOutdoorProducts";
+            response.McpFunctionCallName = "ResearchProductsOnline";
             // set the response as the original response from the research agent
             response.Response = researchResponse.SearchResults;
         }

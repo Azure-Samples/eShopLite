@@ -6,15 +6,15 @@ using System.Text.Json;
 namespace Products.Services.Agents;
 
 /// <summary>
-/// Researcher Agent using A2A .NET SDK
+/// Business Insights Agent using A2A .NET SDK
 /// </summary>
-public class ResearcherAgent
+public class BusinessInsightsAgent
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<ResearcherAgent> _logger;
+    private readonly ILogger<BusinessInsightsAgent> _logger;
     private readonly AgentSkill _skill;
 
-    public ResearcherAgent(IHttpClientFactory httpClientFactory, ILogger<ResearcherAgent> logger)
+    public BusinessInsightsAgent(IHttpClientFactory httpClientFactory, ILogger<BusinessInsightsAgent> logger)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
@@ -38,7 +38,7 @@ public class ResearcherAgent
     {
         try
         {
-            var client = _httpClientFactory.CreateClient("ResearcherAgent");
+            var client = _httpClientFactory.CreateClient("BusinessInsightsAgent");
             var request = new ResearchRequest(productId);
             
             var response = await client.PostAsJsonAsync("/api/researcher/insights", request);

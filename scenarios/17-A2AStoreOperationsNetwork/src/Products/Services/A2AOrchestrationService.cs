@@ -11,16 +11,16 @@ namespace Products.Services;
 public class A2AOrchestrationService : IA2AOrchestrationService
 {
     private readonly Context _db;
-    private readonly InventoryAgent _inventoryAgent;
+    private readonly CatalogAgent _inventoryAgent;
     private readonly PromotionsAgent _promotionsAgent;
-    private readonly ResearcherAgent _researcherAgent;
+    private readonly BusinessInsightsAgent _researcherAgent;
     private readonly ILogger<A2AOrchestrationService> _logger;
 
     public A2AOrchestrationService(
         Context db,
-        InventoryAgent inventoryAgent,
+        CatalogAgent inventoryAgent,
         PromotionsAgent promotionsAgent,
-        ResearcherAgent researcherAgent,
+        BusinessInsightsAgent researcherAgent,
         ILogger<A2AOrchestrationService> logger)
     {
         _db = db;

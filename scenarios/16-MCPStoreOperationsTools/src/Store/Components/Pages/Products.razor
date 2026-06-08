@@ -47,8 +47,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         var tools = McpServerService.GetTools();
-        // select the tool named "KeyWordSearchProducts" from the tools collection, and create an array with that tool
-        var selectedTools = tools.Where(t => t.Name == "KeyWordSearchProducts").ToArray();
+        // select the tool named "LookupProductByName" from the tools collection, and create an array with that tool
+        var selectedTools = tools.Where(t => t.Name == "LookupProductByName").ToArray();
         // specific prompt to get all products
         var promptGetAllProducts  = "Perform a keyword search of products with the query criteria: '*'";
 

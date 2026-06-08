@@ -9,9 +9,9 @@ namespace eShopMcpSseServer.Tools;
 [McpServerToolType]
 public class Products 
 {
-    [McpServerTool(Name = "SemanticSearchProducts"), 
-        Description("Performs a search in the outdoor products catalog. Returns a text with the found products and the collection of Products in the Store. Use this function when the user asks for product recommendations or specific items.")]
-    public async Task<ProductsSearchToolResponse> SemanticSearchProducts(
+    [McpServerTool(Name = "SearchStoreCatalog"), 
+        Description("Store operations: semantic search over the store's outdoor products catalog. Returns a text summary plus the matching Products. Use this when the user asks for product recommendations or items by concept, need, or category (for example 'gear for a rainy hike').")]
+    public async Task<ProductsSearchToolResponse> SearchStoreCatalog(
         ProductService productService,
         ILogger<ProductService> logger,
         IMcpServer currentMcpServer,
@@ -25,7 +25,7 @@ public class Products
         {
             // call the desired Endpoint
             response = await productService.Search(query, true);
-            response.McpFunctionCallName = "SemanticSearchProducts";
+            response.McpFunctionCallName = "SearchStoreCatalog";
         }
         catch (Exception ex)
         {
@@ -41,9 +41,9 @@ public class Products
         };
     }
 
-    [McpServerTool(Name = "KeyWordSearchProducts"),
-    Description("Searches products in the database by matching the query string with product names only. Use this function when the user is looking for products by specific names or keywords that may appear in product names. Do not use this for semantic searches or when the user asks for product recommendations based on concepts or categories. Returns matching products and their details.")]
-    public async Task<ProductsSearchToolResponse> KeyWordSearchProducts(
+    [McpServerTool(Name = "LookupProductByName"),
+    Description("Store operations: looks up products by matching the query string against product names only. Use this when the user is looking for products by a specific name or keyword that appears in product names. Do not use for semantic/concept searches or recommendations. Returns matching products and their details.")]
+    public async Task<ProductsSearchToolResponse> LookupProductByName(
     ProductService productService,
     ILogger<ProductService> logger,
     IMcpServer currentMcpServer,
@@ -57,7 +57,7 @@ public class Products
         {
             // call the desired Endpoint
             response = await productService.Search(query, false);
-            response.McpFunctionCallName = "KeyWordSearchProducts";
+            response.McpFunctionCallName = "LookupProductByName";
         }
         catch (Exception ex)
         {

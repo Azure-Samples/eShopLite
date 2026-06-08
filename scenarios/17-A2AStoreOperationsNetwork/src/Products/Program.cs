@@ -56,9 +56,9 @@ builder.Services.AddSingleton(sp =>
 });
 
 // Configure HttpClients for agents
-builder.Services.AddHttpClient("InventoryAgent", client =>
+builder.Services.AddHttpClient("CatalogAgent", client =>
 {
-    client.BaseAddress = new Uri("http://inventory-agent");
+    client.BaseAddress = new Uri("http://catalog-agent");
 });
 
 builder.Services.AddHttpClient("PromotionsAgent", client =>
@@ -66,15 +66,15 @@ builder.Services.AddHttpClient("PromotionsAgent", client =>
     client.BaseAddress = new Uri("http://promotions-agent");
 });
 
-builder.Services.AddHttpClient("ResearcherAgent", client =>
+builder.Services.AddHttpClient("BusinessInsightsAgent", client =>
 {
-    client.BaseAddress = new Uri("http://researcher-agent");
+    client.BaseAddress = new Uri("http://businessinsights-agent");
 });
 
 // Add A2A Agents using A2A .NET SDK
-builder.Services.AddScoped<InventoryAgent>();
+builder.Services.AddScoped<CatalogAgent>();
 builder.Services.AddScoped<PromotionsAgent>();
-builder.Services.AddScoped<ResearcherAgent>();
+builder.Services.AddScoped<BusinessInsightsAgent>();
 
 // Add A2A Orchestration Service
 builder.Services.AddScoped<IA2AOrchestrationService, A2AOrchestrationService>();

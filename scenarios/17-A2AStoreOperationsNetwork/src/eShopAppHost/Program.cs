@@ -6,10 +6,10 @@ var sqldb = builder.AddSqlServer("sql")
     .WithDataVolume()
     .AddDatabase("sqldb");
 
-// Add the three agent services
-var inventoryAgent = builder.AddProject<Projects.InventoryAgent>("inventory-agent");
+// Add the three store-operations agent services
+var catalogAgent = builder.AddProject<Projects.InventoryAgent>("catalog-agent");
 var promotionsAgent = builder.AddProject<Projects.PromotionsAgent>("promotions-agent");
-var researcherAgent = builder.AddProject<Projects.ResearcherAgent>("researcher-agent");
+var businessInsightsAgent = builder.AddProject<Projects.ResearcherAgent>("businessinsights-agent");
 
 // Four explicit Aspire parameters for Azure OpenAI (no opaque connection string in run mode).
 // User-secrets keys (set in eShopAppHost project):
@@ -24,9 +24,9 @@ var aoaiEmbeddingsDeployment = builder.AddParameter("AzureOpenAIEmbeddingsDeploy
 
 var products = builder.AddProject<Projects.Products>("products")
     .WithReference(sqldb)
-    .WithReference(inventoryAgent)
+    .WithReference(catalogAgent)
     .WithReference(promotionsAgent)
-    .WithReference(researcherAgent)
+    .WithReference(businessInsightsAgent)
     .WaitFor(sqldb)
     .WithEnvironment("AzureOpenAIEndpoint", aoaiEndpoint)
     .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)

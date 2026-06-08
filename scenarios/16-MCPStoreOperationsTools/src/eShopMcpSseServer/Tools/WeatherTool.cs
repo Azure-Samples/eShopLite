@@ -10,20 +10,20 @@ public class WeatherTool
 {
     /// <summary>
     /// Sample prompts that trigger this function:
-    /// 1. "What's the current weather in Seattle?"
-    /// 2. "Tell me the weather forecast for New York City"
-    /// 3. "How is the weather in Paris today?"
+    /// 1. "What's the weather for my trip to Seattle so I know what gear to pack?"
+    /// 2. "I'm heading to New York City this weekend — what should I wear outdoors?"
+    /// 3. "Check the weather in Paris so you can recommend the right jacket"
     /// </summary>
-    [McpServerTool(Name = "GetWeatherForCity"), 
-        Description("Retrieves the current weather conditions for a specified city. Use this function when the user asks about weather in a specific location. Returns both the city name and a textual description of current weather conditions.")]
-    public async Task<WeatherToolResponse> GetWeatherForCity(
+    [McpServerTool(Name = "GetTripWeather"), 
+        Description("Store operations: gets current weather conditions for a destination city so the store assistant can recommend appropriate outdoor gear for the trip. Use this when the user mentions a destination or asks what to pack/wear. Returns the city name and a description of current weather conditions.")]
+    public async Task<WeatherToolResponse> GetTripWeather(
         WeatherService weatherService,
         ILogger<ProductService> logger,
         IMcpServer currentMcpServer,
-        [Description("The name of the city to get the weather information")] string cityName)
+        [Description("The name of the destination city to get the trip weather for")] string cityName)
     {
         Console.WriteLine("==========================");
-        Console.WriteLine($"Function Start WeatherTool: GetWeatherForCity called with cityName: {cityName}");
+        Console.WriteLine($"Function Start GetTripWeather called with cityName: {cityName}");
 
         var response = await weatherService.GetWeather(cityName);
 

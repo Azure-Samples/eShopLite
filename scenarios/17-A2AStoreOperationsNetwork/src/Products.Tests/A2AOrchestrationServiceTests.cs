@@ -15,9 +15,9 @@ namespace Products.Tests
     {
         private DbContextOptions<Context> _dbOptions;
         private ILogger<A2AOrchestrationService> _logger;
-        private ILogger<InventoryAgent> _inventoryLogger;
+        private ILogger<CatalogAgent> _inventoryLogger;
         private ILogger<PromotionsAgent> _promotionsLogger;
-        private ILogger<ResearcherAgent> _researchLogger;
+        private ILogger<BusinessInsightsAgent> _researchLogger;
 
         [TestInitialize]
         public void TestInit()
@@ -28,9 +28,9 @@ namespace Products.Tests
 
             var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
             _logger = loggerFactory.CreateLogger<A2AOrchestrationService>();
-            _inventoryLogger = loggerFactory.CreateLogger<InventoryAgent>();
+            _inventoryLogger = loggerFactory.CreateLogger<CatalogAgent>();
             _promotionsLogger = loggerFactory.CreateLogger<PromotionsAgent>();
-            _researchLogger = loggerFactory.CreateLogger<ResearcherAgent>();
+            _researchLogger = loggerFactory.CreateLogger<BusinessInsightsAgent>();
         }
 
         [TestMethod]
@@ -47,11 +47,11 @@ namespace Products.Tests
 
             // Create mock HttpClientFactory and agents
             var httpClientFactory = new MockHttpClientFactory();
-            var inventoryAgent = new InventoryAgent(httpClientFactory, _inventoryLogger);
+            var CatalogAgent = new CatalogAgent(httpClientFactory, _inventoryLogger);
             var promotionsAgent = new PromotionsAgent(httpClientFactory, _promotionsLogger);
-            var researchAgent = new ResearcherAgent(httpClientFactory, _researchLogger);
+            var researchAgent = new BusinessInsightsAgent(httpClientFactory, _researchLogger);
             
-            var orchestrationService = new A2AOrchestrationService(context, inventoryAgent, promotionsAgent, researchAgent, _logger);
+            var orchestrationService = new A2AOrchestrationService(context, CatalogAgent, promotionsAgent, researchAgent, _logger);
 
             // Act
             var result = await orchestrationService.ExecuteA2ASearchAsync("hiking");
@@ -73,11 +73,11 @@ namespace Products.Tests
             // Arrange
             using var context = new Context(_dbOptions);
             var httpClientFactory = new MockHttpClientFactory();
-            var inventoryAgent = new InventoryAgent(httpClientFactory, _inventoryLogger);
+            var CatalogAgent = new CatalogAgent(httpClientFactory, _inventoryLogger);
             var promotionsAgent = new PromotionsAgent(httpClientFactory, _promotionsLogger);
-            var researchAgent = new ResearcherAgent(httpClientFactory, _researchLogger);
+            var researchAgent = new BusinessInsightsAgent(httpClientFactory, _researchLogger);
             
-            var orchestrationService = new A2AOrchestrationService(context, inventoryAgent, promotionsAgent, researchAgent, _logger);
+            var orchestrationService = new A2AOrchestrationService(context, CatalogAgent, promotionsAgent, researchAgent, _logger);
 
             // Act
             var result = await orchestrationService.ExecuteA2ASearchAsync("nonexistent");

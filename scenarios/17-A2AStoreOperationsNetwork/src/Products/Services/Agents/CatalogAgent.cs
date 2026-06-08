@@ -5,15 +5,15 @@ using System.Text.Json;
 namespace Products.Services.Agents;
 
 /// <summary>
-/// Inventory Agent using A2A .NET SDK
+/// Catalog Agent (availability) using A2A .NET SDK
 /// </summary>
-public class InventoryAgent
+public class CatalogAgent
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<InventoryAgent> _logger;
+    private readonly ILogger<CatalogAgent> _logger;
     private readonly AgentSkill _skill;
 
-    public InventoryAgent(IHttpClientFactory httpClientFactory, ILogger<InventoryAgent> logger)
+    public CatalogAgent(IHttpClientFactory httpClientFactory, ILogger<CatalogAgent> logger)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
@@ -21,11 +21,11 @@ public class InventoryAgent
         // Define the agent skill using A2A SDK
         _skill = new AgentSkill
         {
-            Id = "check_inventory",
-            Name = "Check Inventory",
-            Description = "Check inventory levels for a product",
-            Tags = new List<string> { "inventory", "stock", "product" },
-            Examples = new List<string> { "Check stock for product 123" },
+            Id = "check_catalog_availability",
+            Name = "Check Catalog Availability",
+            Description = "Check catalog stock/availability for a product",
+            Tags = new List<string> { "catalog", "availability", "stock", "product" },
+            Examples = new List<string> { "Check availability for product 123" },
             InputModes = new List<string> { "text" },
             OutputModes = new List<string> { "json" }
         };
@@ -37,7 +37,7 @@ public class InventoryAgent
     {
         try
         {
-            var client = _httpClientFactory.CreateClient("InventoryAgent");
+            var client = _httpClientFactory.CreateClient("CatalogAgent");
             var request = new InventoryRequest(productId);
             
             var response = await client.PostAsJsonAsync("/api/inventory/check", request);
