@@ -1,8 +1,8 @@
+extern alias azidentity;
 using AgentServices;
 using AgentServices.Checkout;
 using AgentServices.Stock.Tools;
 using Azure.AI.OpenAI;
-using Azure.Identity;
 using Microsoft.Agents.AI.DevUI;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.Extensions.AI;
@@ -44,7 +44,7 @@ var chatDeploymentName = builder.Configuration["AzureOpenAIDeploymentName"] ?? "
 if (!string.IsNullOrEmpty(endpoint))
 {
     AzureOpenAIClient aoaiClient = string.IsNullOrEmpty(apiKey)
-        ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
+        ? new AzureOpenAIClient(new Uri(endpoint), new azidentity::Azure.Identity.DefaultAzureCredential())
         : new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
 
     builder.Services.AddSingleton(aoaiClient);
