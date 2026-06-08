@@ -72,30 +72,32 @@ public class StoreSignalStore
             ("rain jacket",                                   true,  3, 42),
             ("something for rainy days while I'm camping",    true,  3, 41),
             ("waterproof jacket for hiking",                  true,  2, 40),
+            ("tienes algo para un dia de lluvia",             true,  1, 39),
+            ("necesito chaqueta para lluvia",                 true,  2, 38),
 
             // Camping + shelter topic.
-            ("camp cooking",                                  true,  4, 38),
-            ("do you have something for cooking",             true,  2, 37),
-            ("camp stove",                                    false, 2, 36),
-            ("four season tent",                              true,  2, 35),
-            ("winter camping tent",                           false, 2, 34),
-            ("lightweight backpacking tent",                  true,  3, 33),
-            ("camp cookware set",                             true,  2, 32),
-            ("portable propane stove",                        false, 2, 31),
+            ("camp cooking",                                  true,  4, 36),
+            ("do you have something for cooking",             true,  2, 35),
+            ("camp stove",                                    false, 2, 34),
+            ("four season tent",                              true,  2, 33),
+            ("winter camping tent",                           false, 2, 32),
+            ("lightweight backpacking tent",                  true,  3, 31),
+            ("camp cookware set",                             true,  2, 30),
+            ("portable propane stove",                        false, 2, 29),
 
             // Hiking + footwear topic.
-            ("hiking backpack 50l",                           true,  3, 29),
-            ("trekking poles",                                true,  2, 28),
-            ("trail running hydration vest",                  true,  2, 27),
-            ("hiking socks merino",                           true,  4, 26),
+            ("hiking backpack 50l",                           true,  3, 27),
+            ("trekking poles",                                true,  2, 26),
+            ("trail running hydration vest",                  true,  2, 25),
+            ("hiking socks merino",                           true,  4, 24),
 
             // Deliberate no-result examples for gap narrative.
-            ("hiking boots size 12",                          false, 0, 24),
-            ("hiking boots size 13 wide",                     false, 0, 23),
-            ("paint my room white",                           true,  0, 22),
-            ("something to paint my room white",              true,  0, 21),
-            ("something to decorate my backyard with racoons",true,  0, 20),
-            ("raccoon garden statue",                         false, 0, 19),
+            ("hiking boots size 12",                          false, 0, 22),
+            ("hiking boots size 13 wide",                     false, 0, 21),
+            ("paint my room white",                           true,  0, 20),
+            ("something to paint my room white",              true,  0, 19),
+            ("something to decorate my backyard with racoons",true,  0, 18),
+            ("raccoon garden statue",                         false, 0, 17),
         };
 
         foreach (var s in samples)

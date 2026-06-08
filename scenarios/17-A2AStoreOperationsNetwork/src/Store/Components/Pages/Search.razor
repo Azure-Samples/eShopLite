@@ -88,7 +88,7 @@ else
     private string aiResponse = "";
     private bool isLoading = false;
     private MarkdownPipeline markdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-    private SearchType selectedSearchType = SearchType.Standard;
+    private SearchType selectedSearchType = SearchType.Semantic;
     private string RenderMarkdown(string markdown)
     {
         return string.IsNullOrWhiteSpace(markdown) ? string.Empty : Markdig.Markdown.ToHtml(markdown, markdownPipeline);

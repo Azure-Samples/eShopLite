@@ -81,7 +81,7 @@ else
     private bool isLoading = false;
     private MarkdownPipeline markdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
     private string elapsedTime = "";
-    private bool smartSearch = false;
+    private bool smartSearch = true;
     private string RenderMarkdown(string markdown)
     {
         return string.IsNullOrWhiteSpace(markdown) ? string.Empty : Markdig.Markdown.ToHtml(markdown, markdownPipeline);

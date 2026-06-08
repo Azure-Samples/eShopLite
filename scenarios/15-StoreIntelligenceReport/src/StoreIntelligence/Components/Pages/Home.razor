@@ -126,7 +126,9 @@ else
     private static readonly HashSet<string> RawSignalStopWords = new(StringComparer.OrdinalIgnoreCase)
     {
         "a", "an", "and", "are", "do", "for", "have", "i", "in", "is", "it", "its", "my",
-        "of", "on", "or", "something", "the", "to", "while", "with", "you", "your"
+        "of", "on", "or", "something", "the", "to", "while", "with", "you", "your",
+        // Spanish stop words used in demo terms.
+        "un", "una", "de", "el", "la", "los", "las", "para", "tienes", "algo", "dia", "que", "con", "en"
     };
 
     private static readonly Regex RawSignalNonAlphaNumericRegex = new("[^a-z0-9 ]", RegexOptions.Compiled);
@@ -157,27 +159,26 @@ else
 
     private static List<RawSignalGroup> GroupSignalsByMeaning(IEnumerable<StoreSignal> source)
     {
-        var groups = new List<RawSignalGroup>();
+        var groupsByTopic = new Dictionary<string, RawSignalGroup>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var signal in source.OrderByDescending(s => s.TimestampUtc))
         {
             var tokens = TokenizeRawSignalTerm(signal.Term);
-            var group = groups.FirstOrDefault(g => g.TopicTokens.Overlaps(tokens));
-            if (group is null)
+            var topicKey = DeterminePrimaryTopicToken(tokens);
+
+            if (!groupsByTopic.TryGetValue(topicKey, out var group))
             {
-                group = new RawSignalGroup();
-                groups.Add(group);
+                group = new RawSignalGroup { TopicKey = topicKey };
+                groupsByTopic[topicKey] = group;
             }
 
             group.Items.Add(signal);
-            foreach (var token in tokens)
-            {
-                group.TopicTokens.Add(token);
-            }
         }
 
+        var groups = groupsByTopic.Values.ToList();
         foreach (var group in groups)
         {
-            group.Theme = BuildRawSignalTheme(group);
+            group.Theme = BuildRawSignalTheme(group.TopicKey);
             group.Items = group.Items.OrderByDescending(s => s.TimestampUtc).ToList();
         }
 
@@ -206,6 +207,11 @@ else
 
     private static string NormalizeRawSignalToken(string token)
     {
+        if (token.StartsWith("lluv", StringComparison.Ordinal) || token.StartsWith("llov", StringComparison.Ordinal))
+        {
+            return "rain";
+        }
+
         if (token.StartsWith("rain", StringComparison.Ordinal))
         {
             return "rain";
@@ -219,34 +225,62 @@ else
         return token;
     }
 
-    private static string BuildRawSignalTheme(RawSignalGroup group)
+    private static string DeterminePrimaryTopicToken(HashSet<string> tokens)
     {
-        var topToken = group.Items
-            .SelectMany(s => TokenizeRawSignalTerm(s.Term))
-            .GroupBy(t => t, StringComparer.OrdinalIgnoreCase)
-            .OrderByDescending(g => g.Count())
-            .ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.Key)
-            .FirstOrDefault();
+        if (tokens.Contains("rain"))
+        {
+            return "rain";
+        }
 
-        if (string.IsNullOrWhiteSpace(topToken))
+        if (tokens.Contains("hiking") || tokens.Contains("boots") || tokens.Contains("trekking") ||
+            tokens.Contains("trail") || tokens.Contains("backpack"))
+        {
+            return "hiking";
+        }
+
+        if (tokens.Contains("camp") || tokens.Contains("tent") || tokens.Contains("cooking") || tokens.Contains("cookware"))
+        {
+            return "camp";
+        }
+
+        if (tokens.Contains("paint"))
+        {
+            return "paint";
+        }
+
+        if (tokens.Contains("stove") || tokens.Contains("propane"))
+        {
+            return "stove";
+        }
+
+        if (tokens.Contains("raccoon") || tokens.Contains("racoons") || tokens.Contains("backyard") || tokens.Contains("garden"))
+        {
+            return "decor";
+        }
+
+        return tokens.OrderBy(t => t, StringComparer.OrdinalIgnoreCase).FirstOrDefault() ?? "general";
+    }
+
+    private static string BuildRawSignalTheme(string topicKey)
+    {
+        if (string.IsNullOrWhiteSpace(topicKey))
         {
             return "General search questions";
         }
 
-        if (topToken.Equals("rain", StringComparison.OrdinalIgnoreCase))
+        if (topicKey.Equals("rain", StringComparison.OrdinalIgnoreCase))
         {
             return "Rain questions";
         }
 
-        return $"{char.ToUpper(topToken[0])}{topToken[1..]} questions";
+        return $"{char.ToUpper(topicKey[0])}{topicKey[1..]} questions";
     }
 
     private sealed class RawSignalGroup
     {
         public int Id { get; set; }
+        public string TopicKey { get; set; } = string.Empty;
         public string Theme { get; set; } = string.Empty;
         public List<StoreSignal> Items { get; set; } = [];
-        public HashSet<string> TopicTokens { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     }
 }
