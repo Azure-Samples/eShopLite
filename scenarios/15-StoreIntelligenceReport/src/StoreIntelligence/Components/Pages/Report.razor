@@ -1,0 +1,100 @@
+@page "/report"
+@using DataEntities
+@using StoreIntelligence.Services
+
+@inject StoreIntelligenceReportService ReportService
+
+@attribute [StreamRendering(true)]
+@rendermode InteractiveServer
+
+<PageTitle>Store Intelligence Report</PageTitle>
+
+<h1>Store Intelligence Report</h1>
+
+<p class="lead">
+    Generate a business summary from current store signals.
+</p>
+<p class="text-muted">
+    Use Dashboard to inspect raw signals first, then generate a report here.
+</p>
+
+<div class="mb-4">
+    <button class="btn btn-primary" @onclick="GenerateReport" disabled="@isLoading">
+        <span class="bi bi-lightning-charge-fill me-1"></span> Generate report
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <div class="d-flex align-items-center gap-2 mb-3" role="status" aria-live="polite">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+        <span>Generating report…</span>
+    </div>
+}
+
+@if (report is null)
+{
+    <p><em>No report generated yet. Click Generate report.</em></p>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Store Intelligence Report</span>
+            <span class="badge @(report.Source == "ai" ? "bg-success" : "bg-secondary")">
+                source: @report.Source
+            </span>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-3">
+                Generated @report.GeneratedAtUtc.ToLocalTime().ToString("g") ·
+                @report.SignalsAnalyzed signals analyzed
+            </p>
+
+            @ReportSection("Executive summary", report.ExecutiveSummary)
+            @ReportSection("Top customer intents", report.TopSearches)
+            @ReportSection("Searches with no results", report.FailedSearches)
+            @ReportSection("Product opportunities", report.ProductOpportunities)
+            @ReportSection("Operational issues", report.OperationalIssues)
+            @ReportSection("Recommended actions", report.RecommendedActions)
+        </div>
+    </div>
+}
+
+@code {
+    private StoreIntelligenceReport? report;
+    private bool isLoading;
+
+    private async Task GenerateReport()
+    {
+        isLoading = true;
+        try
+        {
+            report = await ReportService.GenerateAsync();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private RenderFragment ReportSection(string title, List<string> items) => builder =>
+    {
+        if (items is null || items.Count == 0) return;
+
+        builder.OpenElement(0, "h3");
+        builder.AddAttribute(1, "class", "h6 mt-3");
+        builder.AddContent(2, title);
+        builder.CloseElement();
+
+        builder.OpenElement(3, "ul");
+        var seq = 4;
+        foreach (var item in items)
+        {
+            builder.OpenElement(seq++, "li");
+            builder.AddContent(seq++, item);
+            builder.CloseElement();
+        }
+        builder.CloseElement();
+    };
+}

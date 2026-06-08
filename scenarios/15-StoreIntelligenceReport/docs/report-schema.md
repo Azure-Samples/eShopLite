@@ -1,5 +1,5 @@
 # Report schema
 - Executive summary
-- Top customer intents (grouped by meaning, with underlying terms)
+- Top customer intents
 - Failed searches
 - Operational signals

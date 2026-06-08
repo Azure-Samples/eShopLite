@@ -65,25 +65,37 @@ public class StoreSignalStore
         var now = DateTime.UtcNow;
         var samples = new (string Term, bool Semantic, int ResultCount, int MinutesAgo)[]
         {
-            // Rain topic (intended to collapse into one grouped intent).
-            ("rainy day gear",                           true,  3, 28),
-            ("do you have something for a rainy day",    true,  2, 27),
-            ("something for camping while it's raining", true,  2, 26),
-            ("rain jacket",                              true,  3, 25),
-            ("something for rainy days while I'm camping", true, 3, 24),
+            // Rain topic.
+            ("rainy day gear",                                true,  3, 45),
+            ("do you have something for a rainy day",         true,  2, 44),
+            ("something for camping while it's raining",      true,  2, 43),
+            ("rain jacket",                                   true,  3, 42),
+            ("something for rainy days while I'm camping",    true,  3, 41),
+            ("waterproof jacket for hiking",                  true,  2, 40),
 
-            // Camping topic.
-            ("camp cooking",            true,  4, 22),
-            ("do you have something for cooking", true, 2, 21),
-            ("camp stove",              false, 2, 20),
-            ("four season tent",        true,  2, 18),
-            ("winter camping tent",     false, 2, 16),
+            // Camping + shelter topic.
+            ("camp cooking",                                  true,  4, 38),
+            ("do you have something for cooking",             true,  2, 37),
+            ("camp stove",                                    false, 2, 36),
+            ("four season tent",                              true,  2, 35),
+            ("winter camping tent",                           false, 2, 34),
+            ("lightweight backpacking tent",                  true,  3, 33),
+            ("camp cookware set",                             true,  2, 32),
+            ("portable propane stove",                        false, 2, 31),
 
-            // Deliberate no-result examples for product-gap narrative.
-            ("hiking boots size 12",                    false, 0, 14), // failed — no size match
-            ("paint my room white",                     true,  0, 12), // failed — off-catalog
-            ("something to paint my room white",        true,  0, 10), // failed — same intent wording
-            ("something to decorate my backyard with racoons", true, 0, 8), // failed — off-catalog
+            // Hiking + footwear topic.
+            ("hiking backpack 50l",                           true,  3, 29),
+            ("trekking poles",                                true,  2, 28),
+            ("trail running hydration vest",                  true,  2, 27),
+            ("hiking socks merino",                           true,  4, 26),
+
+            // Deliberate no-result examples for gap narrative.
+            ("hiking boots size 12",                          false, 0, 24),
+            ("hiking boots size 13 wide",                     false, 0, 23),
+            ("paint my room white",                           true,  0, 22),
+            ("something to paint my room white",              true,  0, 21),
+            ("something to decorate my backyard with racoons",true,  0, 20),
+            ("raccoon garden statue",                         false, 0, 19),
         };
 
         foreach (var s in samples)

@@ -33,7 +33,7 @@ Every keyword and semantic search records a `StoreSignal` (term, semantic flag, 
 timestamp) into an in-memory `StoreSignalStore` on the `storeintelligence` service. The store is **seeded
 with startup sample signals** (including no-result rows), so the report is never empty even
 before you search. The **Store Intelligence** page calls `GET /api/intelligence/report`, which
-aggregates the signals (grouped customer intents by meaning, failed searches, product opportunities, operational issues),
+aggregates the signals (top intents, failed searches, product opportunities, operational issues),
 asks the chat model to write the executive summary + recommended actions, and falls back to a
 deterministic narrative when the model is unavailable. The page renders the sections and shows the
 `source` badge.
@@ -107,9 +107,9 @@ aspire start --non-interactive
    resource `intelligence`). From the Aspire Dashboard open the `intelligence` endpoint (or click the
    **Store Intelligence** link in the Store nav, which opens the external app). Its home page (`/`) is
    the dashboard.
-3. **Show the raw signals first:** click **Refresh signals**. The table fills from the **seeded
-   sample signals** — point at the two no-result rows (`resultCount = 0`). "These are the app's own
-   signals — scattered events, not yet a story."
+3. **Show the raw signals first:** the Dashboard (`/`) now loads **20+ seeded sample signals by default**
+   (no report generation required). Point at grouped themes and the no-result rows (`resultCount = 0`).
+   "These are the app's own signals — scattered events, not yet a story."
 4. **Generate real signals (optional but great on stage):** open the **Store** app's **Search**, run a
    mix so the report reflects what the room just watched (Products posts each search to the
    `intelligence` app as a signal):
@@ -120,9 +120,10 @@ aspire start --non-interactive
    - `do you have hiking boots size 12`  → no results → another *failed search* signal
    Toggle **Use Semantic Search** on for a couple to vary the intent signals. Return to the **Store
    Intelligence** app and click **Refresh signals** — your new searches now appear in the table.
-5. **Click Generate report (the business ask):** this calls `GET /api/intelligence/report`. In a
+5. **Open the Report page (`/report`) and click Generate report (the business ask):**
+   this calls `GET /api/intelligence/report`. In a
    second or two the report card renders.
-6. **Walk the report top-down:** executive summary → top customer intents (grouped themes with expandable sub-items) → searches with no
+6. **Walk the report top-down:** executive summary → top customer intents → searches with no
    results → product opportunities → operational issues → recommended actions.
 7. **Point at the proof line:** the `source: ai` badge (or `source: fallback` if no Azure OpenAI).
    "Same report shape either way — the badge tells you which path ran. The fallback means the demo

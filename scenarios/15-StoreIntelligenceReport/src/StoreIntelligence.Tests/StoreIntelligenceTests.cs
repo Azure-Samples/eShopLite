@@ -20,7 +20,7 @@ public sealed class StoreIntelligenceTests
         var store = new StoreSignalStore();
         var all = store.GetAll();
 
-        Assert.IsTrue(all.Count > 0, "Store should seed deterministic sample signals.");
+        Assert.IsTrue(all.Count >= 20, "Store should seed 20+ deterministic sample signals for the demo.");
         Assert.IsTrue(all.Any(s => s.Failed), "Seed data should include at least one failed search.");
     }
 

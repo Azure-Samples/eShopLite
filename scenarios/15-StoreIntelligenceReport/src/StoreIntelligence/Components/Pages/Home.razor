@@ -3,10 +3,7 @@
 @using DataEntities
 @using StoreIntelligence.Services
 
-@* Inject the in-process services directly — no HTTP round-trip needed from the page
-   because this is the same process that owns the StoreSignalStore. *@
 @inject StoreSignalStore SignalStore
-@inject StoreIntelligenceReportService ReportService
 
 @attribute [StreamRendering(true)]
 @rendermode InteractiveServer
@@ -16,19 +13,15 @@
 <h1>Store Intelligence Dashboard</h1>
 
 <p class="lead">
-    Turn store search signals into a business summary a manager can act on.
-    Run searches in the Store app first, then hit <strong>Generate report</strong>.
+    Explore raw store search signals grouped by meaning.
 </p>
 <p class="text-muted">
-    The dashboard starts with seeded demo data so you can tell the story immediately, then refresh with live searches.
+    This page loads with seeded sample signals immediately. Use <strong>Report</strong> in the left nav to generate the full intelligence report.
 </p>
 
 @* ── Action buttons ──────────────────────────────────────────────────────── *@
 <div class="mb-4">
-    <button class="btn btn-primary" @onclick="GenerateReport" disabled="@isLoading">
-        <span class="bi bi-lightning-charge-fill me-1"></span> Generate report
-    </button>
-    <button class="btn btn-outline-secondary ms-2" @onclick="RefreshSignals" disabled="@isLoading">
+    <button class="btn btn-outline-secondary" @onclick="RefreshSignals" disabled="@isLoading">
         <span class="bi bi-arrow-clockwise me-1"></span> Refresh signals
     </button>
 </div>
@@ -39,33 +32,6 @@
     <div class="d-flex align-items-center gap-2 mb-3" role="status" aria-live="polite">
         <div class="spinner-border spinner-border-sm text-primary"></div>
         <span>Working…</span>
-    </div>
-}
-
-@* ── Intelligence Report card ─────────────────────────────────────────────── *@
-@if (report is not null)
-{
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Store Intelligence Report</span>
-            @* Badge shows whether the narrative was written by AI or the deterministic fallback *@
-            <span class="badge @(report.Source == "ai" ? "bg-success" : "bg-secondary")">
-                source: @report.Source
-            </span>
-        </div>
-        <div class="card-body">
-            <p class="text-muted mb-3">
-                Generated @report.GeneratedAtUtc.ToLocalTime().ToString("g") ·
-                @report.SignalsAnalyzed signals analyzed
-            </p>
-
-            @ReportSection("Executive summary",       report.ExecutiveSummary)
-            @ReportSection("Top customer intents", report.TopSearches)
-            @ReportSection("Searches with no results",report.FailedSearches)
-            @ReportSection("Product opportunities",   report.ProductOpportunities)
-            @ReportSection("Operational issues",      report.OperationalIssues)
-            @ReportSection("Recommended actions",     report.RecommendedActions)
-        </div>
     </div>
 }
 
@@ -110,13 +76,12 @@ else
 
 @code {
     private List<StoreSignal>? signals;
-    private StoreIntelligenceReport? report;
     private bool isLoading;
 
-    // Load the initial report and signal list from seeded demo data.
+    // Load seeded raw signals immediately (no report generation on first load).
     protected override async Task OnInitializedAsync()
     {
-        await GenerateReport();
+        await RefreshSignals();
     }
 
     /// <summary>
@@ -137,48 +102,6 @@ else
         }
         return Task.CompletedTask;
     }
-
-    /// <summary>
-    /// Calls the report service in-process (no HTTP), then refreshes the signals table
-    /// so the row count matches SignalsAnalyzed in the report header.
-    /// </summary>
-    private async Task GenerateReport()
-    {
-        isLoading = true;
-        try
-        {
-            report = await ReportService.GenerateAsync();
-            signals = SignalStore.GetRecent(50).ToList();
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-
-    /// <summary>
-    /// Helper: renders a titled bullet list for a report section.
-    /// Returns nothing if the list is empty.
-    /// </summary>
-    private RenderFragment ReportSection(string title, List<string> items) => builder =>
-    {
-        if (items is null || items.Count == 0) return;
-
-        builder.OpenElement(0, "h3");
-        builder.AddAttribute(1, "class", "h6 mt-3");
-        builder.AddContent(2, title);
-        builder.CloseElement();
-
-        builder.OpenElement(3, "ul");
-        var seq = 4;
-        foreach (var item in items)
-        {
-            builder.OpenElement(seq++, "li");
-            builder.AddContent(seq++, item);
-            builder.CloseElement();
-        }
-        builder.CloseElement();
-    };
 
     private static readonly HashSet<string> RawSignalStopWords = new(StringComparer.OrdinalIgnoreCase)
     {
