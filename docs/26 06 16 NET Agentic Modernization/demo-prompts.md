@@ -69,43 +69,39 @@ Do not invent errors that are not present in the input.
 
 ## Demo 2 - Product Discovery
 
-### Short prompt
+> **Code walkthrough — no app run.** Demo 2 is presented from the code, not by typing prompts
+> into a running app. The "prompts" below are what the **code builds internally** to ground the
+> model — show them in `MemoryContext.cs`, do not type them anywhere. Full script:
+> `demo-14scenario.md`.
+
+### System prompt (the honesty guardrail, `MemoryContext.cs` line ~42)
 
 ```text
-Find products that are good for walking all day and explain why each result matches.
+You are a useful assistant. You always reply with a short and funny message.
+If you do not know an answer, you say 'I don't know that.'
+You only answer questions related to outdoor camping products.
+For any other type of questions, explain to the user that you only answer
+outdoor camping products questions. Do not store memory of the chat conversation.
 ```
 
-### Main prompt
+### Grounding prompt the code assembles (`MemoryContext.Search`, lines ~123–130)
 
 ```text
-Find products that are good for walking all day and explain why each result matches using only the product catalog data.
+You are an intelligent assistant helping clients with their search about outdoor products.
+Generate a catchy and friendly message using the information below.
+Respond using Markdown with concise sections and bullet lists when helpful.
+Add a comparison between the products found and the search criteria.
+Include products details.
+    - User Question: {search}
+    - Found Products:
+{the products returned by the vector search, with name / description / price}
 ```
 
-### Alternate prompts
+### What to emphasize
 
-```text
-Show me products under $100 that would be useful for a summer trip.
-```
-
-```text
-Compare these three products and recommend the best one for daily commuting.
-```
-
-```text
-Find products that would make sense for someone buying a gift for a developer.
-```
-
-### Expected answer shape
-
-```text
-## Recommended products
-
-For each product:
-- Name
-- Why it matches
-- Relevant catalog attributes
-- Confidence / limitations
-```
+- The model only ever sees the products the vector search returned (top 3, `Score > 0.3`).
+- No match above the threshold → nothing to ground on → the model cannot invent products.
+- Grounding data comes from the catalog, embedded at startup — not from training data.
 
 ---
 

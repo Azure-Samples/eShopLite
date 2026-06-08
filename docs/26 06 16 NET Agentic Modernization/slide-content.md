@@ -219,7 +219,7 @@ Now let's move from helping developers to helping users.
 
 ---
 
-## Slide 7 - Demo 2: Search becomes product discovery
+## Slide 7 - Demo 2: Search becomes product discovery (code walkthrough)
 
 ### Title
 
@@ -239,17 +239,24 @@ Users search with intent, not database keywords.
 
 ### Demo scenario
 
-`14-ProductDiscoveryCopilot`
+`14-ProductDiscoveryCopilot` — **code walkthrough, no app run.**
 
-### Demo prompts
-
-```text
-Find products that are good for walking all day and explain why each result matches.
-```
+### Code to walk
 
 ```text
-Show me products under $100 that would be useful for a summer trip.
+src/Products/Memory/MemoryContext.cs
 ```
+
+### Walkthrough talking points
+
+- **Startup grounding:** every catalog product is embedded into an in-memory vector store
+  (`InitMemoryContextAsync`).
+- **Query grounding:** the shopper's question is embedded and matched against the catalog
+  (top 3).
+- **Honesty gate:** `Score > 0.3` keeps only real, similar products — no match means no
+  invented products.
+- **Grounded prompt:** only the matched products + the question are sent to the chat model,
+  alongside an on-catalog system prompt.
 
 ### Suggested visual
 
@@ -265,9 +272,8 @@ Grounded product explanation
 
 This is not "we added a chatbot because AI."
 
-This is improving a feature users already understand: search.
-
-The app can now answer the question behind the search.
+This is improving a feature users already understand: search — and we show *how* it stays
+honest, in code. The model only ever sees the products the vector search returned.
 
 ### Transition
 

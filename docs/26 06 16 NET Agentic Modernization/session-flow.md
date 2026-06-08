@@ -30,7 +30,7 @@ This session should not become an Aspire tooling deep dive. The pitch is:
 | 00:00 - 02:00 | Opening | Slides | Modernization is the foundation, not the finish line. |
 | 02:00 - 05:00 | Baseline app | Demo | eShopLite already has the modern app shape. |
 | 05:00 - 10:00 | Observability Assistant | Demo | Logs and traces become explanations. |
-| 10:00 - 15:00 | Product Discovery | Demo | Search becomes intent-based discovery. |
+| 10:00 - 15:00 | Product Discovery | Code walkthrough (no run) | Search becomes intent-based discovery. |
 | 15:00 - 19:00 | Store Intelligence | Demo | App signals become business summaries. |
 | 19:00 - 23:00 | MCP Store Tools | Demo | App capabilities become agent tools. |
 | 23:00 - 27:00 | A2A Agent Workflow | Demo / architecture | Specialized agents collaborate around the app. |
@@ -199,55 +199,52 @@ If the AI service fails:
 
 `14-ProductDiscoveryCopilot`
 
+### Format
+
+**Code walkthrough — no app run.** We do not launch this scenario. We read the code and
+explain *how the data is grounded*. Full script: `demo-14scenario.md`.
+
 ### Goal
 
-Show how search becomes product discovery.
+Explain how search becomes intent-based product discovery, and how grounded explanations are
+produced from the app's own catalog — directly from the code in
+`scenarios/14-ProductDiscoveryCopilot/src/Products/Memory/MemoryContext.cs`.
 
 ### Setup
 
-- Start from Scenario 01.
-- Use the existing catalog and search experience.
-- Add an AI-assisted product discovery layer.
-- Keep answers grounded in product/catalog data.
+- Open `MemoryContext.cs` in the editor (no app launch, no secrets needed).
+- Have the editor large enough to read line by line on stream.
 
-### Demo flow
+### Walkthrough flow
 
-1. Show normal keyword search.
-2. Search with a vague user-intent query.
-3. Show semantic/product-discovery results.
-4. Ask the assistant to explain why products match.
-5. Show grounded responses that cite product data.
+1. **`InitMemoryContextAsync`** — at startup every catalog product is embedded into an
+   in-memory vector store. Show the system prompt (the on-catalog/honesty guardrail).
+2. **`Search`** — embed the shopper's question, vector-search the catalog (top 3).
+3. Show the **`Score > 0.3`** gate — the no-match / no-invented-products guardrail.
+4. Show how the **`Found Products`** block + grounding prompt are built from only the matched
+   products, then sent to the chat model with the system prompt.
+5. Land the point: the model only ever sees the products the vector search returned.
 
-### Demo prompts
-
-```text
-Find products that are good for walking all day and explain why each result matches.
-```
+### Code to show
 
 ```text
-Show me products under $100 that would be useful for a summer trip.
-```
-
-```text
-Compare these three products and recommend the best one for daily commuting.
+scenarios/14-ProductDiscoveryCopilot/src/Products/Memory/MemoryContext.cs
 ```
 
 ### Speaker line
 
-> This is not a random chatbot. This improves a feature every user already understands: search.
+> This is not a random chatbot. The model only ever sees the catalog products the vector
+> search returned — grounding is a few lines of code, not magic.
 
 ### Audience takeaway
 
-> Users do not search like databases think. AI helps the app understand intent, not only keywords.
+> Users do not search like databases think. AI helps the app understand intent, and grounding
+> keeps every answer tied to real catalog data — no hallucinated products.
 
 ### Fallback
 
-If semantic results are unstable:
-
-- use deterministic product data,
-- show a prepared answer,
-- explain the grounding strategy,
-- avoid making claims that are not in the product catalog.
+This is a code reading, so there is nothing to run or recover. If time is short, show only
+`Search` (embed → `> 0.3` gate → grounding prompt) and skip the startup method.
 
 ### Transition
 

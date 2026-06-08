@@ -148,7 +148,7 @@ Deploy with Aspire
 | 00:00 - 02:00 | Opening | Slides | Modernization is the foundation, not the finish line. |
 | 02:00 - 05:00 | Baseline app | Demo | eShopLite already has the modern app shape. |
 | 05:00 - 10:00 | Observability Assistant | Demo | Logs and traces become explanations. |
-| 10:00 - 15:00 | Product Discovery | Demo | Search becomes intent-based discovery. |
+| 10:00 - 15:00 | Product Discovery | Code walkthrough (no run) | Search becomes intent-based discovery. |
 | 15:00 - 19:00 | Store Intelligence | Demo | App signals become business summaries. |
 | 19:00 - 23:00 | MCP Store Tools | Demo | App capabilities become agent tools. |
 | 23:00 - 27:00 | A2A Agent Workflow | Demo / architecture | Specialized agents collaborate around the app. |

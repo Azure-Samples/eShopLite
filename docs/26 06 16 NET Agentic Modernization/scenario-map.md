@@ -24,7 +24,7 @@ For this session package, reliability comes first:
 |---|---:|---|---|---|---|
 | Baseline app | 5 | Existing Scenario 01 | `01-SemanticSearch` | Runnable | Live |
 | Observability Assistant | 6 | `13-ObservabilityAssistantFoundryLocal` | Local runnable, modernization-first flow | Demo narrative uses three Aspire services (`products`, `store`, `observabilityassistant`) with backend findings shown in Store | Live |
-| Product Discovery | 7 | `14-ProductDiscoveryCopilot` | `01-SemanticSearch` (copied) | Runnable baseline; Copilot UX not implemented | Live (baseline semantic search) |
+| Product Discovery | 7 | `14-ProductDiscoveryCopilot` | `01-SemanticSearch` (copied) | Runnable baseline; presented as code walkthrough this session | Code walkthrough (no run) |
 | Store Intelligence | 8 | `15-StoreIntelligenceReport` | `01-SemanticSearch` (copied) | Runnable baseline; report pipeline not implemented | Live (prepared report fallback) |
 | MCP Store Tools | 9 | `16-MCPStoreOperationsTools` | `06-mcp` | Runnable MCP sample; store-ops tool set not fully aligned to session script | Live (existing MCP tools) |
 | A2A Store Network | 10 | `17-A2AStoreOperationsNetwork` | `10-A2ANet` | Runnable A2A sample; agent roles differ from session script | Live (existing agent network) |
@@ -44,8 +44,14 @@ For this session package, reliability comes first:
 ## Scenario 14 - Product Discovery Copilot
 
 - **Session target:** Intent-first discovery and grounded explanations.
-- **Current:** Same app code as Scenario 01; no dedicated Copilot flow.
-- **Gap to target:** Add lightweight discovery/copilot interaction layer and scenario-specific docs.
+- **Demo format:** **Code walkthrough — no app run.** Read
+  `src/Products/Memory/MemoryContext.cs` and explain how data is grounded (startup embedding
+  of the catalog, query embedding, `Score > 0.3` gate, grounded prompt built only from matched
+  products). Full script: `demo-14scenario.md`.
+- **Current:** Same app code as Scenario 01; the discovery + grounding logic lives in
+  `MemoryContext.cs`.
+- **Why walkthrough:** the grounding technique is the teachable moment; showing it in code is
+  clearer and more reliable than a live search for this session.
 
 ## Scenario 15 - Store Intelligence Report
 

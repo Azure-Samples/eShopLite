@@ -135,50 +135,44 @@ Run local observability flow with three Aspire services (`products`, `store`, `o
 /scenarios/14-ProductDiscoveryCopilot
 ```
 
+### Format
+
+**Code walkthrough — no app run.** Do not launch this scenario. Read the code and explain
+how data is grounded. Full script: `demo-14scenario.md`.
+
 ### Goal
 
-Show intent-based product discovery.
+Explain intent-based product discovery and grounded explanations from the code.
 
 ### Setup
 
-- Start from Scenario 01.
-- Ensure catalog data is stable.
-- Ensure search/indexing is ready.
-- Prepare 3 deterministic product-discovery prompts.
+- Open `scenarios/14-ProductDiscoveryCopilot/src/Products/Memory/MemoryContext.cs`.
+- No run, no secrets, no containers required.
 
-### Commands
-
-```bash
-cd scenarios/14-ProductDiscoveryCopilot
-dotnet run --project src/eShopLite.AppHost
-```
-
-### Demo steps
-
-1. Search with a normal keyword.
-2. Search with a natural-language intent.
-3. Ask for explanation.
-4. Show grounded results.
-
-### Prompt
+### File to show
 
 ```text
-Find products that are good for walking all day and explain why each result matches.
+scenarios/14-ProductDiscoveryCopilot/src/Products/Memory/MemoryContext.cs
 ```
 
-### Expected result
+### Walkthrough steps
 
-- Products are returned from catalog data.
-- Explanation references product attributes.
-- No unsupported claims.
+1. `InitMemoryContextAsync` — every catalog product is embedded into an in-memory vector
+   store at startup; show the system prompt (on-catalog/honesty guardrail).
+2. `Search` — embed the shopper's question and vector-search the catalog (top 3).
+3. Show the `Score > 0.3` gate — the no-match / no-invented-products guardrail.
+4. Show the `Found Products` block + grounding prompt built only from matched products, sent
+   to the chat model with the system prompt.
+5. Land the point: the model only ever sees the products the vector search returned.
+
+### Key takeaway
+
+- Grounding is built from the catalog (embeddings at startup), not the model's training data.
+- The `> 0.3` gate + system prompt prevent invented products.
 
 ### Fallback
 
-Use a prepared product list and explanation from:
-
-```text
-/scenarios/14-ProductDiscoveryCopilot/demo-assets/product-discovery-sample.md
-```
+Code reading — nothing to run or recover. If time is short, show only `Search`.
 
 ---
 
