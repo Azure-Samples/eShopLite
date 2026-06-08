@@ -2,21 +2,24 @@
 
 Captured live via `aspire start` + Playwright (Microsoft Edge, 1600×1000) against each scenario's
 running Store and Aspire Dashboard. Use these if a live demo fails — each scenario has step-by-step
-JPGs plus an animated GIF (`scenarioNN-walkthrough.gif`, ~1.8 s/frame, looping).
+JPGs plus two animated GIFs:
+
+- `scenarioNN-walkthrough.gif` — fast loop (~1.8 s/frame).
+- `scenarioNN-walkthrough-long.gif` — slow loop, **3 s/frame with the final frame held for 15 s** (good for unattended/standby playback).
 
 > Note: `playwright-cli screenshot` writes PNG even when the filename ends in `.jpg`; frames here were
 > converted to real JPEG with Pillow.
 
 ## Index
 
-| Scenario | Demo | Steps | Frames | GIF |
+| Scenario | Demo | Steps | Frames | GIFs |
 |---|---|---:|---|---|
-| 13 — Observability Assistant (Foundry Local) | Demo 2 (live) | 5 | dashboard → store → searches (+injected failure) → observability-assistant page → analysis findings (`source: foundry-local`) | `scenario13-walkthrough.gif` |
-| 14 — Product Discovery Copilot | Demo 1 (code walkthrough) | 4 | dashboard → store → semantic search → grounded AI answer | `scenario14-walkthrough.gif` |
-| 15 — Store Intelligence Report | Live | 5 | dashboard → `/intelligence` → refresh signals → generate report → report sections (`source: ai`) | `scenario15-walkthrough.gif` |
-| 16 — MCP Store Operations Tools | Demo 4 (live) | 4 | dashboard → store → MCP tools selected (`SearchStoreCatalog`, `LookupProductByName`, `GetTripWeather`, `GetDestinationGuide`, `ResearchProductsOnline`) → grounded response | `scenario16-walkthrough.gif` |
-| 17 — A2A Store Operations Network | Demo 5 (live) | 4 | dashboard (3 agents: catalog / promotions / businessinsights) → store → A2A search query → enriched cards (Stock / Promotions / Reviews) | `scenario17-walkthrough.gif` |
-| 18 — MAF Dev UI | Demo 6 (bonus) | 2 | dashboard → store | `scenario18-walkthrough.gif` |
+| 13 — Observability Assistant (Foundry Local) | Demo 2 (live) | 6 | dashboard → store → run searches → **search result** → observability-assistant page → analysis findings (`source: foundry-local`) | `scenario13-walkthrough.gif`, `scenario13-walkthrough-long.gif` |
+| 14 — Product Discovery Copilot | Demo 1 (code walkthrough) | 5 | dashboard → store → semantic search → grounded AI answer → **Aspire traces of the search calls** (store → aisearch → AzureOpenAI embeddings → SQL → chat) | `scenario14-walkthrough.gif`, `scenario14-walkthrough-long.gif` |
+| 15 — Store Intelligence Report | Live | 5 | dashboard → `/intelligence` → refresh signals → generate report → report sections (`source: ai`) | `scenario15-walkthrough.gif`, `scenario15-walkthrough-long.gif` |
+| 16 — MCP Store Operations Tools | Demo 4 (live) | 5 | dashboard → store → MCP tools selected (`SearchStoreCatalog`, `LookupProductByName`, `GetTripWeather`, `GetDestinationGuide`, `ResearchProductsOnline`) → grounded response → **Aspire traces of the MCP calls** (store → `eshopmcpserver` `/message` → products aisearch → AzureOpenAI) | `scenario16-walkthrough.gif`, `scenario16-walkthrough-long.gif` |
+| 17 — A2A Store Operations Network | Demo 5 (live) | 4 | dashboard (3 agents: catalog / promotions / businessinsights) → store → A2A search query → enriched cards (Stock / Promotions / Reviews) | `scenario17-walkthrough.gif`, `scenario17-walkthrough-long.gif` |
+| 18 — MAF Dev UI | Demo 6 (bonus) | 2 | dashboard → store | `scenario18-walkthrough.gif`, `scenario18-walkthrough-long.gif` |
 
 ## Notes
 
