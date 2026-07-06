@@ -1,10 +1,13 @@
-# eShopLite Scenario 11 — GitHub Models (local-first)
+# eShopLite Scenario 11 — GitHub Models (deprecated)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
 
-This scenario runs eShopLite locally using GitHub Models for chat and embeddings. When you publish/deploy, the app automatically uses Azure OpenAI without code changes. All deployment, telemetry, costs, and security guidance live in Scenario 01 and are not duplicated here.
+> [!WARNING]
+> **Deprecated scenario.** GitHub Models is being fully retired on **July 30, 2026**, so this scenario is now kept only as an archived reference. Do not use it for new development. Prefer [Scenario 01](../01-SemanticSearch/) or another Azure OpenAI-based scenario in this repository.
 
-- What you get here: local-first GitHub Models setup and how it switches automatically
+This scenario originally ran eShopLite locally using GitHub Models for chat and embeddings, while publish/deploy automatically used Azure OpenAI without code changes. It remains in the repository for reference only. All supported deployment, telemetry, costs, and security guidance live in Scenario 01 and are not duplicated here.
+
+- What you get here: archived documentation for the former local-first GitHub Models setup and how it switched automatically
 - What to read in Scenario 01: Azure deployment, telemetry, costs, and security
 
 Quick links:
@@ -12,12 +15,12 @@ Quick links:
 - Features
 - How it works
 - Prerequisites
-- Run locally
+- Historical local run flow
 - Architecture and request flow
-- Troubleshooting
+- Historical troubleshooting
 - Resources
 
-## Features (Scenario 11)
+## Features (archived Scenario 11)
 
 - Local-first AI via GitHub Models with .NET Aspire
 - Automatic switch to Azure OpenAI when published/deployed
@@ -39,7 +42,7 @@ Local development uses GitHub Models; publish/deploy uses Azure OpenAI. The Prod
 - GitHub account and access to GitHub Models
 - A GitHub Personal Access Token (PAT) with access to GitHub Models
 
-## Run locally
+## Historical local run flow
 
 Run from the AppHost so Aspire wires service URLs and secure parameters for you.
 
@@ -48,13 +51,13 @@ cd ./src/eShopAppHost/
 dotnet run
 ```
 
-During the first run, Aspire prompts for your GitHub token as a secure parameter (`Parameters:GitHubModelsToken`). You can also set it manually beforehand:
+Before GitHub Models retirement, Aspire prompted for your GitHub token as a secure parameter (`Parameters:GitHubModelsToken`). You could also set it manually beforehand:
 
 ```bash
 aspire secret set Parameters:GitHubModelsToken "<your-github-pat>" --apphost scenarios/11-GitHubModels/src/eShopAppHost/eShopAppHost.csproj
 ```
 
-> **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once. Note: `Parameters:GitHubModelsToken` (used locally) must still be set manually as shown above.
+> **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every supported scenario at once. `Parameters:GitHubModelsToken` is only relevant when reviewing this archived sample.
 
 The app then uses:
 
@@ -106,11 +109,11 @@ sequenceDiagram
   S-->>U: Rendered results
 ```
 
-## Troubleshooting (local)
+## Troubleshooting (historical local setup)
 
 - Ensure Docker/Podman is running if containers are required by Aspire resources
 - If the token prompt doesn’t appear, verify you’re running from the AppHost project
-- If you prefer using Azure OpenAI locally, set AI_UseGitHubModels=false and configure Azure OpenAI per Scenario 01
+- For a supported local setup, use Azure OpenAI and follow Scenario 01 instead
 
 ## Deployment, telemetry, costs, and security
 

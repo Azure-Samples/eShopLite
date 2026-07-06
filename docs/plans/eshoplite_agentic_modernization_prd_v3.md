@@ -45,7 +45,7 @@ Source: https://developer.microsoft.com/en-us/reactor/events/27243/
 
 ### 2.2 eShopLite baseline
 
-The eShopLite repository is a reference .NET eCommerce application with scenarios for semantic search, MCP, reasoning models, vector databases, realtime audio, A2A, GitHub Models, Azure Functions, and more. The repository currently lists scenarios 01–12.
+The eShopLite repository is a reference .NET eCommerce application with scenarios for semantic search, MCP, reasoning models, vector databases, realtime audio, A2A, a now-deprecated GitHub Models sample, Azure Functions, and more.
 
 Source: https://github.com/Azure-Samples/eShopLite
 
@@ -63,7 +63,7 @@ Current public scenario baseline:
 | 08 - SQL Server 2025 | SQL vector search and indexes |
 | 09 - Azure App Service | Azure App Service deployment |
 | 10 - A2A Network | Agent-to-agent communication |
-| 11 - GitHub Models | Local-first dev with GitHub Models and Azure OpenAI when deployed |
+| 11 - GitHub Models | Deprecated archived sample for local-first GitHub Models and Azure OpenAI when deployed |
 | 12 - Azure Functions | Functions façade and alternate deployment boundary |
 
 The new scenarios in this PRD should start at **13** to avoid disrupting existing scenario numbering.
@@ -301,7 +301,7 @@ The scenario must include:
 2. A new service named `eShopLite.ObservabilityAssistant`.
 3. An endpoint to summarize logs and incidents.
 4. A local model path using Foundry Local.
-5. A fallback or abstraction that allows the model provider to be replaced with Azure OpenAI or GitHub Models when needed.
+5. A fallback or abstraction that allows the model provider to be replaced with Azure OpenAI or another supported provider when needed.
 6. A simple UI action in the web app, or a minimal diagnostics page, to call the assistant.
 7. Sample generated incidents for deterministic demos.
 

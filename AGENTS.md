@@ -111,7 +111,7 @@ aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding
 # Scenario-specific extras:
 # 03-RealtimeAudio: also set Parameters:AzureOpenAIRealtimeDeploymentName
 # 05-deepseek: also set Parameters:DeepSeekEndpoint, Parameters:DeepSeekApiKey, Parameters:DeepSeekDeploymentName
-# 11-GitHubModels (local): set Parameters:GitHubModelsToken instead of the AOAI params
+# 11-GitHubModels (deprecated/archive only): set Parameters:GitHubModelsToken only when reviewing the archived sample
 ```
 
 2. **Or configure via Aspire Dashboard at first run:**
@@ -308,7 +308,7 @@ scenarios/
 ├── 08-Sql2025/                 # SQL Server 2025 vector search
 ├── 09-AzureAppService/         # Azure App Service deployment
 ├── 10-A2ANet/                  # Agent-to-Agent (A2A) protocol
-├── 11-GitHubModels/            # GitHub Models integration
+├── 11-GitHubModels/            # Deprecated GitHub Models scenario kept for reference
 ├── 12-AzureFunctions/          # Azure Functions façade
 └── 14-MAFDevUI/                # MAF Development UI
 ```

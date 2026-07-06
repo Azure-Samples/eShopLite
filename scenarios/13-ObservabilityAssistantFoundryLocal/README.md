@@ -7,7 +7,7 @@
 
 ## What this scenario will demonstrate
 - Summarize logs, traces, and incidents locally.
-- Use Foundry Local first, with Azure OpenAI or GitHub Models as optional provider swaps.
+- Use Foundry Local first, with Azure OpenAI as an optional provider swap.
 - Keep the demo deterministic and local-first.
 
 ## Session docs

@@ -48,7 +48,7 @@ The project includes several scenarios demonstrating different capabilities:
 | [08 - SQL Server 2025](./scenarios/08-Sql2025/) | Demonstrates the use of vector search and vector indexes in the SQL Database Engine | SQL Server 2025, Vector Search, Vector Indexes |
 | [09 - Azure App Service](./scenarios/09-AzureAppService/) | Shows how to deploy a .NET Aspire multi-service eCommerce app to Azure App Service, using SQLite for data and integrating AI search. | Azure App Service, .NET Aspire, OpenAI, SQLite |
 | [10 - A2A Network](./scenarios/10-A2ANet/) | Demonstrates advanced agent-to-agent (A2A) communication and orchestration patterns in .NET Aspire, including multi-agent collaboration and reasoning. | .NET Aspire, Multi-Agent Systems, A2A Protocol |
-| [11 - GitHub Models](./scenarios/11-GitHubModels/) | Local-first AI development using GitHub Models during local runs, with automatic switch to Azure OpenAI when deployed. | .NET Aspire, GitHub Models, Azure OpenAI |
+| [11 - GitHub Models](./scenarios/11-GitHubModels/) | **Deprecated:** archived local-first GitHub Models sample kept for reference after the GitHub Models retirement announced for July 30, 2026. | Deprecated, .NET Aspire, GitHub Models, Azure OpenAI |
 | [12 - Azure Functions](./scenarios/12-AzureFunctions/) | Optional Azure Functions façade for semantic search and an alternate deployment boundary for vector search. | Azure Functions, .NET Aspire, Azure OpenAI |
 | [13 - Observability Assistant with Foundry Local](./scenarios/13-ObservabilityAssistantFoundryLocal/) | Summarizes logs, traces, and incidents with a local-first observability assistant. | Aspire, OpenTelemetry, Foundry Local, Microsoft.Extensions.AI |
 | [14 - Product Discovery Copilot](./scenarios/14-ProductDiscoveryCopilot/) | Turns search into natural-language product discovery with grounded explanations. | Semantic search, vector search, Microsoft.Extensions.AI |
@@ -124,7 +124,7 @@ aspire secret set Parameters:AzureOpenAIEndpoint "https://<your-resource>.openai
   --apphost scenarios/01-SemanticSearch/src/eShopAppHost/eShopAppHost.csproj
 ```
 
-> **Note:** Scenario-specific extra parameters (e.g., `Parameters:AzureOpenAIRealtimeDeploymentName` in 03-RealtimeAudio, `Parameters:DeepSeekEndpoint` in 05-deepseek, `Parameters:GitHubModelsToken` in 11-GitHubModels) must still be set manually. See each scenario's README for details.
+> **Note:** Scenario-specific extra parameters (e.g., `Parameters:AzureOpenAIRealtimeDeploymentName` in 03-RealtimeAudio and `Parameters:DeepSeekEndpoint` in 05-deepseek) must still be set manually. Deprecated Scenario 11 previously used `Parameters:GitHubModelsToken`; keep that only if you are reviewing the archived sample. See each scenario's README for details.
 
 ### Quickstart
 
