@@ -32,7 +32,7 @@ This is the eShopLite Application running, performing a **Semantic Search**:
 
   ```mermaid
   flowchart TD
-      subgraph "Azure Container Apps Environment - .NET Aspire"
+      subgraph "Azure Container Apps Environment - Aspire"
           store[store service]
           products[products service]
           sql[SQL service]
@@ -64,9 +64,9 @@ This is the eShopLite Application running, performing a **Semantic Search**:
 
 ## Main Concepts in this Scenario
 
-This scenario demonstrates how to use [SQL Server 2025's Vector search and Vector index features](https://learn.microsoft.com/sql/relational-databases/vectors/vectors-sql-server?view=sql-server-ver17) in a .NET Aspire application. The main concepts and implementation details are:
+This scenario demonstrates how to use [SQL Server 2025's Vector search and Vector index features](https://learn.microsoft.com/sql/relational-databases/vectors/vectors-sql-server?view=sql-server-ver17) in an Aspire application. The main concepts and implementation details are:
 
-- The .NET Aspire AppHost project creates the SQL Server 2025 instance directly using the container image `mcr.microsoft.com/mssql/server:2025-latest` from the Docker repository for SQL Server 2025: [Microsoft SQL Server - Ubuntu based images](https://hub.docker.com/r/microsoft/mssql-server/).
+- The Aspire AppHost project creates the SQL Server 2025 instance directly using the container image `mcr.microsoft.com/mssql/server:2025-latest` from the Docker repository for SQL Server 2025: [Microsoft SQL Server - Ubuntu based images](https://hub.docker.com/r/microsoft/mssql-server/).
 
 - The logic for initializing and running the SQL Server container is implemented in [`scenarios/08-Sql2025/src/eShopAppHost/Program.cs`](scenarios/08-Sql2025/src/eShopAppHost/Program.cs):
 
@@ -184,10 +184,10 @@ The documentation includes:
 
 ## Resources
 
-- [Deploy a .NET Aspire project to Azure Container Apps using the Azure Developer CLI (in-depth guide)](https://learn.microsoft.com/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth)
+- [Use Azure Developer CLI workflows with Aspire](https://aspire.dev/deployment/azure/azure-developer-cli/)
 
 - [Aspiring .NET Applications with Azure OpenAI](https://learn.microsoft.com/shows/azure-developers-dotnet-aspire-day-2024/aspiring-dotnet-applications-with-azure-openai)
 
 ### Video Recordings
 
-[![Run eShopLite Semantic Search in Minutes with .NET Aspire & GitHub Codespaces 🚀](./images/90ytrunfromcodespaces.png)](https://youtu.be/T9HwjVIDPAE)
+[![Run eShopLite Semantic Search in Minutes with Aspire & GitHub Codespaces 🚀](./images/90ytrunfromcodespaces.png)](https://youtu.be/T9HwjVIDPAE)

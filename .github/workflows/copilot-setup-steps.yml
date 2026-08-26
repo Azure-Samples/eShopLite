@@ -25,5 +25,5 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Install Aspire workload
-        run: dotnet workload install aspire
+      - name: Install Aspire CLI
+        run: dotnet tool install --global Aspire.Cli

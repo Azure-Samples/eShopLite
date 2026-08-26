@@ -12,7 +12,7 @@ This project demonstrates a practical Agent2Agent (A2A) scenario using the eShop
 - **Three Autonomous Agents:** Inventory, Promotions, and Researcher agents, each with dedicated APIs and A2A message handlers.
 - **Orchestration Service:** The Products API orchestrates agent calls in parallel, aggregates results, and returns enriched product data.
 - **Blazor Frontend:** Store application with a search page supporting A2A search and enhanced results display.
-- **Aspire Integration:** Uses .NET Aspire for service orchestration and deployment.
+- **Aspire Integration:** Uses Aspire for service orchestration and deployment.
 - **Comprehensive Unit Tests:** Validates A2A orchestration and agent interactions.
 
 ---
@@ -95,9 +95,8 @@ Store (UI)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
   - If using Visual Studio Code, install the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit)
-- .NET Aspire workload ([setup guide](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire))
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/)
-- [.NET Aspire CLI](https://aspire.dev/) (`dotnet tool install -g aspire.cli`) — used to set local secrets
+- [Aspire CLI](https://aspire.dev/get-started/install-cli/) (`dotnet tool install -g Aspire.Cli`) — used to set local secrets
 
 ### Configure Azure OpenAI secrets
 
@@ -188,7 +187,7 @@ aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding
 - [A2A .NET SDK NuGet](https://www.nuget.org/packages/A2A/)
 - [A2A .NET SDK Overview Blog](https://devblogs.microsoft.com/foundry/building-ai-agents-a2a-dotnet-sdk/)
 - [eShopLite Main Repository](../..)
-- [Deploy a .NET Aspire project to Azure Container Apps using the Azure Developer CLI (in-depth guide)](https://learn.microsoft.com/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth)
+- [Use Azure Developer CLI workflows with Aspire](https://aspire.dev/deployment/azure/azure-developer-cli/)
 
 ---
 

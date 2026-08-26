@@ -12,9 +12,9 @@
 - Run solution
   - [Run locally](#run-locally)
   - [Run the solution](#run-the-solution)
-  - [.NET Aspire Azure Resources creation](#net-aspire-azure-resources-creation)
+  - [Aspire Azure Resources creation](#aspire-azure-resources-creation)
   - [Local development using an existing model](#local-development-using-an-existing-model)
-  - [Telemetry with .NET Aspire and Azure Application Insights](#telemetry-with-net-aspire-and-azure-application-insights)
+  - [Telemetry with Aspire and Azure Application Insights](#telemetry-with-aspire-and-azure-application-insights)
 - [Resources](#resources)
 - [Guidance](#guidance)
   - [Costs](#costs)
@@ -117,8 +117,7 @@ To run the project locally, you'll need to make sure the following tools are ins
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
   - If using Visual Studio Code, install the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit)
-  Installed with the [Visual Studio installer](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire) or the [.NET CLI workload](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire).
-  Installed with the [Visual Studio installer](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire) or the [.NET CLI workload](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire).
+- [Aspire CLI](https://aspire.dev/get-started/install-cli/) — install with `dotnet tool install -g Aspire.Cli`
 - An OCI compliant container runtime, such as:
   - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/).
 
@@ -138,7 +137,7 @@ Follow these steps to run the project, locally or in CodeSpaces:
    dotnet dev-certs https --trust
    ```
 
-3. By default the AppHost project creates the necessary resources on Azure. Check the **[.NET Aspire Azure Resources creation](#net-aspire-azure-resources-creation)** section to learn how to configure the project to create Azure resources.
+3. By default the AppHost project creates the necessary resources on Azure. Check the **[Aspire Azure Resources creation](#aspire-azure-resources-creation)** section to learn how to configure the project to create Azure resources.
 
 4. Run the project:
 
@@ -204,8 +203,8 @@ private async Task DoSearch(MouseEventArgs e)
 }
 ```
 
-## .NET Aspire Azure Resources creation
-The eShopLite MCP solution leverages .NET Aspire to create and manage the necessary Azure resources for deployment. For information on how .NET Aspire creates Azure resources, check the [.NET Aspire Azure hosting integrations](https://learn.microsoft.com/dotnet/aspire/azure/local-provisioning#net-aspire-azure-hosting-integrations) documentation.
+## Aspire Azure Resources creation
+The eShopLite MCP solution leverages Aspire to create and manage the necessary Azure resources for deployment. For information on how Aspire creates Azure resources, see the [Local Azure provisioning](https://aspire.dev/integrations/cloud/azure/local-provisioning/) documentation.
 
 ### Local development using an existing model
 
@@ -222,7 +221,7 @@ aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding
 
 > **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once.
 
-### Telemetry with .NET Aspire and Azure Application Insights
+### Telemetry with Aspire and Azure Application Insights
 
 The eShopLite MCP solution leverages the Aspire Dashboard and Azure Application Insights to provide comprehensive telemetry and monitoring capabilities for both the MCP servers and clients.
 
@@ -230,7 +229,7 @@ The eShopLite MCP solution leverages the Aspire Dashboard and Azure Application 
 
 - [Model Context Protocol (MCP) Specification](https://github.com/modelcontextprotocol/mcp)
 - [MCP C# SDK Documentation](https://modelcontextprotocol.github.io/csharp-sdk/)
-- [.NET Aspire Documentation](https://learn.microsoft.com/dotnet/aspire/)
+- [Aspire Documentation](https://aspire.dev/docs/)
 - [Azure OpenAI Service Documentation](https://learn.microsoft.com/azure/ai-services/openai/)
 - [Generative AI for Beginners .NET](https://aka.ms/genainnet)
 

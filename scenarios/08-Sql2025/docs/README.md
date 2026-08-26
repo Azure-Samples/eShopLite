@@ -46,7 +46,7 @@ The 08-Sql2025 scenario demonstrates cutting-edge database capabilities by lever
 - **Azure OpenAI**: Embedding generation with text-embedding-3-small
 
 ### Key Technologies
-- **.NET Aspire**: Cloud-native orchestration
+- **Aspire**: Cloud-native orchestration
 - **SQL Server 2025**: Latest version with native vector search
 - **Entity Framework Core**: Vector data type support
 - **Azure OpenAI**: text-embedding-3-small for embeddings

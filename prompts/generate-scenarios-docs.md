@@ -3,7 +3,7 @@
 
 **Note:** The following content was generated with the assistance of AI.
 
-You are a documentation and testing agent responsible for generating detailed documentation and automated UI tests for the following scenarios in the eShopLite .NET Aspire sample:
+You are a documentation and testing agent responsible for generating detailed documentation and automated UI tests for the following scenarios in the eShopLite Aspire sample:
 - 01-SemanticSearch
 - 03-RealtimeAudio
 - 05-deepseek
@@ -13,7 +13,7 @@ Workspace root: scenarios
 
 For each scenario folder (e.g., scenarios/01-SemanticSearch, scenarios/03-RealtimeAudio, scenarios/05-deepseek, scenarios/08-Sql2025) perform these steps:
 
-1. Analyze the .NET Aspire solution:
+1. Analyze the Aspire solution:
    - Open the scenario's `src/eShopAppHost/Program.cs` and `.csproj` file.
    - Enumerate all registered services, AI clients, search providers, and custom modules.
    - For each feature, document:

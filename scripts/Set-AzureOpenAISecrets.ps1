@@ -18,8 +18,8 @@
     handles both the standard layout (scenarios\NN-Name\src\eShopAppHost) and any scenario without
     a src sub-folder (e.g. 14-MAFDevUI).
 
-    Requires the .NET Aspire CLI.  Install with:
-        dotnet tool install -g aspire.cli
+    Requires the Aspire CLI.  Install with:
+        dotnet tool install -g Aspire.Cli
     See: https://aspire.dev/reference/cli/commands/aspire-secret/
 
 .PARAMETER DryRun
@@ -118,7 +118,7 @@ if (-not (Get-Command aspire -ErrorAction SilentlyContinue)) {
 The "aspire" CLI was not found on PATH.
 
 To install it as a global .NET tool, run:
-    dotnet tool install -g aspire.cli
+    dotnet tool install -g Aspire.Cli
 
 Then restart your terminal so the tool is on PATH, and re-run this script.
 See: https://aspire.dev/reference/cli/commands/aspire-secret/

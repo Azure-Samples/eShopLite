@@ -19,9 +19,9 @@ While the standard application continues to answer the user's question as usual,
   - [GitHub CodeSpaces](#github-codespaces)
   - [Run Locally](#run-locally)
   - [Run the solution](#run-the-solution)
-  - [.NET Aspire Azure Resources creation](#net-aspire-azure-resources-creation)
+  - [Aspire Azure Resources creation](#aspire-azure-resources-creation)
   - [Local development using existing models](#local-development-using-existing-models)
-  - [Telemetry with .NET Aspire and Azure Application Insights](#telemetry-with-net-aspire-and-azure-application-insights)
+  - [Telemetry with Aspire and Azure Application Insights](#telemetry-with-aspire-and-azure-application-insights)
 - [Architecture Diagram](#architecture-diagram)
 - [Guidance](#guidance)
   - [Costs](#costs)
@@ -90,8 +90,7 @@ To run the project locally, you'll need to make sure the following tools are ins
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
   - If using Visual Studio Code, install the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit)
-- .NET Aspire workload:
-    Installed with the [Visual Studio installer](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire) or the [.NET CLI workload](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire).
+- [Aspire CLI](https://aspire.dev/get-started/install-cli/) — install with `dotnet tool install -g Aspire.Cli`
 - An OCI compliant container runtime, such as:
   - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/).
 
@@ -111,7 +110,7 @@ Follow these steps to run the project, locally or in CodeSpaces:
    dotnet dev-certs https --trust
    ```
 
-3. By default the AppHost project creates the necessary resources on Azure. Check the **[.NET Aspire Azure Resources creation](#net-aspire-azure-resources-creation)** section to learn how to configure the project to create Azure resources.
+3. By default the AppHost project creates the necessary resources on Azure. Check the **[Aspire Azure Resources creation](#aspire-azure-resources-creation)** section to learn how to configure the project to create Azure resources.
 
 4. Run the project:
 
@@ -123,9 +122,9 @@ Follow these steps to run the project, locally or in CodeSpaces:
 
 6. Visit the new insights page to view the sentiment and language analysis results for each user query.
 
-> **Note:** Working with .NET Aspire in GitHub Codespaces requires manual steps to access the .NET Aspire portal, such as changing ports to public and copying the access token.
+> **Note:** Working with Aspire in GitHub Codespaces requires manual steps to access the Aspire dashboard, such as changing ports to public and copying the access token.
 
-## .NET Aspire Azure Resources creation
+## Aspire Azure Resources creation
 
 When utilizing Azure resources in your local development environment, you need to:
 
@@ -156,7 +155,7 @@ Consider the following example for the *appsettings.json* file in the eShopAppHo
 }
 ```
 
-Check [.NET Aspire Azure hosting integrations](https://learn.microsoft.com/dotnet/aspire/azure/local-provisioning#net-aspire-azure-hosting-integrations) for more information on how .NET Aspire create the necessary cloud resources for local development.
+See [Local Azure provisioning](https://aspire.dev/integrations/cloud/azure/local-provisioning/) for more information about how Aspire creates the necessary cloud resources for local development.
 
 ### Local development using existing models
 
@@ -178,11 +177,11 @@ This Azure OpenAI service must contain:
 - a `gpt-4.1-mini` model named **gpt-41-mini**
 - a `text-embedding-ada-002` model named **text-embedding-ada-002**
 
-### Telemetry with .NET Aspire and Azure Application Insights
+### Telemetry with Aspire and Azure Application Insights
 
 The eShopLite solution leverages the Aspire Dashboard and Azure Application Insights to provide comprehensive telemetry and monitoring capabilities
 
-The **.NET Aspire Dashboard** offers a centralized view of the application's performance, health, and usage metrics. It integrates seamlessly with the Azure OpenAI services, allowing developers to monitor the performance of the `gpt-4.1-mini` and `text-embedding-ada-002` models. The dashboard provides real-time insights into the application's behavior, helping to identify and resolve issues quickly.
+The **Aspire Dashboard** offers a centralized view of the application's performance, health, and usage metrics. It integrates seamlessly with the Azure OpenAI services, allowing developers to monitor the performance of the `gpt-4.1-mini` and `text-embedding-ada-002` models. The dashboard provides real-time insights into the application's behavior, helping to identify and resolve issues quickly.
 
 **Azure Application Insights** complements the Aspire Dashboard by offering deep diagnostic capabilities and advanced analytics. It collects detailed telemetry data, including request rates, response times, and failure rates, enabling developers to understand how the application is performing under different conditions. Application Insights also provides powerful querying and visualization tools, making it easier to analyze trends and detect anomalies.
 
@@ -227,7 +226,7 @@ You may want to consider additional security measures, such as:
 - [Microsoft Agent Framework (MAF)](https://github.com/microsoft/agents)
 - [Microsoft.Extensions.AI Documentation](https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai)
 - [eShopLite Main Repository](../..)
-- [Deploy a .NET Aspire project to Azure Container Apps using the Azure Developer CLI (in-depth guide)](https://learn.microsoft.com/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth)
+- [Use Azure Developer CLI workflows with Aspire](https://aspire.dev/deployment/azure/azure-developer-cli/)
 - [Aspiring .NET Applications with Azure OpenAI](https://learn.microsoft.com/shows/azure-developers-dotnet-aspire-day-2024/aspiring-dotnet-applications-with-azure-openai)
 
 ---

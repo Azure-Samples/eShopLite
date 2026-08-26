@@ -1,10 +1,10 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
 
-# eShopLite – Store + Products + Semantic Search (.NET Aspire)
+# eShopLite – Store + Products + Semantic Search (Aspire)
 
 This repository contains a simplified e‑commerce sample (Store frontend + Products backend) extended with Semantic Search capabilities. The solution demonstrates:
 
-* Orchestration and service discovery using **.NET Aspire AppHost**
+* Orchestration and service discovery using **Aspire AppHost**
 * Three different product search experiences in the Store UI
 * Re–use of SQL Server 2025 vector search capabilities (single mention). For detailed guidance about SQL Server 2025 vector features, indexing, and setup, see the Scenario 08 documentation: `../08-Sql2025/README.md`.
 * Optional Azure Functions façade for semantic search
@@ -45,7 +45,7 @@ Animated examples were previously provided as GIFs; if/when assets are added bac
 
 ```mermaid
 flowchart LR
-     subgraph AppHost[.NET Aspire AppHost]
+     subgraph AppHost[Aspire AppHost]
           Store[<b>Store Blazor UI</b><br>3 search options]
           Products[Products Service]
           SemanticFn[Semantic Search Azure Function]

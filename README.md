@@ -16,7 +16,7 @@
 
 **eShopLite** is a set of reference .NET applications implementing an eCommerce site with features like Semantic Search, Model Context Protocol (MCP), Reasoning models, vector databases, and more.
 
-> - ☁️ **All scenarios in this repository use the latest version of .NET and leverage .NET Aspire to orchestrate the entire solution.**
+> - ☁️ **All scenarios in this repository use the latest version of .NET and leverage Aspire to orchestrate the entire solution.**
 > - 🌟 Don't forget to **[star (🌟) this repo](https://docs.github.com/en/get-started/exploring-projects-on-github/saving-repositories-with-stars)** to find it easier later.
 > - ➡️ Get your own copy by **[Forking this repo](https://github.com/azure-samples/eshoplite/fork)** and find it next in your own repositories.
 > - ❓ **Have a question?** Besides creating [issues](https://github.com/azure-samples/eshoplite/issues) or [pull requests](https://github.com/azure-samples/eshoplite/pulls), the best option for questions is to join the [Azure AI Discord channel](https://discord.com/invite/ByRwuEEgH4), where a team of AI experts can help you.
@@ -25,7 +25,7 @@
 
 This project framework provides the following features:
 
-- Modern .NET application architecture with .NET Aspire
+- Modern .NET application architecture with Aspire
 - Various search capabilities (keyword search, semantic search)
 - Integration with multiple AI models (GPT-4o, DeepSeek-R1, etc.)
 - Vector database implementations (In Memory, Azure AI Search, Chroma DB and others)
@@ -38,18 +38,18 @@ The project includes several scenarios demonstrating different capabilities:
 
 | Scenario | Description | Key Technologies |
 |----------|-------------|-----------------|
-| [01 - Semantic Search](./scenarios/01-SemanticSearch/) | A reference .NET application implementing an eCommerce site with Search features using Keyword Search and Semantic Search. | .NET Aspire, OpenAI GPT-4.1-mini, In-memory Vector DB |
+| [01 - Semantic Search](./scenarios/01-SemanticSearch/) | A reference .NET application implementing an eCommerce site with Search features using Keyword Search and Semantic Search. | Aspire, OpenAI GPT-4.1-mini, In-memory Vector DB |
 | [02 - Azure AI Search](./scenarios/02-AzureAISearch/) | Implements an eCommerce site with Keyword Search using SQL queries and Semantic Search with Vector Database and Azure AI Search. | Azure AI Search, OpenAI Embeddings, SQL Server |
-| [03 - Realtime Audio](./scenarios/03-RealtimeAudio/) | Extends the eCommerce site with advanced search features and real-time audio capabilities powered by the GPT-4o Realtime Audio API. | GPT-4o Realtime Audio API, Audio in Blazor, .NET Aspire |
+| [03 - Realtime Audio](./scenarios/03-RealtimeAudio/) | Extends the eCommerce site with advanced search features and real-time audio capabilities powered by the GPT-4o Realtime Audio API. | GPT-4o Realtime Audio API, Audio in Blazor, Aspire |
 | [04 - Chroma DB](./scenarios/04-chromadb/) | Implements semantic search functionality using Chroma DB, an open-source database designed for AI applications. | Chroma DB, OpenAI Embeddings, .NET SDK |
-| [05 - DeepSeek-R1](./scenarios/05-deepseek/) | Demonstrates integration of the DeepSeek-R1 model for enhanced semantic understanding and search capabilities. | DeepSeek-R1, .NET Aspire, Vector Embeddings |
+| [05 - DeepSeek-R1](./scenarios/05-deepseek/) | Demonstrates integration of the DeepSeek-R1 model for enhanced semantic understanding and search capabilities. | DeepSeek-R1, Aspire, Vector Embeddings |
 | [06 - Model Context Protocol (MCP)](./scenarios/06-mcp/) | Implements the Model Context Protocol (MCP) for advanced AI interactions with MCP Servers and MCP Clients. | Model Context Protocol, Function Calling, SSE Events |
-| [07 - Agents Concurrent](./scenarios/07-AgentsConcurrent/) | Demonstrates concurrent agent orchestration and advanced AI agent collaboration patterns. | .NET Aspire, Multi-Agent Systems, Orchestration |
+| [07 - Agents Concurrent](./scenarios/07-AgentsConcurrent/) | Demonstrates concurrent agent orchestration and advanced AI agent collaboration patterns. | Aspire, Multi-Agent Systems, Orchestration |
 | [08 - SQL Server 2025](./scenarios/08-Sql2025/) | Demonstrates the use of vector search and vector indexes in the SQL Database Engine | SQL Server 2025, Vector Search, Vector Indexes |
-| [09 - Azure App Service](./scenarios/09-AzureAppService/) | Shows how to deploy a .NET Aspire multi-service eCommerce app to Azure App Service, using SQLite for data and integrating AI search. | Azure App Service, .NET Aspire, OpenAI, SQLite |
-| [10 - A2A Network](./scenarios/10-A2ANet/) | Demonstrates advanced agent-to-agent (A2A) communication and orchestration patterns in .NET Aspire, including multi-agent collaboration and reasoning. | .NET Aspire, Multi-Agent Systems, A2A Protocol |
-| [11 - GitHub Models](./scenarios/11-GitHubModels/) | Local-first AI development using GitHub Models during local runs, with automatic switch to Azure OpenAI when deployed. | .NET Aspire, GitHub Models, Azure OpenAI |
-| [12 - Azure Functions](./scenarios/12-AzureFunctions/) | Optional Azure Functions façade for semantic search and an alternate deployment boundary for vector search. | Azure Functions, .NET Aspire, Azure OpenAI |
+| [09 - Azure App Service](./scenarios/09-AzureAppService/) | Shows how to deploy an Aspire multi-service eCommerce app to Azure App Service, using SQLite for data and integrating AI search. | Azure App Service, Aspire, OpenAI, SQLite |
+| [10 - A2A Network](./scenarios/10-A2ANet/) | Demonstrates advanced agent-to-agent (A2A) communication and orchestration patterns in Aspire, including multi-agent collaboration and reasoning. | Aspire, Multi-Agent Systems, A2A Protocol |
+| [11 - GitHub Models](./scenarios/11-GitHubModels/) | Local-first AI development using GitHub Models during local runs, with automatic switch to Azure OpenAI when deployed. | Aspire, GitHub Models, Azure OpenAI |
+| [12 - Azure Functions](./scenarios/12-AzureFunctions/) | Optional Azure Functions façade for semantic search and an alternate deployment boundary for vector search. | Azure Functions, Aspire, Azure OpenAI |
 | [13 - Observability Assistant with Foundry Local](./scenarios/13-ObservabilityAssistantFoundryLocal/) | Summarizes logs, traces, and incidents with a local-first observability assistant. | Aspire, OpenTelemetry, Foundry Local, Microsoft.Extensions.AI |
 | [14 - Product Discovery Copilot](./scenarios/14-ProductDiscoveryCopilot/) | Turns search into natural-language product discovery with grounded explanations. | Semantic search, vector search, Microsoft.Extensions.AI |
 | [15 - Store Intelligence Report](./scenarios/15-StoreIntelligenceReport/) | Generates daily business and operational store intelligence reports. | App data, telemetry, AI summarization, reports |
@@ -64,7 +64,7 @@ The project includes several scenarios demonstrating different capabilities:
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd) (for Azure deployment)
 - [Git](https://git-scm.com/downloads)
-- [Aspire CLI](https://aspire.dev) — install with `dotnet tool install -g aspire.cli` (used for setting local secrets via `aspire secret set`)
+- [Aspire CLI](https://aspire.dev/get-started/install-cli/) — install with `dotnet tool install -g Aspire.Cli` (used for setting local secrets via `aspire secret set`)
 
 ### Installation
 
@@ -170,7 +170,7 @@ The Azure Resource Group with all the deployed services:
 
 - [Generative AI for Beginners .NET](https://aka.ms/genainet)
 
-- [.NET Aspire Documentation](https://learn.microsoft.com/dotnet/aspire/)
+- [Aspire Documentation](https://aspire.dev/docs/)
 
 - [Azure OpenAI Service Documentation](https://learn.microsoft.com/azure/ai-services/openai/)
 

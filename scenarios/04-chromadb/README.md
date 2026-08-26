@@ -56,8 +56,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
   - If using Visual Studio Code, install the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit)
-- .NET Aspire workload:
-    Installed with the [Visual Studio installer](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire) or the [.NET CLI workload](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire).
+- [Aspire CLI](https://aspire.dev/get-started/install-cli/) — install with `dotnet tool install -g Aspire.Cli`
 - An OCI compliant container runtime, such as:
   - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/).
 
@@ -183,7 +182,7 @@ Follow these steps to run the project, locally or in CodeSpaces:
   dotnet dev-certs https --trust
   ```
 
-- By default the AppHost project creates the necessary resources on Azure. Check the **[.NET Aspire Azure Resources creation](#net-aspire-azure-resources-creation)** section to learn how to configure the project to create Azure resources.
+- By default the AppHost project creates the necessary resources on Azure. See [Local Azure provisioning](https://aspire.dev/integrations/cloud/azure/local-provisioning/) to learn how to configure the project to create Azure resources.
 
 - Run the project:
 
@@ -193,7 +192,7 @@ Follow these steps to run the project, locally or in CodeSpaces:
 
 Check the [Video Resources](#resources) for a step-by-step on how to run this project.
 
-> **Note:** Working with .NET Aspire in GitHub Codespaces requires manual steps to access the .NET Aspire portal, such as changing ports to public and copying the access token.
+> **Note:** Working with Aspire in GitHub Codespaces requires manual steps to access the Aspire dashboard, such as changing ports to public and copying the access token.
 
 ### Local development using an existing gpt-4.1-mini and ada-002 model
 
@@ -247,10 +246,10 @@ You may want to consider additional security measures, such as:
 
 ## Resources
 
-- [Deploy a .NET Aspire project to Azure Container Apps using the Azure Developer CLI (in-depth guide)](https://learn.microsoft.com/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth)
+- [Use Azure Developer CLI workflows with Aspire](https://aspire.dev/deployment/azure/azure-developer-cli/)
 
 - [Aspiring .NET Applications with Azure OpenAI](https://learn.microsoft.com/shows/azure-developers-dotnet-aspire-day-2024/aspiring-dotnet-applications-with-azure-openai)
 
 ### Video Recordings
 
-[![Run eShopLite Semantic Search in Minutes with .NET Aspire & GitHub Codespaces 🚀](./images/90ytrunfromcodespaces.png)](https://youtu.be/T9HwjVIDPAE)
+[![Run eShopLite Semantic Search in Minutes with Aspire & GitHub Codespaces 🚀](./images/90ytrunfromcodespaces.png)](https://youtu.be/T9HwjVIDPAE)

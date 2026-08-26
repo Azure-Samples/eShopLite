@@ -8,7 +8,7 @@ The 01-SemanticSearch scenario demonstrates a comprehensive eCommerce platform w
 
 ## Features Documentation
 
-- [Aspire Orchestration](./aspire-orchestration.md) - .NET Aspire service composition and configuration
+- [Aspire Orchestration](./aspire-orchestration.md) - Aspire service composition and configuration
 - [Azure OpenAI Integration](./azure-openai-integration.md) - Chat and embedding client setup
 - [Semantic Search](./semantic-search.md) - Vector-based product search implementation
 - [Memory Context](./memory-context.md) - In-memory vector store for product embeddings
@@ -44,7 +44,7 @@ The 01-SemanticSearch scenario demonstrates a comprehensive eCommerce platform w
 - **Azure OpenAI**: Chat completion and text embedding services
 
 ### Key Technologies
-- **.NET Aspire**: Cloud-native orchestration and service discovery
+- **Aspire**: Cloud-native orchestration and service discovery
 - **Azure OpenAI**: GPT-4.1-mini for chat, text-embedding-ada-002 for embeddings
 - **Microsoft.Extensions.AI (MEAI)**: `IChatClient` and `IEmbeddingGenerator` abstractions
 - **CommunityToolkit.VectorData.InMemory**: In-memory vector store for semantic search
@@ -53,7 +53,7 @@ The 01-SemanticSearch scenario demonstrates a comprehensive eCommerce platform w
 
 ## Configuration
 
-The solution uses .NET Aspire's configuration system with support for:
+The solution uses Aspire's configuration system with support for:
 - **User Secrets**: Local development with Azure OpenAI credentials
 - **Azure Application Insights**: Telemetry and monitoring
 - **Environment Variables**: Model deployment names and configuration
@@ -83,7 +83,7 @@ The solution uses .NET Aspire's configuration system with support for:
 ## Related Resources
 
 - [Main Scenario README](../README.md)
-- [.NET Aspire Documentation](https://learn.microsoft.com/en-us/dotnet/aspire/)
+- [Aspire Documentation](https://aspire.dev/docs/)
 - [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/cognitive-services/openai-service/)
 - [Microsoft.Extensions.AI](https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai)
 - [CommunityToolkit.VectorData](https://www.nuget.org/packages/CommunityToolkit.VectorData.InMemory)
