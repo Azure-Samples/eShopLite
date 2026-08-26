@@ -19,7 +19,7 @@ Quick links:
 
 ## Features (Scenario 11)
 
-- Local-first AI via GitHub Models with .NET Aspire
+- Local-first AI via GitHub Models with Aspire
 - Automatic switch to Azure OpenAI when published/deployed
 - Secure interactive GitHub token prompt (Aspire parameters)
 - Same Store UI and Products API behavior across environments
@@ -34,7 +34,7 @@ Local development uses GitHub Models; publish/deploy uses Azure OpenAI. The Prod
 
 ## Prerequisites (local dev only)
 
-- .NET 10 SDK and .NET Aspire tooling
+- .NET 10 SDK and Aspire tooling
 - Docker Desktop or Podman (recommended)
 - GitHub account and access to GitHub Models
 - A GitHub Personal Access Token (PAT) with access to GitHub Models
@@ -126,4 +126,4 @@ This scenario intentionally keeps those topics centralized in Scenario 01. For c
 
 Video
 
-- Run eShopLite Semantic Search in Minutes with .NET Aspire & GitHub Codespaces: <https://youtu.be/T9HwjVIDPAE>
+- Run eShopLite Semantic Search in Minutes with Aspire & GitHub Codespaces: <https://youtu.be/T9HwjVIDPAE>

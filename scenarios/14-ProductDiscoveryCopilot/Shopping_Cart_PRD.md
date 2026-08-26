@@ -31,7 +31,7 @@ The eShopLite application currently provides:
 - Product catalog browsing
 - Keyword and semantic search functionality
 - Product detail viewing
-- .NET Aspire hosting with Azure OpenAI integration
+- Aspire hosting with Azure OpenAI integration
 - Blazor Server-side rendering
 - SQLite database for product storage
 

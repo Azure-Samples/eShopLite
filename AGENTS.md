@@ -2,10 +2,10 @@
 
 ## Project Overview
 
-**eShopLite** is a modular .NET Aspire-based reference eCommerce platform demonstrating advanced AI, search, and orchestration patterns. This is a **scenario-driven monorepo** where each scenario in `scenarios/` is a self-contained solution showcasing different capabilities like Semantic Search, Model Context Protocol (MCP), Reasoning models, vector databases, real-time audio, and more.
+**eShopLite** is a modular Aspire-based reference eCommerce platform demonstrating advanced AI, search, and orchestration patterns. This is a **scenario-driven monorepo** where each scenario in `scenarios/` is a self-contained solution showcasing different capabilities like Semantic Search, Model Context Protocol (MCP), Reasoning models, vector databases, real-time audio, and more.
 
 **Key Technologies:**
-- .NET 10 with .NET Aspire 13.0.1 for orchestration
+- .NET 10 with Aspire 13.0.1 for orchestration
 - Blazor for UI
 - Azure OpenAI (GPT-4o, GPT-4o-mini, embeddings)
 - Microsoft.Extensions.AI (MEAI) `IChatClient` / `IEmbeddingGenerator` abstractions
@@ -15,7 +15,7 @@
 - Azure services (Container Apps, AI Search, Application Insights, Functions)
 - Docker/Podman for containerized services
 
-**Architecture:** Each scenario is a complete, runnable .NET Aspire solution with an `eShopAppHost` orchestrating multiple services (APIs, databases, UI). Services are reused across scenarios, making this a true monorepo with shared components.
+**Architecture:** Each scenario is a complete, runnable Aspire solution with an `eShopAppHost` orchestrating multiple services (APIs, databases, UI). Services are reused across scenarios, making this a true monorepo with shared components.
 
 ## Setup Commands
 
@@ -37,8 +37,8 @@ curl -fsSL https://aka.ms/install-azd.sh | bash
 # Docker: https://www.docker.com/products/docker-desktop/
 # Podman: https://podman.io/
 
-# Install .NET Aspire workload
-dotnet workload install aspire
+# Install Aspire CLI
+dotnet tool install --global Aspire.Cli
 
 # Verify installations
 dotnet --version  # Should be 10.0 or higher
@@ -82,7 +82,7 @@ dotnet run
 ```
 
 **What happens:**
-- .NET Aspire orchestrates all services (Store UI, Products API, databases)
+- Aspire orchestrates all services (Store UI, Products API, databases)
 - Aspire Dashboard opens at `http://localhost:15888` (or similar)
 - Store UI is available at a dynamically assigned port (check console output)
 - All service endpoints are auto-wired and displayed in the dashboard
@@ -463,7 +463,7 @@ aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding
 
 ### Useful Resources
 
-- [.NET Aspire Documentation](https://learn.microsoft.com/dotnet/aspire/)
+- [Aspire Documentation](https://aspire.dev/docs/)
 - [Azure OpenAI Service Documentation](https://learn.microsoft.com/azure/ai-services/openai/)
 - [Azure Developer CLI (azd) Documentation](https://learn.microsoft.com/azure/developer/azure-developer-cli/)
 - [Generative AI for Beginners .NET](https://aka.ms/genainet)

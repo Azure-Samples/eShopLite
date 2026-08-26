@@ -1,9 +1,9 @@
 # eShopLite Copilot Instructions
 ## Project Overview
-eShopLite is a modular .NET Aspire-based reference eCommerce platform demonstrating advanced AI, search, and orchestration patterns. Each scenario in `scenarios/` is a self-contained solution, often integrating Azure, OpenAI, vector DBs, and/or agent protocols.
+eShopLite is a modular Aspire-based reference eCommerce platform demonstrating advanced AI, search, and orchestration patterns. Each scenario in `scenarios/` is a self-contained solution, often integrating Azure, OpenAI, vector DBs, and/or agent protocols.
 ## Architecture & Patterns
 - **Scenario-driven:** Each folder in `scenarios/` is a complete, runnable solution (see its README for details). Common patterns include:
-  - **AppHost Orchestration:** All services (APIs, DBs, agents) are composed in `eShopAppHost` using .NET Aspire's builder API.
+  - **AppHost Orchestration:** All services (APIs, DBs, agents) are composed in `eShopAppHost` using Aspire's builder API.
   - **Service Boundaries:** Projects like `Products`, `Store`, and `VectorEntities` are reused across scenarios.
   - **AI Integration:** Semantic search, embeddings, and chat use Azure OpenAI, DeepSeek, or Chroma DB, configured via user-secrets or Aspire resource bindings.
   - **Agent/MCP Patterns:** Some scenarios (e.g., 06-mcp, 07-AgentsConcurrent) use Model Context Protocol or Semantic Kernel for tool/function calling and agent orchestration.
@@ -20,7 +20,7 @@ eShopLite is a modular .NET Aspire-based reference eCommerce platform demonstrat
 - **Telemetry:**
   - Aspire Dashboard and Azure Application Insights are integrated for all scenarios. Access dashboard URLs from console output after launch.
 ## Project-Specific Conventions
-- **.NET Aspire:** All orchestration is done in `eShopAppHost/Program.cs` using the Aspire builder API. Services are referenced by logical names (e.g., `products`, `store`, `sql`).
+- **Aspire:** All orchestration is done in `eShopAppHost/Program.cs` using the Aspire builder API. Services are referenced by logical names (e.g., `products`, `store`, `sql`).
 - **User Secrets:** For local dev, always set connection strings using `dotnet user-secrets` in the relevant project directory.
 - **Azure Integration:**
   - Use `CredentialSource: AzureCli` for local Azure auth.

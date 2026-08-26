@@ -3,7 +3,7 @@
 ## Project Snapshot
 - Project: eShopLite
 - Requested by: Bruno Capuano
-- Stack: .NET Aspire orchestration, Azure deployment via `azd`
+- Stack: Aspire orchestration, Azure deployment via `azd`
 
 ## Infra Audit: 4-Parameter OpenAI Migration (2026-06-06)
 - Audited all 13 scenarios for azd/bicep surface impact of replacing `ConnectionStrings__openai` (opaque) with 4 explicit Aspire parameters.
@@ -37,7 +37,7 @@
   - Updated from `9.0.x` to `10.0.x` to align with project upgrade to .NET 10
   - No `global.json` exists in the repo; workflows are primary source of SDK version truth
   - Other workflows (CodeQL, squad triage, label sync, etc.) do not require .NET setup
-  - Aspire workload (`dotnet workload install aspire`) remains unchanged in setup
+  - Aspire CLI (`dotnet tool install --global Aspire.Cli`) is installed in setup
 
 ## Script: Set-AzureOpenAISecrets.ps1 (2026-06-06)
 - Created `scripts\Set-AzureOpenAISecrets.ps1` to interactively set all 4 Azure OpenAI Aspire parameter secrets across every scenario AppHost.
@@ -67,4 +67,3 @@ Approved exceptions documented. Ready for production deployment.
 - 2026-06-06T14:03:53.471-04:00: Scenario baselines should stay centered on 01-SemanticSearch unless a scenario needs MCP, A2A, or deployment-specific infrastructure.
 
 - 2026-06-06T14:03:53.471-04:00: Scaffolded scenario README stubs for 13-17 to match the agentic modernization plan, with the session docs keeping deployment slide-only and Hosted Agents as an evaluation path.
-

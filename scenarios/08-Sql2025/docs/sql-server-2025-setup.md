@@ -2,7 +2,7 @@
 
 ## Overview
 
-This scenario demonstrates the setup and configuration of [SQL Server 2025](https://learn.microsoft.com/en-us/sql/sql-server/sql-server-2025-overview) with [native vector search capabilities](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors). The setup includes container configuration, vector feature enablement, and integration with .NET Aspire for seamless orchestration.
+This scenario demonstrates the setup and configuration of [SQL Server 2025](https://learn.microsoft.com/en-us/sql/sql-server/sql-server-2025-overview) with [native vector search capabilities](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors). The setup includes container configuration, vector feature enablement, and integration with Aspire for seamless orchestration.
 
 ## Container Configuration
 
@@ -100,7 +100,7 @@ WITH (METRIC = 'cosine', TYPE = 'DiskANN');
 
 ### Local Development Configuration
 
-The setup automatically handles container lifecycle via .NET Aspire.
+The setup automatically handles container lifecycle via Aspire.
 
 ### Connection String Management
 

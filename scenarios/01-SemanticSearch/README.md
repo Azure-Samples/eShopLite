@@ -11,9 +11,9 @@
 - Run solution
   - [Run locally](#run-locally)
   - [Run the solution](#run-the-solution)
-  - [.NET Aspire Azure Resources creation](#net-aspire-azure-resources-creation)
+  - [Aspire Azure Resources creation](#aspire-azure-resources-creation)
   - [Local dev using an existing model](#local-development-using-an-existing-gpt-41-mini-and-ada-002-model)
-  - [Telemetry with .NET Aspire and Azure Application Insights](#telemetry-with-net-aspire-and-azure-application-insights)
+  - [Telemetry with Aspire and Azure Application Insights](#telemetry-with-aspire-and-azure-application-insights)
 - [Resources](#resources)
 - [Video Recordings](#video-recordings)
 - [Guidance](#guidance)
@@ -98,11 +98,9 @@ To run the project locally, you'll need to make sure the following tools are ins
 - [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Git](https://git-scm.com/downloads)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
-- [Aspire CLI](https://aspire.dev/reference/cli/commands/) — install with `dotnet tool install -g aspire.cli`
+- [Aspire CLI](https://aspire.dev/get-started/install-cli/) — install with `dotnet tool install -g Aspire.Cli`
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
   - If using Visual Studio Code, install the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit)
-- .NET Aspire workload:
-    Installed with the [Visual Studio installer](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire) or the [.NET CLI workload](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire).
 - An OCI compliant container runtime, such as:
   - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/).
 
@@ -145,7 +143,7 @@ dotnet run
 
 This runs the AppHost in the foreground (logs stream to the terminal). Press `Ctrl+C` to stop.
 
-## .NET Aspire Azure Resources creation
+## Aspire Azure Resources creation
 
 When utilizing Azure resources in your local development environment, you need to:
 
@@ -177,7 +175,7 @@ Consider the following example for the *appsettings.json* file in the eShopAppHo
 }
 ```
 
-Check [.NET Aspire Azure hosting integrations](https://learn.microsoft.com/dotnet/aspire/azure/local-provisioning#net-aspire-azure-hosting-integrations) for more information on how .NET Aspire create the necessary cloud resources for local development.
+See [Local Azure provisioning](https://aspire.dev/integrations/cloud/azure/local-provisioning/) for more information about how Aspire creates the necessary cloud resources for local development.
 
 ### Local development using an existing Azure OpenAI model
 
@@ -194,11 +192,11 @@ aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding
 
 > **Tip:** Run `pwsh .\scripts\Set-AzureOpenAISecrets.ps1` from the repo root to set the 4 common Azure OpenAI values for every scenario at once.
 
-### Telemetry with .NET Aspire and Azure Application Insights
+### Telemetry with Aspire and Azure Application Insights
 
 The eShopLite solution leverages the Aspire Dashboard and Azure Application Insights to provide comprehensive telemetry and monitoring capabilities
 
-The **.NET Aspire Dashboard** offers a centralized view of the application's performance, health, and usage metrics. It integrates seamlessly with the Azure OpenAI services, allowing developers to monitor the performance of the `gpt-5-mini` and `text-embedding-ada-002` models. The dashboard provides real-time insights into the application's behavior, helping to identify and resolve issues quickly.
+The **Aspire Dashboard** offers a centralized view of the application's performance, health, and usage metrics. It integrates seamlessly with the Azure OpenAI services, allowing developers to monitor the performance of the `gpt-5-mini` and `text-embedding-ada-002` models. The dashboard provides real-time insights into the application's behavior, helping to identify and resolve issues quickly.
 
 ![Aspire Dashboard](./images/40AspireDashboard.png)
 
@@ -246,7 +244,7 @@ For detailed technical documentation about the components and features of this s
 
 The documentation includes:
 
-- Service architecture and .NET Aspire orchestration
+- Service architecture and Aspire orchestration
 - Azure OpenAI integration patterns
 - Semantic search implementation details  
 - Memory context and vector operations
@@ -255,10 +253,10 @@ The documentation includes:
 
 ## Resources
 
-- [Deploy a .NET Aspire project to Azure Container Apps using the Azure Developer CLI (in-depth guide)](https://learn.microsoft.com/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth)
+- [Use Azure Developer CLI workflows with Aspire](https://aspire.dev/deployment/azure/azure-developer-cli/)
 
 - [Aspiring .NET Applications with Azure OpenAI](https://learn.microsoft.com/shows/azure-developers-dotnet-aspire-day-2024/aspiring-dotnet-applications-with-azure-openai)
 
 ### Video Recordings
 
-[![Run eShopLite Semantic Search in Minutes with .NET Aspire & GitHub Codespaces 🚀](./images/90ytrunfromcodespaces.png)](https://youtu.be/T9HwjVIDPAE)
+[![Run eShopLite Semantic Search in Minutes with Aspire & GitHub Codespaces 🚀](./images/90ytrunfromcodespaces.png)](https://youtu.be/T9HwjVIDPAE)

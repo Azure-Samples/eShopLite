@@ -26,5 +26,5 @@
 - **Project:** eShopLite
 - **Created:** 2026-06-06
 - **Requested by:** Bruno Capuano
-- **Stack:** .NET 9, .NET Aspire, Blazor, Azure OpenAI, vector databases, Azure deployment
+- **Stack:** .NET 9, Aspire, Blazor, Azure OpenAI, vector databases, Azure deployment
 - **Focus:** Scenario-driven eCommerce reference app across semantic search, MCP, agents, and deployment patterns
