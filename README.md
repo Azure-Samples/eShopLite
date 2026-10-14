@@ -57,6 +57,10 @@ The project includes several scenarios demonstrating different capabilities:
 | [17 - A2A Store Operations Network](./scenarios/17-A2AStoreOperationsNetwork/) | Shows specialized agents collaborating around the store app through A2A. | A2A, Microsoft Agent Framework, hosted agents |
 | [18 - Blazor Agentic UI](./scenarios/18-BlazorAgenticUI/) | Experimental streaming shopping assistant with catalog cards and human-approved cart actions. | .NET 11 RC2, Blazor AI components, AG-UI, Microsoft Agent Framework, Aspire |
 
+New to Scenario 18? Start with its [three-step quick start](./scenarios/18-BlazorAgenticUI/README.md),
+then explore the [screenshots](./scenarios/18-BlazorAgenticUI/docs/WALKTHROUGH.md) and
+[blog-to-code walkthrough](./scenarios/18-BlazorAgenticUI/docs/CODE_WALKTHROUGH.md).
+
 ## Getting Started
 
 ### Prerequisites
@@ -98,6 +102,27 @@ establish cloud deployability or validate every other scenario against real mode
 
 See [CHANGELOG.md](./CHANGELOG.md) for the new scenario, dependency migrations, setup
 scripts, and known upgrade boundaries.
+
+### Start a scenario locally
+
+Each scenario has its own `aspire.config.json`, so Aspire selects that scenario's AppHost
+instead of inheriting the repository-root selection:
+
+```powershell
+cd .\scenarios\18-BlazorAgenticUI
+aspire start
+```
+
+Use `aspire run` for a foreground session, and `aspire stop` to stop the selected app.
+Install the SDK requested by that scenario's nearest `global.json`: .NET 10.0.402 for
+stable scenarios, or .NET 11 RC2 for Scenario 18. A .NET 11 installation does not satisfy
+the stable .NET 10 pin. AppHost selection does not install SDKs or configure credentials.
+
+To verify every scenario's local selection without starting services:
+
+```powershell
+pwsh .\scripts\Tests\Test-ScenarioAppHosts.ps1
+```
 
 ### Installation
 

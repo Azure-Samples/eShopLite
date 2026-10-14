@@ -8,8 +8,9 @@
 
 **Purpose:** Demonstrate Blazor's experimental AI components in a familiar eShopLite product-discovery workflow without changing the existing scenarios.
 
-See [README.md](README.md) for the implemented scope, exact package versions, run commands,
-and deliberate first-version decisions. The sections below preserve the original proposal,
+See [README.md](README.md) for the three-step quick start and
+[detailed notes](docs/DETAILS.md) for the implemented scope, exact package versions,
+run commands, and deliberate first-version decisions. The sections below preserve the original proposal,
 including work deferred beyond this initial implementation.
 
 ## Executive summary
@@ -145,7 +146,8 @@ SQL-vector scenarios 08 and 12 use EF Core 9.0.21 to remain compatible with
 EFCore.SqlServer.VectorSearch 9.0.0; mixing that provider with EF 10 causes runtime
 MissingMethodException failures. Their EF tools also remain on 9.0.21.
 The 14-MAFDevUI dependency refresh is blocked by its local requirement for an unavailable
-Azure best-practices tool. No changes have been made inside that scenario.
+Azure best-practices tool. Its dependencies remain unchanged; a later CLI-only fix adds
+scenario-local AppHost selection consistently across the repository.
 See the root README's dependency baseline for the exact boundaries.
 
 ## Acceptance criteria

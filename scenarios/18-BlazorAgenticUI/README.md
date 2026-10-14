@@ -1,195 +1,72 @@
 # Blazor Agentic UI
 
-An experimental, independently runnable eShopLite scenario built from the product catalog
-and search boundaries in [01-SemanticSearch](../01-SemanticSearch/README.md).
-It demonstrates the components introduced in
-[Build Agentic UI with the new Blazor AI components](https://devblogs.microsoft.com/dotnet/build-agentic-ui-blazor/).
+Chat with the eShopLite outdoor catalog, see real product cards, and approve an item
+before it reaches your cart. This experimental sample applies the patterns in
+[Build Agentic UI with the new Blazor AI components](https://devblogs.microsoft.com/dotnet/build-agentic-ui-blazor/)
+to a small shopping experience.
 
-## What is implemented
+## Start in 3 steps
 
-- `ChatPage` and `UIAgent` stream a conversation from a separate agent service over AG-UI.
-- Conversation status shows model/tool activity and safe, actionable failures without exposing provider diagnostics.
-- Microsoft Agent Framework exposes bounded, read-only `search_products` and `get_product` tools.
-- Source-generated `[ToolBlock]` types render authoritative catalog results as product cards.
-- A frontend `UIActionBlock` pauses a cart request until the user clicks Approve or Reject.
-- Cart prices are reloaded from the catalog after approval; cart state belongs to one Blazor circuit.
-- Aspire orchestrates Store, Agent, Products, and SQL Server, with service discovery and telemetry.
-- An explicitly labeled offline demo mode exercises the same AG-UI and UI-action pipeline
-  with deterministic tool calls and SQLite, without calling a model.
+Before starting, install **.NET 11 RC2** (`11.0.100-rc.2.26504.105`), **Aspire CLI 13.6+**,
+and **PowerShell 7**, and start **Docker or Podman**. You need a Foundry chat deployment
+(default `gpt-6-luna`) and embeddings deployment (`text-embedding-3-small`).
+See [requirements and troubleshooting](docs/REQUIREMENTS_AND_TROUBLESHOOTING.md) if anything is missing.
 
-The original nine products and images are reused from scenario 01. The catalog is read-only.
-There is no checkout, payment, order placement, persistent cart, authentication, or cloud
-deployment template in this scenario. It is a local development sample, not a public service.
-Do not expose its unauthenticated agent endpoint to the internet.
+### 1. Set secrets
 
-## Prerequisites
-
-- .NET SDK `11.0.100-rc.2.26504.105`, pinned in this scenario's `global.json`.
-- Aspire CLI 13.6 or later.
-- Docker or Podman running for normal mode (SQL Server 2025).
-- A Microsoft Foundry chat deployment supporting tools and streaming, and an embeddings deployment.
-
-Only this scenario targets .NET 11 RC2. Existing scenarios are not retargeted.
-The Blazor AI package is `0.1.0-preview.1.26466.103`, built against .NET 11 RC1 and
-verified here with RC2. MAF is `1.24.0`, its AG-UI hosting integration is
-`1.24.0-preview.261006.1`, AGUI.Client is `1.0.1`, and Aspire is `13.6.1`.
-Preview APIs may change. The project files record the remaining exact versions.
-
-Install the SDK globally to use the normal `dotnet` and Aspire commands. Alternatively,
-if using the user-local SDK installation, set the environment in the terminal before
-running the following commands:
-
-```powershell
-$env:DOTNET_ROOT = Join-Path $env:LOCALAPPDATA 'eShopLite\dotnet11'
-$env:PATH = "$env:DOTNET_ROOT;$env:PATH"
-```
-
-Otherwise use a normal .NET 11 RC2 SDK installation on `PATH`. Run SDK commands from this
-scenario directory so the scenario-local `global.json` is selected.
-
-## Configure real models
-
-From the repository root:
+From the **repository root**, run:
 
 ```powershell
 pwsh .\scripts\Set-AzureOpenAISecrets.ps1 -ScenariosRoot .\scenarios\18-BlazorAgenticUI
 ```
 
-The script checks SDK resolution from each AppHost directory before requesting the API
-key or writing secrets. Aspire exit code 7 can mean the SDK in `global.json` is unavailable,
-even when the AppHost file exists; Azure sign-in does not fix local SDK resolution.
-For an SDK installed outside the system `PATH`, use:
+Enter your inference endpoint, API key at the masked prompt, and the two deployment
+names. This configures local secrets; it does not deploy models.
+Need deployments first? Follow the [Foundry setup guide](../../README.md#shared-microsoft-foundry-models-and-local-secrets).
+
+### 2. Start Aspire
 
 ```powershell
-pwsh .\scripts\Set-AzureOpenAISecrets.ps1 `
-    -ScenariosRoot .\scenarios\18-BlazorAgenticUI `
-    -DotNetRoot (Join-Path $env:LOCALAPPDATA 'eShopLite\dotnet11')
+cd .\scenarios\18-BlazorAgenticUI
+aspire start
 ```
 
-`-DotNetRoot` applies only to the script's child commands and restores the caller's
-environment afterward. It does not install an SDK or change system settings.
+Open the dashboard link printed by Aspire. Wait for **products**, **agent**, and
+**store** to become healthy. First startup creates the SQL catalog and its embeddings.
+This folder's `aspire.config.json` selects the correct AppHost automatically.
 
-The script discovers this AppHost and sets:
+### 3. Browse Store and try these 3 chat instructions
 
-| AppHost parameter | Value |
+In the Aspire dashboard, open the **store** HTTP endpoint. Its port is assigned at
+startup, so use the dashboard link rather than copying a port from a screenshot.
+Send each prompt separately and wait for the response:
+
+| Chat instruction | What to look for |
 |---|---|
-| `Parameters:AzureOpenAIEndpoint` | Base HTTPS Azure OpenAI inference endpoint, such as `https://<account>.openai.azure.com/` |
-| `Parameters:AzureOpenAIApiKey` | API key, entered at the masked prompt |
-| `Parameters:AzureOpenAIDeploymentName` | Chat deployment name, default `gpt-6-luna` |
-| `Parameters:AzureOpenAIEmbeddingsDeploymentName` | Embeddings deployment name, default `text-embedding-3-small` |
+| `Find camping equipment under $100.` | Catalog-backed product cards with names and prices. |
+| `Add the Camping Tent to my cart.` | A **Review cart request** panel. The cart stays empty until you click **Approve add to cart**. Approving adds one tent at $99.99; Reject leaves it unchanged. |
+| `What is the exact weight and person capacity of the Camping Tent? Only use catalog facts.` | The assistant should say the catalog does not contain those specifications, not invent them. |
 
-Use the inference endpoint, not a Foundry project URL. The server-side clients normalize
-the OpenAI-compatible `/openai/v1/` path, including when that suffix is already present.
-Deployment names must exist on that account; `gpt-6-luna` availability is not assumed.
-The endpoint and API key are not injected into Store.
+Model responses and timings vary. A working indicator stays visible while the model
+and tools are running. To stop the app afterward, run `aspire stop` from this folder.
 
-This scenario has its own `UserSecretsId`; it does not share another sample's secret store.
-To provision shared models first, see the root
-[Foundry setup instructions](../../README.md#shared-microsoft-foundry-models-and-local-secrets).
-The setup scripts now include this AppHost automatically.
+## Understand the sample
 
-## Run with real models and SQL Server
+The blog explains a progression from streamed chat to typed tool results and
+human-controlled actions. Here, **ChatPage + UIAgent** provide the conversation,
+**AG-UI** connects Store to the remote agent, **generated ToolBlock types** turn
+catalog results into Blazor cards, and **UIActionBlock** pauses cart changes for your
+decision. The cart is a frontend UI action, not the blog's approval-required backend
+tool pattern.
 
-```powershell
-cd .\scenarios\18-BlazorAgenticUI
-aspire start --apphost .\src\eShopAppHost\eShopAppHost.csproj --non-interactive
-aspire wait products --non-interactive
-aspire wait agent --non-interactive
-aspire wait store --non-interactive
-```
+| Guide | Read it for |
+|---|---|
+| [Screenshot walkthrough](docs/WALKTHROUGH.md) | See the Store, approval panel, and resulting cart. |
+| [Requirements and troubleshooting](docs/REQUIREMENTS_AND_TROUBLESHOOTING.md) | Full prerequisites, SDK checks, missing secrets, containers, and startup/chat errors. |
+| [Code walkthrough](docs/CODE_WALKTHROUGH.md) | Map the blog concepts to source files and follow a request end to end. |
+| [Detailed setup and implementation notes](docs/DETAILS.md) | All configuration options, offline mode, versions, test commands, validation, and design decisions. |
+| [Implementation plan](IMPLEMENTATION_PLAN.md) | Original baseline analysis, architecture proposal, and delivered/deferred scope. |
 
-Open Store from the Aspire dashboard. Products creates and seeds the SQL database,
-then builds its in-memory vector index using the configured embedding model. Any
-connection or embedding failure prevents startup rather than switching to demo behavior.
-The agent uses the configured chat deployment and real tool calls through the OpenAI
-Responses API. This is required for `gpt-6-luna` function tools with reasoning enabled;
-Chat Completions rejects that combination. The SDK's Responses adapter is experimental,
-so its `OPENAI001` diagnostic is suppressed only around this registration. Reasoning
-is not silently disabled and the model is not replaced.
-
-The local vector search is deliberately small: product embeddings are held in process
-and cosine similarity ranks at most nine catalog entries. A restart rebuilds the index.
-Price and result limits are applied in application code rather than entrusted to the model.
-
-## Run the offline demo
-
-```powershell
-cd .\scenarios\18-BlazorAgenticUI
-aspire start --apphost .\src\eShopAppHost\eShopAppHost.csproj --non-interactive -- --Demo=true
-aspire wait store --non-interactive
-```
-
-This does not need secrets or a container runtime. The banner explicitly identifies the
-fixture. Any ordinary prompt triggers a fixed keyword search for `camping`; a prompt
-containing `cart` requests approval to add product 9 (Camping Tent). It is not natural
-language interpretation and does not prove that a Foundry deployment works.
-Semantic search is unavailable in this mode, and the API returns 503 if requested directly.
-
-Stop the current run before switching between demo and real mode:
-
-```powershell
-aspire stop --apphost .\src\eShopAppHost\eShopAppHost.csproj --non-interactive
-```
-
-## Suggested walkthrough
-
-1. Ask `Find camping equipment under $100` and inspect the streamed catalog cards.
-2. Ask `Add the tent to my cart`. Verify the cart is still empty while approval is pending.
-3. Reject the request. The cart must stay empty.
-4. Ask again and approve. The cart shows one Camping Tent at the catalog price of $99.99.
-5. Open a separate browser session. It must not inherit another circuit's cart or conversation.
-
-For the real model also try `Show rain protection under $60`, an unavailable product,
-and a request about product weight. The catalog has no weight or tent-capacity data,
-so the assistant must not invent those facts.
-
-## Build and tests
-
-From this scenario directory:
-
-```powershell
-dotnet build .\src\eShopLite-BlazorAgenticUI.slnx
-dotnet test .\src\Scenario.Tests\Scenario.Tests.csproj
-```
-
-The tests include price/result bounds, missing model behavior, cart rejection and isolation,
-catalog failures, AG-UI HTTP streaming through the real MAF server, source-generated product
-block deserialization, and UI actions that cannot execute until a decision is supplied.
-Protocol tests use an explicit offline chat client, not a Foundry deployment. A separate
-mock-provider test verifies that real-mode wiring sends streaming requests and catalog
-tools to `/openai/v1/responses` with the configured deployment. Error-rendering coverage
-checks that transport failures produce a visible notice without provider details.
-
-## Local validation
-
-The scenario was validated locally with SQL Server 2025, `gpt-6-luna`, and
-`text-embedding-3-small`, not only with the offline fixture. The browser walkthrough
-confirmed streamed catalog cards, a rain-jacket recommendation below $60, an empty cart
-after rejection, and one Camping Tent at $99.99 after approval. The model also reported
-that weight and person capacity are absent from the catalog instead of inventing them.
-All resources became healthy again after restarting against the existing SQL volume.
-
-The scenario build and formatting check pass, and all 29 automated tests pass.
-These results establish the tested local integration, not a guarantee of model behavior
-for every prompt, deployment, region, or future package version.
-
-## Scope and implementation decisions
-
-The architecture follows the [implementation plan](IMPLEMENTATION_PLAN.md), with these
-deliberate first-version choices:
-
-- All projects in this isolated scenario use the same .NET 11 SDK to simplify build/run.
-- The original catalog, SQL-backed API, and search boundary are retained, not a wholesale
-  copy of the baseline's CRUD, checkout, generated Azure infrastructure, or database files.
-- Cart approval uses `RegisterUIAction` / `UIActionBlock`, because the cart belongs to the
-  Blazor circuit. `FunctionApprovalBlock` is for approval-required backend tools and is not
-  needed for this local cart action.
-- Typed shared/predictive state, rich Markdown parsing, durable conversations, and production
-  authentication/deployment are not implemented. The card result and cart already demonstrate
-  application-owned UI without adding an unnecessary state protocol.
-- Logs/traces are operational only. Prompt bodies, keys, and tool results are not explicitly
-  logged; verbose HTTP URL logging and agent information logs are disabled. Do not enable
-  sensitive-data logging when using real conversations.
-
-The component preview is not a production support commitment. A successful offline run
-does not establish real-model quality, regional availability, quota, or cloud deployability.
+**Local experimental sample only:** no checkout, payments, orders, authentication,
+or durable cart. Keep the unauthenticated agent endpoint private. The offline fixture
+is separate and explicitly labeled; it does not prove a real model deployment works.

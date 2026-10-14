@@ -4,6 +4,9 @@
 
 ### Added
 
+- A three-step Scenario 18 quick start, linked requirements/troubleshooting guide,
+  blog-to-code walkthrough, detailed reference, and screenshots of the real Store flow.
+
 - [Scenario 18: Blazor Agentic UI](./scenarios/18-BlazorAgenticUI/README.md), an isolated
   .NET 11 RC2 sample using experimental Blazor AI components, Microsoft Agent Framework,
   AG-UI streaming, typed catalog cards, and human-approved session cart actions.
@@ -31,6 +34,10 @@
   `-DotNetRoot` override with environment restoration.
 
 ### Fixed
+
+- Added scenario-local Aspire configuration for all 19 AppHosts so bare `aspire start`
+  selects the current scenario rather than inheriting the root MAFDevUI selection.
+  Added a regression check for the relative paths and effective CLI configuration.
 
 - Scenario 18 loads AppHost user secrets in Development and seeds fixed catalog IDs
   correctly into SQL Server identity columns.
