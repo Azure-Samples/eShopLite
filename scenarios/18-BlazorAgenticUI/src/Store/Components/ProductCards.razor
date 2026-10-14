@@ -1,0 +1,16 @@
+<div class="product-grid">
+    @foreach (var product in Products)
+    {
+        <article class="product-card" @key="product.Id">
+            <img src="@($"/images/{product.ImageUrl}")" alt="@product.Name" width="120" height="120" />
+            <h3>@product.Name</h3>
+            <p>@product.Description</p>
+            <strong>@product.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</strong>
+            <small>Catalog ID @product.Id</small>
+        </article>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<Product> Products { get; set; } = [];
+}

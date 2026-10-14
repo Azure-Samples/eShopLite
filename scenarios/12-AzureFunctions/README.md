@@ -11,6 +11,11 @@ This repository contains a simplified e‑commerce sample (Store frontend + Prod
 
 > NOTE: Detailed inner workings of SQL Server 2025 vector indexes and setup are out of scope in this README. For comprehensive guidance about SQL Server 2025 vector capabilities and setup, please refer to Scenario 08: `../08-Sql2025/README.md`.
 
+The root SDK is .NET 10.0.402. The Products and Functions projects deliberately use
+EF Core SQL Server 9.0.21, matching `EFCore.SqlServer.VectorSearch` 9.0.0; the InMemory
+test provider and local `dotnet-ef` tool use the same EF servicing version. Updating
+only the test provider to EF 10 is incompatible. See the root dependency baseline.
+
 ## Table of contents
 
 * [Search Features](#search-features)

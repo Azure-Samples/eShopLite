@@ -1,4 +1,4 @@
-﻿using McpToolsEntities;
+using McpToolsEntities;
 using ModelContextProtocol.Server;
 using Services;
 using System.ComponentModel;
@@ -19,7 +19,7 @@ public class WeatherTool
     public async Task<WeatherToolResponse> GetWeatherForCity(
         WeatherService weatherService,
         ILogger<ProductService> logger,
-        IMcpServer currentMcpServer,
+        McpServer currentMcpServer,
         [Description("The name of the city to get the weather information")] string cityName)
     {
         Console.WriteLine("==========================");

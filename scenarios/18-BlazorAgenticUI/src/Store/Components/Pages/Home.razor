@@ -1,0 +1,107 @@
+@page "/"
+@implements IDisposable
+@using AGUI.Client
+@using Microsoft.Extensions.AI
+@inject IHttpClientFactory HttpClients
+@inject CatalogClient Catalog
+@inject CartState Cart
+@inject IConfiguration Configuration
+@inject ILogger<Home> Logger
+
+<PageTitle>eShopLite | Blazor Agentic UI</PageTitle>
+<header>
+    <span>eShopLite / Scenario 18</span>
+    <h1>Your outdoor shopping companion</h1>
+    <p>Streaming recommendations, real catalog cards, and a cart that stays in your control.</p>
+    @if (Configuration.GetValue<bool>("Demo"))
+    {
+        <p class="notice" role="status">OFFLINE DEMO: deterministic protocol fixture, not a model. Search uses keywords, not embeddings.</p>
+    }
+</header>
+<main>
+    <section class="conversation" aria-label="Shopping assistant">
+        @if (_agent is not null)
+        {
+            <ChatPage Agent="_agent" Placeholder="Find camping equipment under $100, or ask to add a tent to the cart">
+                <WelcomeContent>
+                    <p>Try "Find camping equipment under $100" and then "Add the tent to my cart".</p>
+                    <p>The catalog does not describe weight or capacity. The assistant should not invent specifications.</p>
+                </WelcomeContent>
+                <MessageListContent>
+                    <ConversationNotice />
+                    <BlockRenderer TBlock="ProductSearchBlock">
+                        @if (context.HasResult && context.SearchResult is { } result)
+                        {
+                            <h3>Catalog results for "@result.Query"</h3>
+                            @if (result.Products.Length == 0) { <p>No matching products.</p> }
+                            <ProductCards Products="result.Products" />
+                        }
+                        else { <p role="status">Searching the product catalog...</p> }
+                    </BlockRenderer>
+                    <BlockRenderer TBlock="ProductDetailsBlock">
+                        @if (context.HasResult && context.Product is { } product)
+                        {
+                            <ProductCards Products="new[] { product }" />
+                        }
+                        else { <p role="status">Reading product details...</p> }
+                    </BlockRenderer>
+                    <BlockRenderer TBlock="UIActionBlock" When='block => block.ToolName == "confirm_add_to_cart"' Context="action">
+                        <CartApproval Block="action" @key="action" />
+                    </BlockRenderer>
+                </MessageListContent>
+            </ChatPage>
+        }
+    </section>
+    <aside aria-label="Your cart">
+        <h2>Your cart</h2>
+        <p>Session-only cart. No checkout or payment is performed.</p>
+        @if (Cart.Items.Count == 0) { <p>Your cart is empty.</p> }
+        @foreach (var item in Cart.Items)
+        {
+            <article class="cart-item">
+                <strong>@item.Product.Name</strong>
+                <p>@item.Quantity x @item.Product.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</p>
+                <button class="secondary" @onclick="() => Cart.Remove(item.Product.Id)">Remove @item.Product.Name</button>
+            </article>
+        }
+        <strong>Total: @Cart.Total.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</strong>
+    </aside>
+</main>
+<section class="catalog" aria-label="Product catalog">
+    <h2>Browse the catalog</h2>
+    @if (_catalogError is not null) { <p role="alert">@_catalogError</p> }
+    <ProductCards Products="_products" />
+</section>
+
+@code {
+    private UIAgent? _agent;
+    private IChatClient? _chatClient;
+    private Product[] _products = [];
+    private string? _catalogError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Cart.Changed += CartChanged;
+        _chatClient = new AGUIChatClient(new AGUIChatClientOptions(HttpClients.CreateClient("agent"), "/agent"));
+        var confirm = AIFunctionFactory.Create(
+            (int productId, bool accepted = false) => Cart.RespondAsync(productId, accepted),
+            name: "confirm_add_to_cart",
+            description: "Ask the user to approve adding one catalog product to their session cart. The UI supplies the decision.");
+        _agent = ShoppingConversation.Create(_chatClient, confirm);
+        try { _products = await Catalog.GetProductsAsync(); }
+        catch (HttpRequestException)
+        {
+            Logger.LogWarning("Initial product catalog request failed.");
+            _catalogError = "Catalog unavailable. Check the Products resource in the Aspire dashboard.";
+        }
+    }
+
+    private void CartChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Cart.Changed -= CartChanged;
+        _agent?.Dispose();
+        _chatClient?.Dispose();
+    }
+}

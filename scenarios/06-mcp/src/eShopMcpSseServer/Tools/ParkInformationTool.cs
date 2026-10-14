@@ -1,4 +1,4 @@
-﻿using McpToolsEntities;
+using McpToolsEntities;
 using ModelContextProtocol.Server;
 using Services;
 using System.ComponentModel;
@@ -21,7 +21,7 @@ public class ParkInformation
     public async Task<ParkInformationToolResponse> GetParkInformation(
         ParkInformationService parkInformationService,
         ILogger<ProductService> logger,
-        IMcpServer currentMcpServer,
+        McpServer currentMcpServer,
         [Description("The name of the park to get the information")] string parkName)
     {
         Console.WriteLine("==========================");

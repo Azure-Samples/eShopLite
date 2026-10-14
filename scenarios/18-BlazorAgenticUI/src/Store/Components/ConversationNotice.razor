@@ -1,0 +1,32 @@
+@implements IDisposable
+@inject ILogger<ConversationNotice> Logger
+
+@if (Context.Status == ConversationStatus.Error)
+{
+    <p role="alert">The assistant could not complete this response. Check the cart before retrying, then check the Agent resource in Aspire.</p>
+}
+else if (Context.Status == ConversationStatus.Streaming)
+{
+    <p role="status">The assistant is working. Model reasoning and catalog tools can take a moment.</p>
+}
+else if (Context.Status == ConversationStatus.AwaitingInput)
+{
+    <p role="status">Review the pending request below. Your cart will not change without approval.</p>
+}
+
+@code {
+    [CascadingParameter] public AgentContext Context { get; set; } = default!;
+    private IDisposable? _subscription;
+
+    protected override void OnInitialized() =>
+        _subscription = Context.RegisterOnStatusChanged(status =>
+        {
+            if (status == ConversationStatus.Error)
+            {
+                Logger.LogWarning("Shopping conversation failed ({FailureType}).", Context.Error?.GetType().Name);
+            }
+            _ = InvokeAsync(StateHasChanged);
+        });
+
+    public void Dispose() => _subscription?.Dispose();
+}

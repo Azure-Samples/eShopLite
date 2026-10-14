@@ -37,7 +37,7 @@ if (!string.IsNullOrEmpty(endpoint))
 }
 
 // create Mcp Client
-builder.Services.AddSingleton<IMcpClient>(serviceProvider =>
+builder.Services.AddSingleton<McpClient>(serviceProvider =>
 {
     // get named service for a HttpClient object named "productsHttpClient"
     var h = serviceProvider.GetService<IHttpClientFactory>();
@@ -54,14 +54,14 @@ builder.Services.AddSingleton<IMcpClient>(serviceProvider =>
     var name = $"services__{serviceName}__https__0";
     var url = Environment.GetEnvironmentVariable(name) + "/sse";
 
-    SseClientTransportOptions sseClientTransportOptions = new()
+    HttpClientTransportOptions sseClientTransportOptions = new()
     {
-        Endpoint = new Uri(url)
+        Endpoint = new Uri(url), TransportMode = HttpTransportMode.Sse
     };
 
-    SseClientTransport clientTransport = new(sseClientTransportOptions, httpClient);
+    HttpClientTransport clientTransport = new(sseClientTransportOptions, httpClient);
 
-    var mcpClient = McpClientFactory.CreateAsync(clientTransport, mcpClientOptions).GetAwaiter().GetResult();
+    var mcpClient = McpClient.CreateAsync(clientTransport, mcpClientOptions).GetAwaiter().GetResult();
     return mcpClient;
 });
 

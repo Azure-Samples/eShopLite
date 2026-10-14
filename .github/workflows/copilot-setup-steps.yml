@@ -20,10 +20,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up .NET 10
+      - name: Set up stable .NET and the experimental Blazor SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: |
+            10.0.402
+            11.0.100-rc.2.26504.105
 
-      - name: Install Aspire workload
-        run: dotnet workload install aspire
+      - name: Install Aspire CLI
+        run: dotnet tool install -g Aspire.Cli --version 13.6.1

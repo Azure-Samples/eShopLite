@@ -1,0 +1,69 @@
+@inject CatalogClient Catalog
+@inject ILogger<CartApproval> Logger
+
+<section class="approval" aria-label="Cart approval" aria-live="polite">
+    @if (Block.IsComplete)
+    {
+        <p>Decision sent to the assistant. See the cart for the current contents.</p>
+    }
+    else
+    {
+        <h3>Review cart request</h3>
+        @if (_product is not null)
+        {
+            <p>Add one <strong>@_product.Name</strong> at @_product.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))?</p>
+        }
+        @if (_error is not null)
+        {
+            <p role="alert">@_error</p>
+        }
+        <p>Nothing is added until you approve. This does not place an order.</p>
+        <button disabled="@(_product is null || _submitting)" @onclick="() => RespondAsync(true)">Approve add to cart</button>
+        <button class="secondary" disabled="@_submitting" @onclick="() => RespondAsync(false)">Reject</button>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired] public UIActionBlock Block { get; set; } = default!;
+    private Product? _product;
+    private string? _error;
+    private bool _submitting;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (Block.Call.Arguments?.TryGetValue("productId", out var value) != true ||
+                !int.TryParse(value?.ToString(), out var id) || id <= 0)
+            {
+                _error = "The assistant requested an invalid product. Reject this request.";
+                return;
+            }
+            _product = await Catalog.GetProductAsync(id);
+        }
+        catch (HttpRequestException)
+        {
+            Logger.LogWarning("Catalog lookup for cart approval failed.");
+            _error = "The product could not be verified. Reject the request or try again later.";
+        }
+    }
+
+    private async Task RespondAsync(bool accepted)
+    {
+        if (_submitting || Block.IsComplete || (accepted && _product is null)) { return; }
+        _submitting = true;
+        try
+        {
+            Block.Call.Arguments ??= new Dictionary<string, object?>();
+            // The decision comes only from these buttons, never from model-supplied arguments.
+            Block.Call.Arguments["accepted"] = accepted;
+            await Block.InvokeAsync();
+        }
+        catch (Exception ex) when (ex is HttpRequestException or InvalidOperationException)
+        {
+            Logger.LogWarning("Cart approval could not be applied ({FailureType}).", ex.GetType().Name);
+            _error = "The cart request failed. Check the cart before retrying.";
+        }
+        finally { _submitting = false; }
+    }
+}
