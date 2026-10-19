@@ -1,5 +1,5 @@
 {
-	"name": ".NET Aspire",
+	"name": "Aspire",
 	"image": "mcr.microsoft.com/devcontainers/dotnet:9.0-bookworm",
 	"features": {
 		"ghcr.io/devcontainers/features/azure-cli:1": {},
