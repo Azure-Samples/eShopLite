@@ -55,19 +55,10 @@ builder.Services.AddSingleton<ChromaCollectionClient>(serviceProvider =>
         logger.LogInformation($"ChromaDB client configuration, key: {chromaDbService.Key}");
         logger.LogInformation($"ChromaDB client configuration, value: {chromaDbService.Value}");
 
-        if (!string.IsNullOrEmpty(chromaDbUri) && !chromaDbUri.EndsWith("/api/v1"))
-        {
-            logger.LogInformation("ChromaDB connection string does not end with /api/v1, adding it");
-            chromaDbUri += "/api/v1";
-        }
-        logger.LogInformation($"ChromaDB client uri: {chromaDbUri}");
+        var chromaClient = new ChromaClient(chromaDbUri);
 
-        var configOptions = new ChromaConfigurationOptions(uri: chromaDbUri);
-        var httpChromaClient = new HttpClient();
-        var chromaClient = new ChromaClient(configOptions, httpChromaClient);
-
-        var collection = chromaClient.GetOrCreateCollection("products").GetAwaiter().GetResult();
-        chromaCollectionClient = new ChromaCollectionClient(collection, configOptions, httpChromaClient);
+        var collection = chromaClient.GetOrCreateCollectionAsync("products").GetAwaiter().GetResult();
+        chromaCollectionClient = chromaClient.GetCollectionClient(collection);
     }
     catch (Exception exc)
     {

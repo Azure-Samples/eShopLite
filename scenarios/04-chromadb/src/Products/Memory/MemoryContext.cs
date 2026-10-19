@@ -37,7 +37,6 @@ public class MemoryContext
 
         var productIds = new List<string>();
         var productDescriptionEmbeddings = new List<ReadOnlyMemory<float>>();
-        var productMetadata = new List<Dictionary<string, object>>();
 
         // iterate over the products and add them to the memory
         foreach (var product in products)
@@ -58,7 +57,7 @@ public class MemoryContext
         }
 
         // add the products to the memory
-        await _collectionClient!.Upsert(productIds, productDescriptionEmbeddings, productMetadata);
+        await _collectionClient!.UpsertAsync(productIds, productDescriptionEmbeddings);
 
         _logger.LogInformation("DONE! Filling products in memory");
         return true;
@@ -82,7 +81,7 @@ public class MemoryContext
             var embeddingsSearchQuery = await _embeddingGenerator!.GenerateVectorAsync(search);
 
             // search the vector database for the most similar product
-            var queryResult = await _collectionClient!.Query(
+            var queryResult = await _collectionClient!.QueryAsync(
                 queryEmbeddings: embeddingsSearchQuery,
                 nResults: 2,
                 include: ChromaQueryInclude.Metadatas | ChromaQueryInclude.Distances);
