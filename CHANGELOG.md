@@ -1,5 +1,43 @@
 # eShopLite Changelog
 
+## 2026-10-27
+
+### Changed
+
+- Completed the deferred MAFDevUI dependency migration to the repository's .NET 10,
+  Aspire 13.6.1, Agent Framework 1.24.0, MEAI 10.11.0, and OpenTelemetry 1.19 baseline.
+  Retained compatible DevUI/hosting prereleases and replaced legacy AzureAI integration
+  with `Microsoft.Agents.AI.Foundry`.
+- Migrated agent construction, existing Foundry agent references, and sequential
+  workflow streaming events. Registered the workflow as a DevUI agent and removed
+  the nested service provider used during Foundry setup.
+- Made local agents the default and Foundry mode explicitly opt-in. Foundry mode
+  validates its project endpoint; DevUI remains Development-only and loopback-only.
+- Switched Store model calls to the OpenAI-compatible Responses API so reasoning
+  models can invoke stock tools. Avoided the Azure SDK Responses wrapper's binary
+  incompatibility with the newer OpenAI SDK required by Agent Framework.
+- Patched transitive MessagePack and PKCS dependencies and removed redundant
+  System.Text.Json references. Added scenario setup and compatibility documentation.
+
+### Validation and known boundaries
+
+- The scenario solution builds in Debug and Release. Eight Products tests and nineteen Store tests pass,
+  including partial streamed JSON, no-fallback checkout, actual Store-host Responses
+  execution with a fake chat client, key/identity Responses client registration,
+  inference endpoint validation, and Production route exclusion.
+- The resolved direct/transitive dependency audit reports no known vulnerabilities.
+- Isolated Aspire startup reached healthy SQL, Products, and Store resources;
+  Store, DevUI, and agent discovery returned HTTP 200, with nine catalog products.
+- Live Azure CLI identity validation passed all nine product embeddings, semantic
+  search with a generated summary, real stock function invocation, buffered/SSE
+  Responses workflows, and the actual checkout orchestrator for Gold, Silver, and
+  Normal tiers without deterministic fallback.
+- After the user replaced the saved API key, key-based validation also passed
+  chat, all nine embeddings, semantic search, three checkout tiers, and streaming
+  stock function calls without identity overrides. The earlier HTTP 401 is resolved.
+  No Foundry project was configured for optional hosted-agent validation, and no
+  cloud deployment was performed.
+
 ## 2026-10-14
 
 ### Added
@@ -53,8 +91,7 @@
 - SQL-vector scenarios 08 and 12 retain EF Core and EF tools 9.0.21 because
   `EFCore.SqlServer.VectorSearch` 9.0.0 requires EF 9. A native EF 10 vector migration
   is separate work.
-- `scenarios\14-MAFDevUI` was not refreshed. Its local instructions require an unavailable
-  Azure best-practices tool before Azure-related work. This is a tooling prerequisite
-  blocking upgrade validation, not evidence of a reproduced application runtime failure.
+- MAFDevUI was initially deferred; its subsequent migration and validation boundaries
+  are recorded in the October 27 entry above.
 - Scenario 18 remains an experimental local sample, without production authentication,
   checkout, payment, durable carts, or a cloud deployment template.

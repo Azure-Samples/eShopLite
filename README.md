@@ -91,9 +91,14 @@ EF major. Upgrading the SQL vector provider to native EF 10 requires a separate 
 entity/query migration, not mixing EF 9 relational assemblies with EF 10 tests.
 Direct PKCS references select patched 10.0.13 instead of vulnerable transitive versions.
 
-`14-MAFDevUI` has not been refreshed: its local instructions require an Azure
-best-practices tool that is unavailable in this session. Its existing dependency versions
-are retained until that prerequisite is supplied. Builds and existing tests passed for
+The [MAFDevUI scenario](./scenarios/14-MAFDevUI/README.md) subsequently completed its
+compatible dependency and API migration after the Azure MCP prerequisite was supplied.
+Its build and 27 tests pass, including offline DevUI/Responses integration coverage.
+Live validation with both Azure CLI identity and the updated saved API key passed
+embeddings, stock tools, streaming workflows, and all three checkout tiers.
+Identity-mode orchestrator checks also confirmed no fallback.
+Optional Foundry-hosted agents remain unverified. Builds and
+existing tests passed for
 the other 17 existing scenario solutions (80 existing tests), and Scenario 18 has 29
 passing tests. Scenario 18 was also validated locally with SQL Server 2025, real Foundry
 embeddings, and `gpt-6-luna` via Responses: streamed catalog cards, cart rejection/approval,
