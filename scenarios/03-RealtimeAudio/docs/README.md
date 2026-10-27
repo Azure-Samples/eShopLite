@@ -8,12 +8,12 @@ The 03-RealtimeAudio scenario extends the basic eCommerce platform with cutting-
 
 ## Features Documentation
 
-- [Aspire Orchestration](./aspire-orchestration.md) - .NET Aspire service composition with realtime services
+- [Aspire Orchestration](../README.md) - Aspire service composition with realtime services
 - [Realtime Audio Integration](./realtime-audio-integration.md) - GPT-4o realtime conversation setup
-- [Azure OpenAI Integration](./azure-openai-integration.md) - Multi-model OpenAI configuration
-- [Store Realtime Service](./store-realtime-service.md) - Blazor Server app with audio capabilities
-- [Product Context Management](./product-context-management.md) - Real-time product information retrieval
-- [Conversation Management](./conversation-management.md) - Audio session handling and state management
+- [Azure OpenAI Integration](./azure-openai.md) - Multi-model OpenAI configuration
+- [Store Realtime Service](./store-realtime-ui.md) - Blazor Server app with audio capabilities
+- [Product Context Management](./realtime-audio-integration.md#integration-with-product-context) - Real-time product information retrieval
+- [Conversation Management](./realtime-audio-integration.md#realtime-audio-capabilities) - Audio session handling and state management
 
 ## Architecture
 
@@ -45,7 +45,7 @@ The 03-RealtimeAudio scenario extends the basic eCommerce platform with cutting-
 - **Azure OpenAI**: Multiple model deployments for different capabilities
 
 ### Key Technologies
-- **.NET Aspire**: Cloud-native orchestration and configuration
+- **Aspire**: Cloud-native orchestration and configuration
 - **OpenAI Realtime API**: GPT-4o-mini-realtime-preview for voice conversations
 - **Blazor Server**: Interactive web UI with SignalR for real-time updates
 - **Azure OpenAI**: Chat completion and text embedding services
@@ -121,5 +121,5 @@ The 03-RealtimeAudio scenario extends the basic eCommerce platform with cutting-
 
 - [Main Scenario README](../README.md)
 - [OpenAI Realtime API Documentation](https://platform.openai.com/docs/guides/realtime)
-- [Blazor Server Documentation](https://learn.microsoft.com/en-us/aspnet/core/blazor/hosting-models#blazor-server)
-- [.NET Aspire Documentation](https://learn.microsoft.com/en-us/dotnet/aspire/)
+- [Blazor Server Documentation](https://learn.microsoft.com/aspnet/core/blazor/hosting-models#blazor-server)
+- [Aspire Documentation](https://aspire.dev/docs/)

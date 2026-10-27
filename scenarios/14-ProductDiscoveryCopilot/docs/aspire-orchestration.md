@@ -2,7 +2,7 @@
 
 ## Overview
 
-The eShopLite Semantic Search scenario uses .NET Aspire for service orchestration, providing a cloud-native approach to manage dependencies, configuration, and deployment across development and production environments.
+The eShopLite Semantic Search scenario uses Aspire for service orchestration, providing a cloud-native approach to manage dependencies, configuration, and deployment across development and production environments.
 
 ## Service Architecture
 

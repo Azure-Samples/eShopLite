@@ -3,7 +3,7 @@
 ## Project Snapshot
 - Project: eShopLite
 - Requested by: Bruno Capuano
-- Stack: .NET 9, .NET Aspire, Blazor, Azure OpenAI, vector search patterns
+- Stack: .NET 9, Aspire, Blazor, Azure OpenAI, vector search patterns
 - Repo shape: scenario-driven monorepo under `scenarios/`
 
 ## Learnings

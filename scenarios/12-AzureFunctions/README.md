@@ -1,10 +1,10 @@
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE.md)
 
-# eShopLite – Store + Products + Semantic Search (.NET Aspire)
+# eShopLite – Store + Products + Semantic Search (Aspire)
 
 This repository contains a simplified e‑commerce sample (Store frontend + Products backend) extended with Semantic Search capabilities. The solution demonstrates:
 
-* Orchestration and service discovery using **.NET Aspire AppHost**
+* Orchestration and service discovery using **Aspire AppHost**
 * Three different product search experiences in the Store UI
 * Re–use of SQL Server 2025 vector search capabilities (single mention). For detailed guidance about SQL Server 2025 vector features, indexing, and setup, see the Scenario 08 documentation: `../08-Sql2025/README.md`.
 * Optional Azure Functions façade for semantic search
@@ -50,7 +50,7 @@ Animated examples were previously provided as GIFs; if/when assets are added bac
 
 ```mermaid
 flowchart LR
-     subgraph AppHost[.NET Aspire AppHost]
+     subgraph AppHost[Aspire AppHost]
           Store[<b>Store Blazor UI</b><br>3 search options]
           Products[Products Service]
           SemanticFn[Semantic Search Azure Function]
@@ -148,8 +148,7 @@ All semantic paths execute a SQL 2025 vector similarity search. For full technic
 
 ## Scenario 01 Guidance & Costs
 
-Scenario 01 (this repository baseline) guidance, including cost considerations (compute/container sizing, Azure Function consumption vs dedicated, SQL Server licensing / vector feature resource usage) is centralized in:  
-[`docs/scenario-01-guidance.md`](./docs/scenario-01-guidance.md)
+For the baseline setup and deployment guidance, see the [Scenario 01 README](../01-SemanticSearch/README.md). Estimate costs for the actual Azure Functions, container, SQL Server, and model resources selected for your deployment.
 
 Summary:
 

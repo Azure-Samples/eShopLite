@@ -8,12 +8,12 @@ The 05-deepseek scenario demonstrates a sophisticated eCommerce platform that in
 
 ## Features Documentation
 
-- [Aspire Orchestration](./aspire-orchestration.md) - .NET Aspire service composition with multiple AI providers
+- [Aspire Orchestration](../README.md) - Aspire service composition with multiple AI providers
 - [DeepSeek-R1 Integration](./deepseek-r1-integration.md) - DeepSeek-R1 model configuration and usage
-- [Dual AI Provider Setup](./dual-ai-provider-setup.md) - Managing multiple AI clients simultaneously
-- [Azure OpenAI Integration](./azure-openai-integration.md) - Traditional Azure OpenAI services
-- [Memory Context with Reasoning](./memory-context-reasoning.md) - Enhanced vector search with reasoning
-- [Advanced Search Capabilities](./advanced-search-capabilities.md) - Reasoning-enhanced product discovery
+- [Dual AI Provider Setup](./deepseek-r1-integration.md#dual-ai-strategy-implementation) - Managing multiple AI clients simultaneously
+- [Azure OpenAI Integration](../README.md) - Traditional Azure OpenAI services
+- [Memory Context with Reasoning](./deepseek-r1-integration.md#integration-with-memory-context) - Enhanced vector search with reasoning
+- [Advanced Search Capabilities](./deepseek-r1-integration.md#reasoning-enhanced-search) - Reasoning-enhanced product discovery
 
 ## Architecture
 
@@ -45,7 +45,7 @@ The 05-deepseek scenario demonstrates a sophisticated eCommerce platform that in
 - **DeepSeek-R1**: Advanced reasoning model for complex queries
 
 ### Key Technologies
-- **.NET Aspire**: Cloud-native orchestration
+- **Aspire**: Cloud-native orchestration
 - **DeepSeek-R1**: Advanced reasoning and analysis capabilities
 - **Azure OpenAI**: Traditional chat and embedding services
 - **Dual Provider Architecture**: Keyed services for multiple AI clients
@@ -153,5 +153,5 @@ The DeepSeek-R1 integration enables:
 
 - [Main Scenario README](../README.md)
 - [DeepSeek-R1 Documentation](https://www.deepseek.com/)
-- [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/cognitive-services/openai-service/)
-- [.NET Aspire Documentation](https://learn.microsoft.com/en-us/dotnet/aspire/)
+- [Azure OpenAI Service](https://azure.microsoft.com/products/cognitive-services/openai-service/)
+- [Aspire Documentation](https://aspire.dev/docs/)

@@ -1,6 +1,6 @@
 ﻿# eShopLite - Semantic Search with Chroma DB
 
-eShopLite is a reference .NET application that implements an eCommerce site with advanced search features, including both keyword and semantic search capabilities. This version utilizes [Chroma DB](https://devblogs.microsoft.com/dotnet/announcing-chroma-db-csharp-sdk/), an open-source database designed for AI applications, to enhance semantic search functionality.
+eShopLite is a reference .NET application that implements an eCommerce site with advanced search features, including both keyword and semantic search capabilities. This version utilizes [Chroma DB](https://www.nuget.org/packages/ChromaDotNet.Client), an open-source database designed for AI applications, to enhance semantic search functionality.
 
 ## Features
 
@@ -56,8 +56,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 - [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio](https://visualstudio.microsoft.com/downloads/)
   - If using Visual Studio Code, install the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit)
-- .NET Aspire workload:
-    Installed with the [Visual Studio installer](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire) or the [.NET CLI workload](https://learn.microsoft.com/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio#install-net-aspire).
+- [Aspire CLI](https://aspire.dev/get-started/install-cli/) — install with `dotnet tool install -g Aspire.Cli`
 - An OCI compliant container runtime, such as:
   - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/).
 
@@ -68,13 +67,13 @@ From a Terminal window, open the folder with the clone of this repo and run the 
    Instead of using the the Chroma Docker image to start a local instance of Chroma DB.
 
    ```bash
-   docker run -p 8000:8000 chromadb/chroma
+   docker run -p 8000:8000 chromadb/chroma:1.5.9
    ```
 
    Aspire Host will create a persistent container for Chroma DB, which will be used to store the embeddings and metadata for the products.
 
    ```csharp
-    var chromaDB = builder.AddContainer("chroma", "chromadb/chroma")
+    var chromaDB = builder.AddContainer("chroma", "chromadb/chroma", "1.5.9")
         .WithHttpEndpoint(port: 8000, targetPort: 8000, name: "chromaendpoint")
         .WithLifetime(ContainerLifetime.Persistent);
 
@@ -88,7 +87,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
 
 1. **Connect to Chroma DB in Your Application**: 
 
-   The `ChromaDB.Client` NuGet package will allow the connections to the ChromaDB in your `Products` project.
+   The [ChromaDotNet.Client](https://www.nuget.org/packages/ChromaDotNet.Client) NuGet package will allow the connections to the ChromaDB in your `Products` project.
 
    ```csharp
    using ChromaDB.Client;
@@ -96,16 +95,14 @@ From a Terminal window, open the folder with the clone of this repo and run the 
    var chromaDbService = _config.GetSection("services:chroma:chromaendpoint:0");
    var chromaDbUri = chromaDbService.Value;
 
-   var configOptions = new ChromaConfigurationOptions(uri: $"{chromaDbUri}/api/v1/");
-   _httpChromaClient = new HttpClient();
-   var client = new ChromaClient(configOptions, _httpChromaClient);
+   var client = new ChromaClient(chromaDbUri);
    ```
 
 1. **Create a Collection**: Create a collection in Chroma DB to store your product data.
 
    ```csharp
-   var collection = await client.GetOrCreateCollection("products");
-   _collectionClient = new ChromaCollectionClient(collection, configOptions, _httpChromaClient);
+   var collection = await client.GetOrCreateCollectionAsync("products");
+   _collectionClient = client.GetCollectionClient(collection);
    ```
 
 1. **Add Data to the Collection**: Add your product data, including embeddings and metadata, to the collection.
@@ -113,7 +110,6 @@ From a Terminal window, open the folder with the clone of this repo and run the 
    ```csharp
     var productIds = new List<string>();
     var productDescriptionEmbeddings = new List<ReadOnlyMemory<float>>();
-    var productMetadata = new List<Dictionary<string, object>>();
 
     // iterate over the products and add them to the memory
     foreach (var product in products)
@@ -134,7 +130,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
     }
 
     // add the products to the memory
-    await _collectionClient.Upsert(productIds, productDescriptionEmbeddings, productMetadata);
+    await _collectionClient.UpsertAsync(productIds, productDescriptionEmbeddings);
 
    ```
 
@@ -151,7 +147,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
     };
 
     // search the vector database for the most similar product        
-    var queryResult = await _collectionClient.Query(
+    var queryResult = await _collectionClient.QueryAsync(
         queryEmbeddings: embeddingsSearchQuery,
         nResults: 2,
         include: ChromaQueryInclude.Metadatas | ChromaQueryInclude.Distances);
@@ -183,7 +179,7 @@ Follow these steps to run the project, locally or in CodeSpaces:
   dotnet dev-certs https --trust
   ```
 
-- By default the AppHost project creates the necessary resources on Azure. Check the **[.NET Aspire Azure Resources creation](#net-aspire-azure-resources-creation)** section to learn how to configure the project to create Azure resources.
+- By default the AppHost project creates the necessary resources on Azure. See [Local Azure provisioning](https://aspire.dev/integrations/cloud/azure/local-provisioning/) to learn how to configure the project to create Azure resources.
 
 - Run the project:
 
@@ -193,7 +189,7 @@ Follow these steps to run the project, locally or in CodeSpaces:
 
 Check the [Video Resources](#resources) for a step-by-step on how to run this project.
 
-> **Note:** Working with .NET Aspire in GitHub Codespaces requires manual steps to access the .NET Aspire portal, such as changing ports to public and copying the access token.
+> **Note:** Working with Aspire in GitHub Codespaces requires manual steps to access the Aspire dashboard, such as changing ports to public and copying the access token.
 
 ### Local development using an existing gpt-4.1-mini and ada-002 model
 
@@ -212,7 +208,7 @@ aspire secret set Parameters:AzureOpenAIEmbeddingsDeploymentName "text-embedding
 
 ## Resources
 
-- [Chroma DB C# SDK Announcement](https://devblogs.microsoft.com/dotnet/announcing-chroma-db-csharp-sdk/)
+- [Chroma DB C# SDK Announcement](https://www.nuget.org/packages/ChromaDotNet.Client)
 - [eShopLite Semantic Search Sample](https://github.com/Azure-Samples/eShopLite-SemanticSearch)
 
 ## Guidance
@@ -247,10 +243,10 @@ You may want to consider additional security measures, such as:
 
 ## Resources
 
-- [Deploy a .NET Aspire project to Azure Container Apps using the Azure Developer CLI (in-depth guide)](https://learn.microsoft.com/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth)
+- [Use Azure Developer CLI workflows with Aspire](https://aspire.dev/deployment/azure/azure-developer-cli/)
 
 - [Aspiring .NET Applications with Azure OpenAI](https://learn.microsoft.com/shows/azure-developers-dotnet-aspire-day-2024/aspiring-dotnet-applications-with-azure-openai)
 
 ### Video Recordings
 
-[![Run eShopLite Semantic Search in Minutes with .NET Aspire & GitHub Codespaces 🚀](./images/90ytrunfromcodespaces.png)](https://youtu.be/T9HwjVIDPAE)
+[![Run eShopLite Semantic Search in Minutes with Aspire & GitHub Codespaces 🚀](./images/90ytrunfromcodespaces.png)](https://youtu.be/T9HwjVIDPAE)
