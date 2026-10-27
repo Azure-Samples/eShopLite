@@ -125,12 +125,12 @@ Only one workflow file sets up .NET:
 ## Decision Rationale
 1. **Single Source of Truth:** No `global.json` exists; workflows are the authoritative .NET version configuration
 2. **Minimal Scope:** Only `copilot-setup-steps.yml` explicitly configures .NET; other workflows (CodeQL, squad triage, validation) do not require SDK setup
-3. **Aspire Compatibility:** .NET Aspire workload installation remains unchanged (works with both 9.x and 10.x)
+3. **Aspire Compatibility:** Aspire CLI installation is supported with .NET 10
 4. **Scenario Independence:** No scenario-specific workflows affected; change is globally applicable
 
 ## Testing Considerations
 - Workflow will be tested on next manual trigger or Copilot agent setup
-- Aspire workload should install successfully with .NET 10.0.x
+- Aspire CLI should install successfully with .NET 10.0.x
 - No breaking changes expected in setup flow
 
 ## Related Decisions
@@ -1734,5 +1734,4 @@ Note: 14-MAFDevUI's AppHost is at the scenario root (`eShopAppHost\Program.cs`),
 - All 63 tests: PASS (0 failures, 0 unexpected skips)
 - SK references: Only the 1 documented allowed exception in 02-AzureAISearch
 - Parameters: All 13 scenarios correctly configured
-
 

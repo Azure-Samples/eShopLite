@@ -59,7 +59,7 @@ Updated all markdown documentation to reflect the .NET 10 / Aspire 13.0.1 / MEAI
 | `scenarios/03-RealtimeAudio/README.md` | `.NET 9` → `.NET 10`; replaced old connection strings for Products+RealtimeStore with 5 parameters in eShopAppHost (adds `AzureOpenAIRealtimeDeploymentName`) |
 | `scenarios/04-chromadb/README.md` | `.NET 9` → `.NET 10`; old `openai` user secret → 4 parameters in eShopAppHost; removed "Aspire 9.1" note |
 | `scenarios/05-deepseek/README.md` | `.NET 9` → `.NET 10`; replaced 2 connection strings with 7 parameters (`AzureOpenAI*` × 4 + `DeepSeek*` × 3); updated troubleshooting note |
-| `scenarios/06-mcp/README.md` | `.NET 9` → `.NET 10`; `ConnectionStrings:openaidev` → 4 parameters; removed duplicate .NET Aspire section |
+| `scenarios/06-mcp/README.md` | `.NET 9` → `.NET 10`; `ConnectionStrings:openaidev` → 4 parameters; removed duplicate Aspire section |
 | `scenarios/07-AgentsConcurrent/README.md` | `.NET 9` → `.NET 10`; `ConnectionStrings:openai` → 4 parameters; title/description/features/references updated from Semantic Kernel to Microsoft Agent Framework; removed old Aspire 9.1 note |
 | `scenarios/08-Sql2025/README.md` | Updated `EmbeddingClient` code snippet → `IEmbeddingGenerator`; added local dev user-secrets section |
 | `scenarios/09-AzureAppService/README.md` | Added local dev user-secrets section with 4 AOAI parameters |

@@ -15,16 +15,12 @@ The shopping cart feature enables users to:
 
 ### 1. Home Page with Cart Navigation
 
-![Home Page](https://github.com/user-attachments/assets/471c89df-8be3-4b39-a4b6-90bbeb31e551)
-
 The home page features:
 - Clean, modern interface with purple gradient sidebar
 - Shopping cart icon in the top navigation
 - Easy access to Products, Search, and Cart sections
 
 ### 2. Products Page with Add to Cart Functionality
-
-![Products Page](https://github.com/user-attachments/assets/40198bf8-ed66-4e59-a34b-74f24edb1ffe)
 
 The products listing includes:
 - Product images, names, descriptions, and prices
@@ -42,16 +38,12 @@ These notifications appear briefly to confirm successful cart additions, providi
 
 ### 4. Dynamic Cart Icon with Item Count
 
-![Cart with Item Badge](cart_with_item_badge.png)
-
 The shopping cart icon dynamically updates to show:
 - Real-time item count badge
 - Visual feedback when items are added
 - Easy access to cart contents
 
 ### 5. Comprehensive Shopping Cart Page
-
-![Shopping Cart Page](shopping_cart_page.png)
 
 The cart page provides full cart management:
 

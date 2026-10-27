@@ -42,6 +42,8 @@ jobs:
         with:
           command: check_urls_locale
           directory: ./
+          # AG-UI is a protocol name, not a country locale.
+          skip-urls-containing: 'https://learn.microsoft.com/agent-framework/integrations/by-component/ui/ag-ui/'
           guide-url: 'https://github.com/Azure-Samples/eShopLite/blob/main/CONTRIBUTING.md'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 

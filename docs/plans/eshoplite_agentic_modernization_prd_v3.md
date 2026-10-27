@@ -1718,9 +1718,9 @@ Acceptance criteria:
 - Aspire 13.4: https://aspire.dev/whats-new/aspire-13-4/
 - Aspire 13.4 Foundry Hosted Agents section: https://aspire.dev/whats-new/aspire-13-4/#foundry-hosted-agent-commands-and-fixes
 - Aspire deployment docs: https://aspire.dev/deployment/
-- Microsoft Agent Framework overview: https://learn.microsoft.com/en-us/agent-framework/overview/
-- Microsoft Agent Framework A2A integration: https://learn.microsoft.com/en-us/agent-framework/integrations/a2a
-- Microsoft Agent Framework DevUI: https://learn.microsoft.com/en-us/agent-framework/devui/
+- Microsoft Agent Framework overview: https://learn.microsoft.com/agent-framework/overview/
+- Microsoft Agent Framework A2A integration: https://learn.microsoft.com/agent-framework/integrations/a2a
+- Microsoft Agent Framework DevUI: https://learn.microsoft.com/agent-framework/devui/
 - MAF + A2A + NVIDIA NeMo Agents sample: https://github.com/elbruno/MAF-A2A-NVIDIA-NemoAgents
 
 # 25. Final recommended story

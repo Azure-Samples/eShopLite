@@ -8,7 +8,7 @@ This document describes a Product Requirements Document (PRD) for adding a mock 
 ## Purpose
 
 - Provide a lightweight, mock payment flow for the `Store` frontend so checkout can be demonstrated end-to-end without integrating a real payment provider.
-- Introduce a new Blazor Server-based Payment Service that is registered with .NET Aspire and persists payment records to a new `paymentsdb`.
+- Introduce a new Blazor Server-based Payment Service that is registered with Aspire and persists payment records to a new `paymentsdb`.
 
 ## Scope (what we'll deliver)
 

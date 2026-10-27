@@ -165,9 +165,9 @@ See the root README's dependency baseline for the exact boundaries.
 
 - [Build Agentic UI with the new Blazor AI components](https://devblogs.microsoft.com/dotnet/build-agentic-ui-blazor/)
 - [ASP.NET Core 11 release notes: experimental Blazor AI components](https://learn.microsoft.com/aspnet/core/release-notes/aspnetcore-11?view=aspnetcore-11.0#blazor)
-- [Official .NET downloads](https://dotnet.microsoft.com/en-us/download/dotnet)
-- [.NET Aspire releases](https://github.com/microsoft/aspire/releases)
-- [AG-UI integration with Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framework/integrations/by-component/ui/ag-ui/)
+- [Official .NET downloads](https://dotnet.microsoft.com/download/dotnet)
+- [Aspire releases](https://github.com/microsoft/aspire/releases)
+- [AG-UI integration with Microsoft Agent Framework](https://learn.microsoft.com/agent-framework/integrations/by-component/ui/ag-ui/)
 - [Scenario 01: Semantic Search](../01-SemanticSearch/README.md)
 - [Scenario 01 Products API](../01-SemanticSearch/src/Products/Endpoints/ProductEndpoints.cs)
 - [Scenario 01 Blazor search page](../01-SemanticSearch/src/Store/Components/Pages/Search.razor)
