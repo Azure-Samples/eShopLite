@@ -1,14 +1,15 @@
 using AgentServices;
 using AgentServices.Checkout;
 using AgentServices.Stock.Tools;
-using Azure.AI.OpenAI;
 using Azure.Identity;
 using Microsoft.Agents.AI.DevUI;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.Extensions.AI;
+using OpenAI;
 using Store.Components;
 using Store.Services;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,6 @@ builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddHttpClient<ProductService>(
     static client => client.BaseAddress = new("http+https://products"));
 
-builder.Services.AddScoped<StockSearchTool>();
 builder.Services.AddHttpClient<StockSearchTool>(client =>
 {
     client.BaseAddress = new Uri("http+https://products");
@@ -43,21 +43,48 @@ var chatDeploymentName = builder.Configuration["AzureOpenAIDeploymentName"] ?? "
 
 if (!string.IsNullOrEmpty(endpoint))
 {
-    AzureOpenAIClient aoaiClient = string.IsNullOrEmpty(apiKey)
-        ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
-        : new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+    if (!Uri.TryCreate(endpoint, UriKind.Absolute, out var modelEndpoint) ||
+        modelEndpoint.Scheme != Uri.UriSchemeHttps ||
+        !string.IsNullOrEmpty(modelEndpoint.UserInfo) ||
+        !string.IsNullOrEmpty(modelEndpoint.Query) ||
+        !string.IsNullOrEmpty(modelEndpoint.Fragment) ||
+        modelEndpoint.AbsolutePath.TrimEnd('/') is not ("" or "/openai/v1"))
+    {
+        throw new InvalidOperationException("AzureOpenAIEndpoint must be an HTTPS inference endpoint, not a Foundry project URL.");
+    }
+
+    var clientOptions = new OpenAIClientOptions
+    {
+        Endpoint = new Uri(modelEndpoint.GetLeftPart(UriPartial.Authority) + "/openai/v1/")
+    };
+#pragma warning disable OPENAI001 // Responses and Entra authentication support reasoning models with function tools.
+    OpenAIClient aoaiClient = string.IsNullOrEmpty(apiKey)
+        ? new OpenAIClient(new BearerTokenPolicy(new DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"), clientOptions)
+        : new OpenAIClient(new ApiKeyCredential(apiKey), clientOptions);
 
     builder.Services.AddSingleton(aoaiClient);
-    builder.Services.AddChatClient(aoaiClient.GetChatClient(chatDeploymentName).AsIChatClient())
+    builder.Services.AddChatClient(aoaiClient.GetResponsesClient().AsIChatClient(chatDeploymentName))
         .UseFunctionInvocation()
         .UseOpenTelemetry(configure: c =>
             c.EnableSensitiveData = builder.Environment.IsDevelopment());
+#pragma warning restore OPENAI001
 }
 
 // Add Agent settings and agents
 builder.AddAgentSettings();
-//builder.AddeShopLiteAIAgents();
-builder.AddeShopLiteFoundryAgents();
+if (builder.Configuration.GetValue<bool>("AgentSettings:UseFoundryAgents"))
+{
+    builder.AddeShopLiteFoundryAgents();
+}
+else
+{
+    if (string.IsNullOrWhiteSpace(endpoint))
+    {
+        throw new InvalidOperationException("Local agent mode requires AzureOpenAIEndpoint.");
+    }
+
+    builder.AddeShopLiteAIAgents();
+}
 
 // Add the orchestrator that uses the registered AIAgents directly
 builder.Services.AddScoped<AgentCheckoutOrchestrator>();
@@ -67,7 +94,10 @@ builder.Services.AddOpenAIResponses();
 builder.Services.AddOpenAIConversations();
 
 // DEMO Step 5: Add DevUI for agent debugging and visualization
-builder.AddDevUI();
+if (builder.Environment.IsDevelopment())
+{
+    builder.AddDevUI();
+}
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -97,7 +127,7 @@ if (builder.Environment.IsDevelopment())
     // DEMO Step 5: Map DevUI and related endpoints for agent debugging
     app.MapOpenAIResponses();
     app.MapOpenAIConversations();
-    
+
     // Map DevUI endpoint to /devui
     app.MapDevUI();
 }
@@ -105,3 +135,4 @@ if (builder.Environment.IsDevelopment())
 app.Logger.LogInformation("Starting Store app...");
 app.Run();
 
+public partial class Program { }

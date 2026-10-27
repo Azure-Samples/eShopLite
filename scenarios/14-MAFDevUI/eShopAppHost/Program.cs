@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var sql = builder.AddSqlServer("sql")
@@ -20,9 +22,6 @@ var aoaiApiKey = builder.AddParameter("AzureOpenAIApiKey", secret: true);
 var aoaiChatDeployment = builder.AddParameter("AzureOpenAIDeploymentName");
 var aoaiEmbeddingsDeployment = builder.AddParameter("AzureOpenAIEmbeddingsDeploymentName");
 
-// Azure AI Foundry project endpoint for Foundry-hosted MAF agents
-var microsoftfoundryproject = builder.AddConnectionString("microsoftfoundryproject");
-
 var chatDeploymentName = "gpt-5-mini";
 var embeddingsDeploymentName = "text-embedding-3-small";
 
@@ -33,7 +32,6 @@ var products = builder.AddProject<Projects.Products>("products")
     .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
     .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
     .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment)
-    .WithReference(microsoftfoundryproject)
     .WithExternalHttpEndpoints();
 
 var store = builder.AddProject<Projects.Store>("store")
@@ -43,8 +41,14 @@ var store = builder.AddProject<Projects.Store>("store")
     .WithEnvironment("AzureOpenAIApiKey", aoaiApiKey)
     .WithEnvironment("AzureOpenAIDeploymentName", aoaiChatDeployment)
     .WithEnvironment("AzureOpenAIEmbeddingsDeploymentName", aoaiEmbeddingsDeployment)
-    .WithReference(microsoftfoundryproject)
     .WithExternalHttpEndpoints();
+
+if (builder.Configuration.GetValue<bool>("AgentSettings:UseFoundryAgents"))
+{
+    var foundryProject = builder.AddConnectionString("microsoftfoundryproject");
+    store.WithReference(foundryProject)
+        .WithEnvironment("AgentSettings__UseFoundryAgents", "true");
+}
 
 if (builder.ExecutionContext.IsPublishMode)
 {
@@ -67,4 +71,3 @@ if (builder.ExecutionContext.IsPublishMode)
 }
 
 builder.Build().Run();
-

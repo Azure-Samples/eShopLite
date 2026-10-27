@@ -3,7 +3,6 @@ using AgentServices.Configuration;
 using AgentServices.Discount;
 using AgentServices.Models;
 using AgentServices.Stock;
-using AgentServices.Triage;
 using CartEntities;
 using DataEntities;
 using Microsoft.Agents.AI;
@@ -28,10 +27,9 @@ public class AgentCheckoutOrchestrator
 {
     private readonly ILogger<AgentCheckoutOrchestrator> _logger;
 
-    private readonly AIAgent _stockAgent;
-    private readonly AIAgent _discountAgent;
-    private readonly AIAgent _triageAgent;
-    private Workflow _workflow;
+    private readonly string _stockExecutorId;
+    private readonly string _discountExecutorId;
+    private readonly Workflow _workflow;
 
     // Workflow name for identification in logs and debugging
     public const string WorkflowNameSequential = "CheckoutWorkflowSequential";
@@ -43,10 +41,11 @@ public class AgentCheckoutOrchestrator
         ILogger<AgentCheckoutOrchestrator> logger)
     {
         _logger = logger;
-        _stockAgent = serviceProvider.GetRequiredKeyedService<AIAgent>(StockAgentService.AgentName);
-        _discountAgent = serviceProvider.GetRequiredKeyedService<AIAgent>(DiscountAgentService.AgentName);
-        _triageAgent = serviceProvider.GetRequiredKeyedService<AIAgent>(TriageAgentService.AgentName);
-        _workflow = serviceProvider.GetKeyedService<Workflow>(WorkflowNameSequential);
+        _stockExecutorId = new AIAgentBinding(
+            serviceProvider.GetRequiredKeyedService<AIAgent>(StockAgentService.AgentName), emitEvents: false).Id;
+        _discountExecutorId = new AIAgentBinding(
+            serviceProvider.GetRequiredKeyedService<AIAgent>(DiscountAgentService.AgentName), emitEvents: false).Id;
+        _workflow = serviceProvider.GetRequiredKeyedService<Workflow>(WorkflowNameSequential);
     }
 
     /// <summary>
@@ -69,18 +68,6 @@ public class AgentCheckoutOrchestrator
         {
             _logger.LogInformation("Building Sequential Workflow with StockAgent → DiscountAgent");
 
-            // Build a handoff workflow using AgentWorkflowBuilder
-            if(_workflow == null && _triageAgent != null)
-            {
-                var handoffWorkflow = AgentWorkflowBuilder.CreateHandoffBuilderWith(_triageAgent)
-                    .WithHandoffs(_triageAgent, [_stockAgent, _discountAgent]) // Triage routes to specialists
-                    .WithHandoff(_stockAgent, _triageAgent)                    // Stock can return to triage
-                    .WithHandoff(_discountAgent, _triageAgent)                 // Discount can return to triage
-                    .Build();
-                _workflow = handoffWorkflow;
-            }
-
-
             // Build the input message for the workflow
             var itemsSummary = string.Join(", ", request.Cart.Items.Select(i => $"{i.Name} (${i.Price:F2} x {i.Quantity})"));
             var inputMessage = $$"""
@@ -102,30 +89,32 @@ public class AgentCheckoutOrchestrator
 
             // Execute the workflow using InProcessExecution
             var messages = new List<ChatMessage> { new(ChatRole.User, inputMessage) };
-            var run = await InProcessExecution.RunAsync(_workflow, messages);
-
-            // Process all workflow events from both agents
-            var workflowEvents = run.OutgoingEvents
-                .OfType<AgentRunResponseEvent>()
-                .ToList();
+            await using var run = await InProcessExecution.RunAsync(_workflow, messages);
+            // Sequential workflows emit streaming updates, including partial JSON responses.
+            var responses = run.OutgoingEvents
+                .OfType<AgentResponseUpdateEvent>()
+                .GroupBy(e => e.ExecutorId)
+                .ToDictionary(group => group.Key, group => string.Concat(group.Select(e => e.Update.Text)));
 
             // Record StockAgent step from workflow events
-            var stockEvent = workflowEvents.FirstOrDefault(e =>
-                e.Response.Text?.Contains("stock", StringComparison.OrdinalIgnoreCase) == true ||
-                e.Response.Text?.Contains("ship", StringComparison.OrdinalIgnoreCase) == true);
+            responses.TryGetValue(_stockExecutorId, out var stockResponse);
 
             var stockStep = new AgentStep
             {
                 Name = StockAgentService.AgentName,
                 Timestamp = DateTime.UtcNow,
-                Status = "Success",
-                Message = stockEvent?.Response.Text?.Trim() ?? "All items are in stock and ready to ship!"
+                Status = string.IsNullOrWhiteSpace(stockResponse) ? "Warning" : "Success",
+                Message = string.IsNullOrWhiteSpace(stockResponse)
+                    ? "No stock validation response was received." : stockResponse.Trim()
             };
+            if (string.IsNullOrWhiteSpace(stockResponse))
+            {
+                _logger.LogWarning("No response received from StockAgent");
+            }
             result.AgentSteps.Add(stockStep);
             _logger.LogInformation("StockAgent completed - Status: {Status}", stockStep.Status);
 
-            // Record DiscountAgent step from workflow events (last event is typically from the last agent)
-            var discountEvent = workflowEvents.LastOrDefault();
+            responses.TryGetValue(_discountExecutorId, out var discountResponse);
 
             var discountStep = new AgentStep
             {
@@ -133,10 +122,10 @@ public class AgentCheckoutOrchestrator
                 Timestamp = DateTime.UtcNow
             };
 
-            if (discountEvent?.Response.Text != null)
+            if (!string.IsNullOrWhiteSpace(discountResponse))
             {
                 _logger.LogInformation("Sequential Workflow completed. Parsing response...");
-                var discountResult = ParseDiscountResponse(discountEvent.Response.Text, request.Cart.Subtotal, request.MembershipTier);
+                var discountResult = ParseDiscountResponse(discountResponse, request.Cart.Subtotal, request.MembershipTier);
 
                 result.DiscountAmount = discountResult.DiscountAmount;
                 result.DiscountReason = discountResult.DiscountReason;

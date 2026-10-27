@@ -1,3 +1,3 @@
 - @azure Rule - Use Azure Tools - When handling requests related to Azure, always use your tools.
-- @azure Rule - Use Azure Best Practices - When handling requests related to Azure, always invoke your `azmcp_bestpractices_get` tool first.
-- @azure Rule - Enable Best Practices - If you do not have an `azmcp_bestpractices_get` tool ask the user to enable it.
+- @azure Rule - Use Azure Best Practices - Before Azure-related work, invoke the Azure MCP best-practices capability (`azmcp_bestpractices_get` in older servers, or `get_azure_bestpractices` in current servers). For AI applications, use its AI application best-practices command.
+- @azure Rule - Enable Best Practices - If no equivalent Azure MCP best-practices capability is available, ask the user to enable it.
