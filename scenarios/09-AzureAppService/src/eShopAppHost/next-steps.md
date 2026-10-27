@@ -18,8 +18,8 @@ To troubleshoot any issues, see [troubleshooting](#troubleshooting).
 ### Configure CI/CD pipeline
 
 1. Create a workflow pipeline file locally. The following starters are available:
-   - [Deploy with GitHub Actions](https://github.com/Azure-Samples/azd-starter-bicep/blob/main/.github/workflows/azure-dev.yml)
-   - [Deploy with Azure Pipelines](https://github.com/Azure-Samples/azd-starter-bicep/blob/main/.azdo/pipelines/azure-dev.yml)
+   - [Deploy with GitHub Actions](https://learn.microsoft.com/azure/developer/azure-developer-cli/pipeline-github-actions)
+   - [Deploy with Azure Pipelines](https://learn.microsoft.com/azure/developer/azure-developer-cli/pipeline-azure-pipelines)
 2. Run `azd pipeline config -e <environment name>` to configure the deployment pipeline to connect securely to Azure. An environment name is specified here to configure the pipeline with a different environment for isolation purposes. Run `azd env list` and `azd env set` to reselect the default environment after this step.
 
 ## What was added

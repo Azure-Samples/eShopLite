@@ -12,7 +12,7 @@ public static class AgentsExtensions
         services.AddKeyedSingleton<AIAgent>(SentimentAgent.AgentName, (sp, _) =>
         {
             var chatClient = sp.GetRequiredService<IChatClient>();
-            return chatClient.CreateAIAgent(
+            return new ChatClientAgent(chatClient,
                 name: SentimentAgent.AgentName,
                 instructions: SentimentAgent.Instructions);
         });
@@ -21,7 +21,7 @@ public static class AgentsExtensions
         services.AddKeyedSingleton<AIAgent>(LanguageAgent.AgentName, (sp, _) =>
         {
             var chatClient = sp.GetRequiredService<IChatClient>();
-            return chatClient.CreateAIAgent(
+            return new ChatClientAgent(chatClient,
                 name: LanguageAgent.AgentName,
                 instructions: LanguageAgent.Instructions);
         });

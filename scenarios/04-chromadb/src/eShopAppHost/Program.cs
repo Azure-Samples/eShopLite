@@ -6,7 +6,7 @@ var sqldb = builder.AddSqlServer("sql")
     .WithDataVolume()
     .AddDatabase("sqldb");
 
-var chromaDB = builder.AddContainer("chroma", "chromadb/chroma")
+var chromaDB = builder.AddContainer("chroma", "chromadb/chroma", "1.5.9")
     .WithHttpEndpoint(port: 8000, targetPort: 8000, name: "chromaendpoint")
     .WithLifetime(ContainerLifetime.Persistent)
     .PublishAsContainer();

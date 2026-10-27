@@ -1,4 +1,4 @@
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE.md)
 
 # eShopLite – Store + Products + Semantic Search (Aspire)
 
@@ -10,6 +10,11 @@ This repository contains a simplified e‑commerce sample (Store frontend + Prod
 * Optional Azure Functions façade for semantic search
 
 > NOTE: Detailed inner workings of SQL Server 2025 vector indexes and setup are out of scope in this README. For comprehensive guidance about SQL Server 2025 vector capabilities and setup, please refer to Scenario 08: `../08-Sql2025/README.md`.
+
+The root SDK is .NET 10.0.402. The Products and Functions projects deliberately use
+EF Core SQL Server 9.0.21, matching `EFCore.SqlServer.VectorSearch` 9.0.0; the InMemory
+test provider and local `dotnet-ef` tool use the same EF servicing version. Updating
+only the test provider to EF 10 is incompatible. See the root dependency baseline.
 
 ## Table of contents
 
@@ -143,8 +148,7 @@ All semantic paths execute a SQL 2025 vector similarity search. For full technic
 
 ## Scenario 01 Guidance & Costs
 
-Scenario 01 (this repository baseline) guidance, including cost considerations (compute/container sizing, Azure Function consumption vs dedicated, SQL Server licensing / vector feature resource usage) is centralized in:  
-[`docs/scenario-01-guidance.md`](./docs/scenario-01-guidance.md)
+For the baseline setup and deployment guidance, see the [Scenario 01 README](../01-SemanticSearch/README.md). Estimate costs for the actual Azure Functions, container, SQL Server, and model resources selected for your deployment.
 
 Summary:
 

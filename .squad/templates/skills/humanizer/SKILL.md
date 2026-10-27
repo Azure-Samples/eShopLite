@@ -28,7 +28,7 @@ Use this skill whenever PAO drafts external-facing responses for issues or discu
 10. **Baseline comparison** — Responses should align with tone of 5-10 "gold standard" responses (>80% similarity threshold)
 11. **Empathetic disagreement** — "We hear you. That's a fair concern." before explaining the reasoning
 12. **Information request** — Ask for specific details, not open-ended "can you provide more info?"
-13. **No link-dumping** — Don't just paste URLs. Provide context: "Check out the [getting started guide](url) — specifically the section on routing" not just a bare link
+13. **No link-dumping** — Don't just paste URLs. Provide context: "Check out the [getting started guide](https://example.com/) — specifically the section on routing" not just a bare link
 
 ## Examples
 

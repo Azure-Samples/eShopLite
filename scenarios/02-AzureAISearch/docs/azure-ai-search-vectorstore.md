@@ -90,7 +90,7 @@ A search of NuGet for:
 The only published Azure AI Search VectorData connector is:
 - **`Microsoft.SemanticKernel.Connectors.AzureAISearch`** — latest: `1.74.0-preview`  
   → [NuGet Gallery](https://www.nuget.org/packages/Microsoft.SemanticKernel.Connectors.AzureAISearch/)  
-  → [Microsoft Learn — using the connector](https://learn.microsoft.com/en-us/semantic-kernel/concepts/vector-store-connectors/out-of-the-box-connectors/azure-ai-search-connector)
+  → [Microsoft Learn — using the connector](https://learn.microsoft.com/semantic-kernel/concepts/vector-store-connectors/out-of-the-box-connectors/azure-ai-search-connector)
 
 For comparison, the in-memory connector *has* been moved out of the SK namespace:
 - `CommunityToolkit.VectorData.InMemory` (used by scenarios `01`, `05`, `06`, `07`, `08`, `11`, `12`, `14` in this repo)

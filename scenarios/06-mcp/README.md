@@ -1,5 +1,5 @@
 <!-- filepath: d:\azure-samples\eShopLite\scenarios\06-mcp\README.md -->
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE.md)
 
 ## Description
 
@@ -227,7 +227,7 @@ The eShopLite MCP solution leverages the Aspire Dashboard and Azure Application 
 
 ## Resources
 
-- [Model Context Protocol (MCP) Specification](https://github.com/modelcontextprotocol/mcp)
+- [Model Context Protocol (MCP) Specification](https://modelcontextprotocol.io/)
 - [MCP C# SDK Documentation](https://modelcontextprotocol.github.io/csharp-sdk/)
 - [Aspire Documentation](https://aspire.dev/docs/)
 - [Azure OpenAI Service Documentation](https://learn.microsoft.com/azure/ai-services/openai/)

@@ -6,8 +6,8 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Markdig" Version="0.41.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0" />
+    <PackageReference Include="Markdig" Version="1.4.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.19.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataEntities\DataEntities.csproj" />

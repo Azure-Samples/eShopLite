@@ -34,10 +34,10 @@ public class Generator(
         await Task.WhenAll(sentimentRunTask, languageRunTask);
 
         var sentimentResult = sentimentRunTask.Result.OutgoingEvents
-            .OfType<AgentRunResponseEvent>()
+            .OfType<AgentResponseEvent>()
             .LastOrDefault()?.Response.Text ?? "";
         var languageResult = languageRunTask.Result.OutgoingEvents
-            .OfType<AgentRunResponseEvent>()
+            .OfType<AgentResponseEvent>()
             .LastOrDefault()?.Response.Text ?? "";
 
         var analysisResult = TransformToAnalysis([sentimentResult, languageResult]);

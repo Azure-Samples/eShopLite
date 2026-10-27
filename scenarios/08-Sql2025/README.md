@@ -1,4 +1,4 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE.md)
 
 ## Description
 
@@ -61,6 +61,12 @@ This is the eShopLite Application running, performing a **Semantic Search**:
   ```
 
 ## Getting Started
+
+The root `global.json` selects .NET SDK 10.0.402. This scenario's SQL vector extension
+(`EFCore.SqlServer.VectorSearch` 9.0.0) requires EF Core 9, so SQL Server and InMemory
+providers are deliberately aligned on the latest 9.0.21 servicing release, as is the
+local `dotnet-ef` tool. Do not update only the InMemory provider to EF 10: that mixes
+incompatible EF assemblies. Native EF 10 vector support needs an entity/query migration.
 
 ## Main Concepts in this Scenario
 

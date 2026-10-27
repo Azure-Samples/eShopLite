@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -9,6 +9,7 @@
 
 
 	<ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
     <Compile Remove="Data\**" />
     <Compile Remove="Memory\**" />
     <Content Remove="Data\**" />
@@ -27,21 +28,21 @@
     <Compile Include="Memory\MemoryContext.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.4.2-preview.1.26303.6" />
-    <PackageReference Include="Aspire.Azure.Search.Documents" Version="13.4.2" />
-    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.4.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.8">
+    <PackageReference Include="Aspire.Azure.AI.OpenAI" Version="13.6.1-preview.1.26506.6" />
+    <PackageReference Include="Aspire.Azure.Search.Documents" Version="13.6.1" />
+    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.6.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.13">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.6.0" />
-    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.6.0" />
+    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.11.0" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.11.0" />
     <!-- Azure AI Search VectorData connector: only provider implementing Microsoft.Extensions.VectorData
          abstractions for Azure AI Search. Ships under Microsoft.SemanticKernel.* namespace but has
          no SK kernel/chat/agent dependency — it is the one unavoidable SK-named package here. -->
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureAISearch" Version="1.74.0-preview" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.19.0" />
     <!--AI Search NuGet packages-->
   </ItemGroup>
   <ItemGroup>

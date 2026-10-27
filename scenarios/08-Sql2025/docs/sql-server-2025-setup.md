@@ -2,7 +2,7 @@
 
 ## Overview
 
-This scenario demonstrates the setup and configuration of [SQL Server 2025](https://learn.microsoft.com/en-us/sql/sql-server/sql-server-2025-overview) with [native vector search capabilities](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors). The setup includes container configuration, vector feature enablement, and integration with Aspire for seamless orchestration.
+This scenario demonstrates the setup and configuration of [SQL Server 2025](https://learn.microsoft.com/sql/sql-server/what-s-new-in-sql-server-2025) with [native vector search capabilities](https://learn.microsoft.com/sql/sql-server/ai/vectors). The setup includes container configuration, vector feature enablement, and integration with Aspire for seamless orchestration.
 
 ## Container Configuration
 
@@ -53,7 +53,7 @@ builder.Services.AddDbContext<Context>(options =>
 
 ### Native Vector Data Types
 
-SQL Server 2025 introduces the native [`VECTOR` data type](https://learn.microsoft.com/en-us/sql/t-sql/data-types/vector-data-type):
+SQL Server 2025 introduces the native [`VECTOR` data type](https://learn.microsoft.com/sql/t-sql/data-types/vector-data-type):
 
 ```sql
 -- Vector column definition in table
@@ -69,7 +69,7 @@ CREATE TABLE Products (
 
 ### Vector Index Creation
 
-Create a [vector index](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql) for optimized similarity search using the [DiskANN algorithm](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors#approximate-vector-index-and-vector-search-approximate-nearest-neighbors):
+Create a [vector index](https://learn.microsoft.com/sql/t-sql/statements/create-vector-index-transact-sql) for optimized similarity search using the [DiskANN algorithm](https://learn.microsoft.com/sql/sql-server/ai/vectors#approximate-vector-index-and-vector-search-approximate-nearest-neighbors):
 
 > **Note**: In SQL Server 2025, vector indexes are a preview feature. You must enable preview features first in the target database:
 > ```sql
@@ -185,7 +185,7 @@ public class Context(DbContextOptions options) : DbContext(options)
 
 ### Vector Operations
 
-Using [`VECTOR_DISTANCE`](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-distance-transact-sql) via Entity Framework (from `ProductApiActions.cs`):
+Using [`VECTOR_DISTANCE`](https://learn.microsoft.com/sql/t-sql/functions/vector-distance-transact-sql) via Entity Framework (from `ProductApiActions.cs`):
 
 ```csharp
 var products = await db.Product
@@ -302,9 +302,9 @@ builder.Services.AddDbContext<Context>(options =>
 
 ## Additional Resources
 
-- [SQL Server 2025 Overview (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/sql-server/sql-server-2025-overview)
-- [Vector Search Overview (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors)
-- [VECTOR Data Type (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/t-sql/data-types/vector-data-type)
-- [CREATE VECTOR INDEX (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql)
-- [VECTOR_DISTANCE Function (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-distance-transact-sql)
+- [SQL Server 2025 Overview (Microsoft Learn)](https://learn.microsoft.com/sql/sql-server/what-s-new-in-sql-server-2025)
+- [Vector Search Overview (Microsoft Learn)](https://learn.microsoft.com/sql/sql-server/ai/vectors)
+- [VECTOR Data Type (Microsoft Learn)](https://learn.microsoft.com/sql/t-sql/data-types/vector-data-type)
+- [CREATE VECTOR INDEX (Microsoft Learn)](https://learn.microsoft.com/sql/t-sql/statements/create-vector-index-transact-sql)
+- [VECTOR_DISTANCE Function (Microsoft Learn)](https://learn.microsoft.com/sql/t-sql/functions/vector-distance-transact-sql)
 - [EFCore.SqlServer.VectorSearch NuGet Package](https://www.nuget.org/packages/EFCore.SqlServer.VectorSearch/)

@@ -56,7 +56,7 @@ eShopLite is a modular Aspire-based reference eCommerce platform demonstrating a
   ```
 ## References
 - See each scenario's README for scenario-specific setup, configuration, and troubleshooting.
-- Main docs: [README.md](../../README.md), [scenarios/*/README.md](../..)
+- Main docs: [README.md](../README.md), [scenarios/*/README.md](../..)
 ---
 - @azure Rule - Use Azure Best Practices: When generating code for Azure, running terminal commands for Azure, or performing operations related to Azure, invoke your `azure_development-get_best_practices` tool if available.
 - @azure Rule - Use Azure Best Practices: When generating code for Azure, running terminal commands for Azure, or performing operations related to Azure, invoke your `azure_development-get_best_practices` tool if available.

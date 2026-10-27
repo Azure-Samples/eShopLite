@@ -10,10 +10,10 @@ The 08-Sql2025 scenario demonstrates cutting-edge database capabilities by lever
 
 - [SQL Server 2025 Setup](./sql-server-2025-setup.md) - Container configuration and vector search enablement
 - [Native Vector Search](./native-vector-search.md) - SQL Server 2025 vector operations and indexing
-- [Azure OpenAI Integration](./azure-openai-integration.md) - Embedding generation and chat services
-- [Entity Framework Vector Support](./entity-framework-vector-support.md) - EF Core integration with vector data types
-- [Modern Database Features](./modern-database-features.md) - SQL Server 2025 enhancements and capabilities
-- [Performance Optimization](./performance-optimization.md) - Vector indexing and query optimization
+- [Azure OpenAI Integration](../README.md) - Embedding generation and chat services
+- [Entity Framework Vector Support](./native-vector-search.md) - EF Core integration with vector data types
+- [Modern Database Features](./sql-server-2025-setup.md) - SQL Server 2025 enhancements and capabilities
+- [Performance Optimization](./native-vector-search.md) - Vector indexing and query optimization
 
 ## Architecture
 
@@ -199,7 +199,7 @@ The application automatically:
 ## Related Resources
 
 - [Main Scenario README](../README.md)
-- [SQL Server 2025 Documentation](https://docs.microsoft.com/en-us/sql/relational-databases/vector-search/)
-- [Entity Framework Vector Support](https://learn.microsoft.com/en-us/ef/core/providers/sql-server/vector-search)
-- [Microsoft.Extensions.AI](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.ai)
-- [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/cognitive-services/openai-service/)
+- [SQL Server 2025 Documentation](https://learn.microsoft.com/sql/sql-server/ai/vectors)
+- [Entity Framework Vector Support](https://learn.microsoft.com/ef/core/providers/sql-server/vector-search)
+- [Microsoft.Extensions.AI](https://learn.microsoft.com/dotnet/api/microsoft.extensions.ai)
+- [Azure OpenAI Service](https://azure.microsoft.com/products/cognitive-services/openai-service/)

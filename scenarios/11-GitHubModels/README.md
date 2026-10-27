@@ -1,6 +1,6 @@
 # eShopLite Scenario 11 — GitHub Models (local-first)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE.md)
 
 This scenario runs eShopLite locally using GitHub Models for chat and embeddings. When you publish/deploy, the app automatically uses Azure OpenAI without code changes. All deployment, telemetry, costs, and security guidance live in Scenario 01 and are not duplicated here.
 

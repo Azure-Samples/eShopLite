@@ -2,9 +2,9 @@
 
 ## Overview
 
-SQL Server 2025 introduces [native vector search capabilities](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors) that eliminate the need for external vector databases. This implementation demonstrates how to leverage built-in vector data types, indexing, and similarity search directly within SQL Server.
+SQL Server 2025 introduces [native vector search capabilities](https://learn.microsoft.com/sql/sql-server/ai/vectors) that eliminate the need for external vector databases. This implementation demonstrates how to leverage built-in vector data types, indexing, and similarity search directly within SQL Server.
 
-> **Note**: In SQL Server 2025, vector features are in preview. To use vector indexes and `VECTOR_SEARCH`, you must enable [preview features](https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql#preview_features---on--off-):
+> **Note**: In SQL Server 2025, vector features are in preview. To use vector indexes and `VECTOR_SEARCH`, you must enable [preview features](https://learn.microsoft.com/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql#preview_features---on--off-):
 >
 > ```sql
 > ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON;
@@ -14,7 +14,7 @@ SQL Server 2025 introduces [native vector search capabilities](https://learn.mic
 
 ### Native Vector Support
 
-SQL Server 2025 provides a native [`VECTOR` data type](https://learn.microsoft.com/en-us/sql/t-sql/data-types/vector-data-type) for storing high-dimensional embeddings. Vectors are stored in an optimized binary format but exposed as JSON arrays for convenience.
+SQL Server 2025 provides a native [`VECTOR` data type](https://learn.microsoft.com/sql/t-sql/data-types/vector-data-type) for storing high-dimensional embeddings. Vectors are stored in an optimized binary format but exposed as JSON arrays for convenience.
 
 ```sql
 -- Vector column definition (default float32 precision)
@@ -101,7 +101,7 @@ public class Context(DbContextOptions options) : DbContext(options)
 
 ### VECTOR_DISTANCE Function
 
-The [`VECTOR_DISTANCE`](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-distance-transact-sql) function calculates the exact distance between two vectors. It performs an exact search and **does not use vector indexes**.
+The [`VECTOR_DISTANCE`](https://learn.microsoft.com/sql/t-sql/functions/vector-distance-transact-sql) function calculates the exact distance between two vectors. It performs an exact search and **does not use vector indexes**.
 
 **Syntax:**
 
@@ -135,7 +135,7 @@ ORDER BY Distance ASC;
 
 ### CREATE VECTOR INDEX
 
-For larger datasets (50,000+ vectors), create a [vector index](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql) to enable Approximate Nearest Neighbor (ANN) search using the [DiskANN algorithm](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors#approximate-vector-index-and-vector-search-approximate-nearest-neighbors):
+For larger datasets (50,000+ vectors), create a [vector index](https://learn.microsoft.com/sql/t-sql/statements/create-vector-index-transact-sql) to enable Approximate Nearest Neighbor (ANN) search using the [DiskANN algorithm](https://learn.microsoft.com/sql/sql-server/ai/vectors#approximate-vector-index-and-vector-search-approximate-nearest-neighbors):
 
 **Syntax:**
 
@@ -170,7 +170,7 @@ WITH (METRIC = 'cosine', TYPE = 'DiskANN');
 
 ### VECTOR_SEARCH Function
 
-The [`VECTOR_SEARCH`](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-search-transact-sql) function performs approximate nearest neighbor search using a vector index:
+The [`VECTOR_SEARCH`](https://learn.microsoft.com/sql/t-sql/functions/vector-search-transact-sql) function performs approximate nearest neighbor search using a vector index:
 
 **Syntax:**
 
@@ -313,9 +313,9 @@ var sql = builder.AddSqlServer("sql")
 
 ## References
 
-- [Vector Data Type (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/t-sql/data-types/vector-data-type)
-- [VECTOR_DISTANCE Function (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-distance-transact-sql)
-- [VECTOR_SEARCH Function (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-search-transact-sql)
-- [CREATE VECTOR INDEX (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql)
-- [Vector Search Overview (Microsoft Learn)](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors)
+- [Vector Data Type (Microsoft Learn)](https://learn.microsoft.com/sql/t-sql/data-types/vector-data-type)
+- [VECTOR_DISTANCE Function (Microsoft Learn)](https://learn.microsoft.com/sql/t-sql/functions/vector-distance-transact-sql)
+- [VECTOR_SEARCH Function (Microsoft Learn)](https://learn.microsoft.com/sql/t-sql/functions/vector-search-transact-sql)
+- [CREATE VECTOR INDEX (Microsoft Learn)](https://learn.microsoft.com/sql/t-sql/statements/create-vector-index-transact-sql)
+- [Vector Search Overview (Microsoft Learn)](https://learn.microsoft.com/sql/sql-server/ai/vectors)
 - [EFCore.SqlServer.VectorSearch NuGet Package](https://www.nuget.org/packages/EFCore.SqlServer.VectorSearch/)

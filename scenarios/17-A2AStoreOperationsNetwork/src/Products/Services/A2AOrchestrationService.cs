@@ -132,9 +132,9 @@ public class A2AOrchestrationService : IA2AOrchestrationService
         {
             Parts = new List<Part>
             {
-                new TextPart { Text = JsonSerializer.Serialize(new { productId = productId }) }
+                Part.FromText(JsonSerializer.Serialize(new { productId }))
             },
-            Role = MessageRole.User
+            Role = Role.User
         };
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Products.Models;
 using DataEntities;
 using Products.Endpoints;
@@ -113,7 +113,7 @@ namespace Products.Tests
             }
             using (var context = new Context(_dbOptions))
             {
-                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+                await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () =>
                 {
                     await ProductApiActions.DeleteProduct(40, context);
                 });

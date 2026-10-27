@@ -64,7 +64,9 @@ namespace Products.Tests
             
             var firstProduct = result.Products.First();
             Assert.AreEqual("Hiking Boots", firstProduct.Name);
-            Assert.IsTrue(firstProduct.Stock >= 0); // Mock should return some stock
+            Assert.AreEqual(42, firstProduct.Stock);
+            Assert.AreEqual(1, firstProduct.Promotions.Count);
+            Assert.AreEqual(1, firstProduct.Insights.Count);
         }
 
         [TestMethod]

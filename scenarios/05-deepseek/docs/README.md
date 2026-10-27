@@ -8,12 +8,12 @@ The 05-deepseek scenario demonstrates a sophisticated eCommerce platform that in
 
 ## Features Documentation
 
-- [Aspire Orchestration](./aspire-orchestration.md) - Aspire service composition with multiple AI providers
+- [Aspire Orchestration](../README.md) - Aspire service composition with multiple AI providers
 - [DeepSeek-R1 Integration](./deepseek-r1-integration.md) - DeepSeek-R1 model configuration and usage
-- [Dual AI Provider Setup](./dual-ai-provider-setup.md) - Managing multiple AI clients simultaneously
-- [Azure OpenAI Integration](./azure-openai-integration.md) - Traditional Azure OpenAI services
-- [Memory Context with Reasoning](./memory-context-reasoning.md) - Enhanced vector search with reasoning
-- [Advanced Search Capabilities](./advanced-search-capabilities.md) - Reasoning-enhanced product discovery
+- [Dual AI Provider Setup](./deepseek-r1-integration.md#dual-ai-strategy-implementation) - Managing multiple AI clients simultaneously
+- [Azure OpenAI Integration](../README.md) - Traditional Azure OpenAI services
+- [Memory Context with Reasoning](./deepseek-r1-integration.md#integration-with-memory-context) - Enhanced vector search with reasoning
+- [Advanced Search Capabilities](./deepseek-r1-integration.md#reasoning-enhanced-search) - Reasoning-enhanced product discovery
 
 ## Architecture
 
@@ -153,5 +153,5 @@ The DeepSeek-R1 integration enables:
 
 - [Main Scenario README](../README.md)
 - [DeepSeek-R1 Documentation](https://www.deepseek.com/)
-- [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/cognitive-services/openai-service/)
+- [Azure OpenAI Service](https://azure.microsoft.com/products/cognitive-services/openai-service/)
 - [Aspire Documentation](https://aspire.dev/docs/)

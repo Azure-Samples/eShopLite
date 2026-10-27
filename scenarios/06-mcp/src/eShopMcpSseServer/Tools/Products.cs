@@ -1,4 +1,4 @@
-﻿using McpToolsEntities;
+using McpToolsEntities;
 using ModelContextProtocol.Server;
 using SearchEntities;
 using Services;
@@ -14,7 +14,7 @@ public class Products
     public async Task<ProductsSearchToolResponse> SemanticSearchProducts(
         ProductService productService,
         ILogger<ProductService> logger,
-        IMcpServer currentMcpServer,
+        McpServer currentMcpServer,
         [Description("The search query to be used in the products search")] string query)
     {
         logger.LogInformation("==========================");
@@ -46,7 +46,7 @@ public class Products
     public async Task<ProductsSearchToolResponse> KeyWordSearchProducts(
     ProductService productService,
     ILogger<ProductService> logger,
-    IMcpServer currentMcpServer,
+    McpServer currentMcpServer,
     [Description("The search query to be used in the products search")] string query)
     {
         logger.LogInformation("==========================");

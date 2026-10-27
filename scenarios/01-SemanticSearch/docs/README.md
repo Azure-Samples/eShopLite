@@ -12,7 +12,7 @@ The 01-SemanticSearch scenario demonstrates a comprehensive eCommerce platform w
 - [Azure OpenAI Integration](./azure-openai-integration.md) - Chat and embedding client setup
 - [Semantic Search](./semantic-search.md) - Vector-based product search implementation
 - [Memory Context](./memory-context.md) - In-memory vector store for product embeddings
-- [SQL Server Database](./sql-server-database.md) - Entity Framework and data modeling
+- [SQL Server Database](./sql-server.md) - Entity Framework and data modeling
 - [Product API Endpoints](./product-api-endpoints.md) - REST API for product operations
 
 ## Architecture
@@ -84,6 +84,6 @@ The solution uses Aspire's configuration system with support for:
 
 - [Main Scenario README](../README.md)
 - [Aspire Documentation](https://aspire.dev/docs/)
-- [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/cognitive-services/openai-service/)
+- [Azure OpenAI Service](https://azure.microsoft.com/products/cognitive-services/openai-service/)
 - [Microsoft.Extensions.AI](https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai)
 - [CommunityToolkit.VectorData](https://www.nuget.org/packages/CommunityToolkit.VectorData.InMemory)

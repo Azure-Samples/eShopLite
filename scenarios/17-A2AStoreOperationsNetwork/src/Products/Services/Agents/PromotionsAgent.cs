@@ -64,7 +64,7 @@ public class PromotionsAgent
         try
         {
             // Extract product ID from message parts
-            var textPart = message.Parts?.OfType<TextPart>().FirstOrDefault();
+            var textPart = message.Parts?.FirstOrDefault(part => part.Text is not null);
             if (textPart == null || string.IsNullOrEmpty(textPart.Text))
             {
                 return JsonSerializer.Serialize(new { error = "No product ID provided" });
