@@ -68,13 +68,13 @@ From a Terminal window, open the folder with the clone of this repo and run the 
    Instead of using the the Chroma Docker image to start a local instance of Chroma DB.
 
    ```bash
-   docker run -p 8000:8000 chromadb/chroma
+   docker run -p 8000:8000 chromadb/chroma:1.5.9
    ```
 
    Aspire Host will create a persistent container for Chroma DB, which will be used to store the embeddings and metadata for the products.
 
    ```csharp
-    var chromaDB = builder.AddContainer("chroma", "chromadb/chroma")
+    var chromaDB = builder.AddContainer("chroma", "chromadb/chroma", "1.5.9")
         .WithHttpEndpoint(port: 8000, targetPort: 8000, name: "chromaendpoint")
         .WithLifetime(ContainerLifetime.Persistent);
 
@@ -88,7 +88,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
 
 1. **Connect to Chroma DB in Your Application**: 
 
-   The `ChromaDB.Client` NuGet package will allow the connections to the ChromaDB in your `Products` project.
+   The [ChromaDotNet.Client](https://www.nuget.org/packages/ChromaDotNet.Client) NuGet package will allow the connections to the ChromaDB in your `Products` project.
 
    ```csharp
    using ChromaDB.Client;
@@ -96,16 +96,14 @@ From a Terminal window, open the folder with the clone of this repo and run the 
    var chromaDbService = _config.GetSection("services:chroma:chromaendpoint:0");
    var chromaDbUri = chromaDbService.Value;
 
-   var configOptions = new ChromaConfigurationOptions(uri: $"{chromaDbUri}/api/v1/");
-   _httpChromaClient = new HttpClient();
-   var client = new ChromaClient(configOptions, _httpChromaClient);
+   var client = new ChromaClient(chromaDbUri);
    ```
 
 1. **Create a Collection**: Create a collection in Chroma DB to store your product data.
 
    ```csharp
-   var collection = await client.GetOrCreateCollection("products");
-   _collectionClient = new ChromaCollectionClient(collection, configOptions, _httpChromaClient);
+   var collection = await client.GetOrCreateCollectionAsync("products");
+   _collectionClient = client.GetCollectionClient(collection);
    ```
 
 1. **Add Data to the Collection**: Add your product data, including embeddings and metadata, to the collection.
@@ -113,7 +111,6 @@ From a Terminal window, open the folder with the clone of this repo and run the 
    ```csharp
     var productIds = new List<string>();
     var productDescriptionEmbeddings = new List<ReadOnlyMemory<float>>();
-    var productMetadata = new List<Dictionary<string, object>>();
 
     // iterate over the products and add them to the memory
     foreach (var product in products)
@@ -134,7 +131,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
     }
 
     // add the products to the memory
-    await _collectionClient.Upsert(productIds, productDescriptionEmbeddings, productMetadata);
+    await _collectionClient.UpsertAsync(productIds, productDescriptionEmbeddings);
 
    ```
 
@@ -151,7 +148,7 @@ From a Terminal window, open the folder with the clone of this repo and run the 
     };
 
     // search the vector database for the most similar product        
-    var queryResult = await _collectionClient.Query(
+    var queryResult = await _collectionClient.QueryAsync(
         queryEmbeddings: embeddingsSearchQuery,
         nResults: 2,
         include: ChromaQueryInclude.Metadatas | ChromaQueryInclude.Distances);
