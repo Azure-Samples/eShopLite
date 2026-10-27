@@ -1,0 +1,4 @@
+**/bin/
+**/obj/
+**/catalog-demo.db*
+.aspire/

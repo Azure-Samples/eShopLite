@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="Agent/Agent.csproj" />
+  <Project Path="Contracts/Contracts.csproj" />
+  <Project Path="Products/Products.csproj" />
+  <Project Path="Scenario.Tests/Scenario.Tests.csproj" />
+  <Project Path="Store/Store.csproj" />
+  <Project Path="eShopAppHost/eShopAppHost.csproj" />
+  <Project Path="eShopServiceDefaults/eShopServiceDefaults.csproj" />
+</Solution>

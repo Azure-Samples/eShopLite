@@ -16,7 +16,7 @@
 
 **eShopLite** is a set of reference .NET applications implementing an eCommerce site with features like Semantic Search, Model Context Protocol (MCP), Reasoning models, vector databases, and more.
 
-> - ☁️ **All scenarios in this repository use the latest version of .NET and leverage .NET Aspire to orchestrate the entire solution.**
+> - ☁️ **Scenarios use .NET and Aspire, with a stable .NET 10 baseline and an isolated .NET 11 RC2 scenario for experimental Blazor AI components. See the dependency baseline below for compatibility exceptions.**
 > - 🌟 Don't forget to **[star (🌟) this repo](https://docs.github.com/en/get-started/exploring-projects-on-github/saving-repositories-with-stars)** to find it easier later.
 > - ➡️ Get your own copy by **[Forking this repo](https://github.com/azure-samples/eshoplite/fork)** and find it next in your own repositories.
 > - ❓ **Have a question?** Besides creating [issues](https://github.com/azure-samples/eshoplite/issues) or [pull requests](https://github.com/azure-samples/eshoplite/pulls), the best option for questions is to join the [Azure AI Discord channel](https://discord.com/invite/ByRwuEEgH4), where a team of AI experts can help you.
@@ -55,16 +55,74 @@ The project includes several scenarios demonstrating different capabilities:
 | [15 - Store Intelligence Report](./scenarios/15-StoreIntelligenceReport/) | Generates daily business and operational store intelligence reports. | App data, telemetry, AI summarization, reports |
 | [16 - MCP Store Operations Tools](./scenarios/16-MCPStoreOperationsTools/) | Exposes safe store capabilities as MCP tools for agent use. | MCP, Aspire, app APIs, tool calling |
 | [17 - A2A Store Operations Network](./scenarios/17-A2AStoreOperationsNetwork/) | Shows specialized agents collaborating around the store app through A2A. | A2A, Microsoft Agent Framework, hosted agents |
+| [18 - Blazor Agentic UI](./scenarios/18-BlazorAgenticUI/) | Experimental streaming shopping assistant with catalog cards and human-approved cart actions. | .NET 11 RC2, Blazor AI components, AG-UI, Microsoft Agent Framework, Aspire |
+
+New to Scenario 18? Start with its [three-step quick start](./scenarios/18-BlazorAgenticUI/README.md),
+then explore the [screenshots](./scenarios/18-BlazorAgenticUI/docs/WALKTHROUGH.md) and
+[blog-to-code walkthrough](./scenarios/18-BlazorAgenticUI/docs/CODE_WALKTHROUGH.md).
 
 ## Getting Started
 
 ### Prerequisites
 
-- [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [.NET 10 SDK 10.0.402](https://dotnet.microsoft.com/download/dotnet/10.0), pinned in the root `global.json`
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Podman](https://podman.io/)
 - [Azure Developer CLI (azd)](https://aka.ms/install-azd) (for Azure deployment)
 - [Git](https://git-scm.com/downloads)
-- [Aspire CLI](https://aspire.dev) — install with `dotnet tool install -g aspire.cli` (used for setting local secrets via `aspire secret set`)
+- [Aspire CLI](https://aspire.dev): install with `dotnet tool install -g Aspire.Cli --version 13.6.1` (used for setting local secrets via `aspire secret set`)
+
+### Dependency baseline
+
+The October 14, 2026 refresh updates the 17 existing scenarios other than `14-MAFDevUI`
+to Aspire 13.6.1 and the latest compatible NuGet releases. The root SDK stays on stable
+.NET 10; [Scenario 18](./scenarios/18-BlazorAgenticUI/) overrides it with .NET 11 RC2
+for the experimental Blazor components. Install both SDKs to work on all scenarios.
+
+The refresh includes Microsoft.Extensions.AI 10.11.0, OpenTelemetry 1.19,
+Microsoft Agent Framework 1.24.0, MCP 2.2.0, and A2A 1.0.0-preview3 where used.
+Existing prerelease dependencies remain prerelease where no stable replacement provides
+the required functionality. MCP SSE transports and A2A text parts have been migrated to
+the current APIs rather than merely changing package versions.
+
+Scenarios 08 and 12 deliberately retain the latest EF Core 9 servicing release, 9.0.21:
+their `EFCore.SqlServer.VectorSearch` 9.0.0 provider requires that EF major. The other
+EF-backed scenarios use 10.0.13. Local `dotnet-ef` tool manifests follow the matching
+EF major. Upgrading the SQL vector provider to native EF 10 requires a separate vector
+entity/query migration, not mixing EF 9 relational assemblies with EF 10 tests.
+Direct PKCS references select patched 10.0.13 instead of vulnerable transitive versions.
+
+`14-MAFDevUI` has not been refreshed: its local instructions require an Azure
+best-practices tool that is unavailable in this session. Its existing dependency versions
+are retained until that prerequisite is supplied. Builds and existing tests passed for
+the other 17 existing scenario solutions (80 existing tests), and Scenario 18 has 29
+passing tests. Scenario 18 was also validated locally with SQL Server 2025, real Foundry
+embeddings, and `gpt-6-luna` via Responses: streamed catalog cards, cart rejection/approval,
+missing product specifications, and restart against existing data. These checks do not
+establish cloud deployability or validate every other scenario against real models.
+
+See [CHANGELOG.md](./CHANGELOG.md) for the new scenario, dependency migrations, setup
+scripts, and known upgrade boundaries.
+
+### Start a scenario locally
+
+Each scenario has its own `aspire.config.json`, so Aspire selects that scenario's AppHost
+instead of inheriting the repository-root selection:
+
+```powershell
+cd .\scenarios\18-BlazorAgenticUI
+aspire start
+```
+
+Use `aspire run` for a foreground session, and `aspire stop` to stop the selected app.
+Install the SDK requested by that scenario's nearest `global.json`: .NET 10.0.402 for
+stable scenarios, or .NET 11 RC2 for Scenario 18. A .NET 11 installation does not satisfy
+the stable .NET 10 pin. AppHost selection does not install SDKs or configure credentials.
+
+To verify every scenario's local selection without starting services:
+
+```powershell
+pwsh .\scripts\Tests\Test-ScenarioAppHosts.ps1
+```
 
 ### Installation
 
@@ -94,9 +152,51 @@ The project includes several scenarios demonstrating different capabilities:
 
     It will prompt you to provide an `azd` environment name (like "eShopLite"), select a subscription from your Azure account, and select a [location where the necessary models, like gpt-4.1-mini and ADA-002 are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all), a sample region can be "eastus2".
 
-### Quick setup — Azure OpenAI secrets
+### Shared Microsoft Foundry models and local secrets
 
-The script `scripts\Set-AzureOpenAISecrets.ps1` configures all 17 scenarios at once. Run it from the **repo root**:
+Use PowerShell 7 and sign in with `az login`. The new setup script creates or reuses an
+`AIServices` account, deploys the common chat and embedding models, then configures local
+AppHost user-secrets through the Aspire CLI. Supply your own subscription, resource group,
+globally unique account name, and region:
+
+```powershell
+pwsh .\scripts\Initialize-FoundryModels.ps1 `
+  -SubscriptionId '<subscription-id>' `
+  -ResourceGroupName 'rg-eshoplite' `
+  -AccountName '<globally-unique-account-name>' `
+  -Location 'eastus2' `
+  -DryRun
+```
+
+Remove `-DryRun` to provision resources and write secrets. This can incur Azure charges.
+`-DryRun` and `-WhatIf` make no Azure calls and do not establish model availability.
+
+The default chat model and deployment name are **`gpt-6-luna`**; embeddings use
+**`text-embedding-3-small`**. The script resolves model versions from the regional catalog
+and checks SKU support and quota before provisioning. It stops if the requested model is
+unavailable, with no automatic substitution. Override model/version, deployment name, SKU,
+or capacity with the corresponding `-Chat*` and `-Embeddings*` parameters.
+It reuses matching deployments and refuses to overwrite conflicting deployments or enable
+key authentication on an account that disables it.
+
+This provisions common model dependencies for local development, not every scenario's
+infrastructure. SQL/containers remain managed by each AppHost; Azure AI Search, realtime
+audio, DeepSeek, GitHub Models, and other specialized dependencies still need their
+scenario-specific setup. It does not change model declarations used by `azd up`.
+
+### Configure secrets for existing deployments
+
+Secret setup requires the SDK selected by each AppHost's nearest `global.json`.
+The script checks SDK availability before requesting a key. If using a nonstandard SDK
+installation, pass `-DotNetRoot "<SDK installation directory>"`; the override applies
+only to child commands. An Aspire exit code 7 can indicate a missing SDK, not an Azure
+authentication problem. Scenario 18 specifically requires .NET 11 RC2.
+
+The existing `scripts\Set-AzureOpenAISecrets.ps1` configures secrets only, without creating
+Azure resources. It discovers every `eShopAppHost.csproj`, including layouts without `src`,
+and automatically includes future scenarios. Scenario 18 (`18-BlazorAgenticUI`) has its own
+AppHost and independent user-secrets store, and is included automatically. Directories
+without an AppHost are reported as skipped. Run from the **repo root**:
 
 ```powershell
 pwsh .\scripts\Set-AzureOpenAISecrets.ps1
@@ -108,14 +208,25 @@ The script interactively prompts for four values:
 |--------|---------------|
 | Azure OpenAI endpoint | `Parameters:AzureOpenAIEndpoint` |
 | Azure OpenAI API key *(masked)* | `Parameters:AzureOpenAIApiKey` |
-| Chat deployment name | `Parameters:AzureOpenAIDeploymentName` |
-| Embeddings deployment name | `Parameters:AzureOpenAIEmbeddingsDeploymentName` |
+| Chat deployment name (default `gpt-6-luna`) | `Parameters:AzureOpenAIDeploymentName` |
+| Embeddings deployment name (default `text-embedding-3-small`) | `Parameters:AzureOpenAIEmbeddingsDeploymentName` |
 
 Use `-DryRun` to preview the commands without executing them:
 
 ```powershell
 pwsh .\scripts\Set-AzureOpenAISecrets.ps1 -DryRun
 ```
+
+For a preview without prompts or an API key:
+
+```powershell
+pwsh .\scripts\Set-AzureOpenAISecrets.ps1 `
+  -Endpoint 'https://<your-resource>.openai.azure.com/' -NonInteractive -DryRun
+```
+
+Non-interactive writes additionally require `-ApiKey` as a `SecureString`, supplied from a
+masked prompt or a secure credential source, not a plaintext key in command history.
+Local .NET user-secrets are not an encrypted production secret store.
 
 Internally, the script calls the **Aspire CLI** (`aspire secret set`) for each AppHost it discovers. To set a single value manually, use the same command directly:
 

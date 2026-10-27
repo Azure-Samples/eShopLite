@@ -1,4 +1,4 @@
-﻿using McpToolsEntities;
+using McpToolsEntities;
 using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
 using SearchEntities;
@@ -10,12 +10,12 @@ namespace Store.Services;
 public class McpServerService
 {
     private readonly ILogger<ProductService> logger;
-    IMcpClient mcpClient = null!;
+    McpClient mcpClient = null!;
     IList<McpClientTool> tools = null!;
     private IChatClient? chatClient;
     private IList<ChatMessage> ChatMessages = [];
 
-    public McpServerService(ILogger<ProductService> _logger, IMcpClient _mcpClient, IChatClient? _chatClient)
+    public McpServerService(ILogger<ProductService> _logger, McpClient _mcpClient, IChatClient? _chatClient)
     {
         logger = _logger;
         mcpClient = _mcpClient;
